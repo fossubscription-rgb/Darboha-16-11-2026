@@ -35,11 +35,37 @@ html[lang='ar'] {
 
 html {
   scroll-behavior: smooth;
+  scrollbar-width: thin;
+  scrollbar-color: var(--teal) var(--ink);
 }
 
 body {
   margin: 0;
   min-width: 320px;
+}
+
+/* Brand scrollbar (WebKit) */
+*::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+
+*::-webkit-scrollbar-track {
+  background: var(--ink);
+}
+
+*::-webkit-scrollbar-thumb {
+  background: linear-gradient(180deg, var(--teal-bright), var(--teal));
+  border-radius: 999px;
+  border: 2px solid var(--ink);
+}
+
+*::-webkit-scrollbar-thumb:hover {
+  background: linear-gradient(180deg, var(--sand-soft), var(--sand));
+}
+
+*::-webkit-scrollbar-corner {
+  background: var(--ink);
 }
 
 img {
