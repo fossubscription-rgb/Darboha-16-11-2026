@@ -12,7 +12,7 @@
   --text-muted: rgba(238, 246, 241, 0.78);
   --shadow-deep: rgba(6, 18, 14, 0.55);
 
-  font-family: Figtree, sans-serif;
+  font-family: Figtree, Cairo, sans-serif;
   line-height: 1.5;
   font-weight: 400;
   color: var(--ink);
@@ -21,6 +21,10 @@
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+}
+
+html[lang='ar'] {
+  font-family: Cairo, Figtree, sans-serif;
 }
 
 *,
@@ -56,11 +60,18 @@ input {
 h1,
 h2,
 h3 {
-  font-family: Syne, sans-serif;
+  font-family: Syne, Cairo, sans-serif;
   font-weight: 750;
   letter-spacing: -0.03em;
   line-height: 1.05;
   margin: 0;
+}
+
+html[lang='ar'] h1,
+html[lang='ar'] h2,
+html[lang='ar'] h3 {
+  font-family: Cairo, Syne, sans-serif;
+  letter-spacing: -0.01em;
 }
 
 p {
@@ -116,6 +127,15 @@ p {
 @keyframes path-draw {
   from {
     stroke-dashoffset: 140;
+  }
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+
+@keyframes route-draw {
+  from {
+    stroke-dashoffset: 280;
   }
   to {
     stroke-dashoffset: 0;

@@ -1,12 +1,12 @@
 # Darboha
 
-Marketing site for **Darboha** (دربها) — adventure guidance for travelers and hikers exploring Oman.
+Bilingual marketing site for **Darboha** (دربها) — self-guided adventure guidance for travelers and hikers exploring Oman.
 
-> Know the trail. Respect the land.
+> Know the trail. Respect the land. · اعرف الدرب. احترم الأرض.
 
-This repository currently ships the **marketing / landing site only**. The full adventure product app comes later.
+This repository ships the **marketing / landing site only** (EN + AR, RTL). The full trail product app and admin dashboard come later.
 
-Project marketing plan path: `/cursor/stores/self/docs/marketing-plan.md` (Darboha project Context).
+Project marketing plan: `/cursor/stores/self/docs/marketing-plan.md` (Darboha project Context).
 
 ## Brand (v1)
 
@@ -15,7 +15,17 @@ Project marketing plan path: `/cursor/stores/self/docs/marketing-plan.md` (Darbo
 | Name | Darboha / دربها |
 | Tagline | Know the trail. Respect the land. |
 | Colors | Canyon ink `#0C1F1A`, oasis teal `#1F8A7A`, sunlit sand `#E6C989`, mist `#E7F0EA` |
-| Fonts | Syne (display) · Figtree (body) |
+| Fonts | Syne (EN display) · Figtree (EN body) · Cairo (Arabic) |
+
+## Site sections
+
+1. Brand hero — self-guided map promise  
+2. Promise / audience  
+3. Curated featured trails (6 placeholders)  
+4. Safety & eco guidance  
+5. How it works (map-guided hiking tease)  
+6. About / team  
+7. Waitlist CTA  
 
 ## Run locally
 
@@ -24,7 +34,7 @@ npm install
 npm run dev
 ```
 
-Open the URL Vite prints (usually `http://localhost:5173`).
+Open the URL Vite prints (usually `http://localhost:5173`). Use the **العربية / English** control in the header for language + RTL.
 
 ```bash
 npm run build    # production build → dist/
@@ -35,7 +45,8 @@ npm run preview  # preview the production build
 
 - Vite + React + TypeScript
 - Local landscape photos (Wikimedia Commons) under `public/images/`
+- Deploy target (later): Vercel
 
 ## Scope note
 
-Built for Oman Wijhati schools 2026/2027 — field: سياحة المغامرات والابتكار البيئي. Student company (Grade 9, 7 members).
+Built for Oman Wijhati schools 2026/2027 — field: سياحة المغامرات والابتكار البيئي. Student company (Grade 9, 7 members). Marketing site only — no admin app in this repo yet.

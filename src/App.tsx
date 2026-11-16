@@ -1,6 +1,9 @@
 import { useEffect, useRef, useState } from 'react'
 import type { FormEvent } from 'react'
+import { copy, type Lang } from './i18n'
 import './App.css'
+
+const LANG_KEY = 'darboha-lang'
 
 function useReveal<T extends HTMLElement>() {
   const ref = useRef<T | null>(null)
@@ -16,7 +19,7 @@ function useReveal<T extends HTMLElement>() {
           observer.unobserve(node)
         }
       },
-      { threshold: 0.18 },
+      { threshold: 0.14 },
     )
 
     observer.observe(node)
@@ -26,14 +29,49 @@ function useReveal<T extends HTMLElement>() {
   return ref
 }
 
+function readInitialLang(): Lang {
+  try {
+    const saved = localStorage.getItem(LANG_KEY)
+    if (saved === 'ar' || saved === 'en') return saved
+  } catch {
+    /* ignore */
+  }
+  return 'en'
+}
+
 function App() {
+  const [lang, setLang] = useState<Lang>(readInitialLang)
   const [email, setEmail] = useState('')
   const [submitted, setSubmitted] = useState(false)
+
   const promiseRef = useReveal<HTMLElement>()
-  const pillarsRef = useReveal<HTMLElement>()
-  const comingRef = useReveal<HTMLElement>()
+  const trailsRef = useReveal<HTMLElement>()
+  const safetyRef = useReveal<HTMLElement>()
+  const howRef = useReveal<HTMLElement>()
   const teamRef = useReveal<HTMLElement>()
   const ctaRef = useReveal<HTMLElement>()
+
+  const t = copy[lang]
+  const nextLang: Lang = lang === 'en' ? 'ar' : 'en'
+
+  useEffect(() => {
+    document.documentElement.lang = lang
+    document.documentElement.dir = lang === 'ar' ? 'rtl' : 'ltr'
+    document.title =
+      lang === 'ar'
+        ? 'دربها — اعرف الدرب. احترم الأرض.'
+        : 'Darboha — Know the trail. Respect the land.'
+    try {
+      localStorage.setItem(LANG_KEY, lang)
+    } catch {
+      /* ignore */
+    }
+  }, [lang])
+
+  function toggleLang() {
+    setLang(nextLang)
+    setSubmitted(false)
+  }
 
   function onWaitlist(event: FormEvent<HTMLFormElement>) {
     event.preventDefault()
@@ -42,13 +80,13 @@ function App() {
   }
 
   return (
-    <div className="page">
+    <div className="page" data-lang={lang}>
       <a className="skip-link" href="#main">
-        Skip to content
+        {t.skip}
       </a>
 
       <header className="topbar">
-        <a className="brand-mark" href="#top" aria-label="Darboha home">
+        <a className="brand-mark" href="#top" aria-label="Darboha / دربها">
           <svg viewBox="0 0 48 48" aria-hidden="true">
             <path
               className="path-stroke"
@@ -60,15 +98,32 @@ function App() {
             />
             <circle cx="27" cy="8" r="2.4" fill="currentColor" />
           </svg>
-          <span>Darboha</span>
+          <span className="brand-en">Darboha</span>
+          <span className="brand-sep" aria-hidden="true">
+            /
+          </span>
+          <span className="brand-ar" lang="ar">
+            دربها
+          </span>
         </a>
+
         <nav className="topnav" aria-label="Primary">
-          <a href="#promise">Promise</a>
-          <a href="#pillars">Safety &amp; land</a>
-          <a href="#coming">Coming</a>
+          <a href="#trails">{t.nav.trails}</a>
+          <a href="#safety">{t.nav.safety}</a>
+          <a href="#how">{t.nav.how}</a>
+          <a href="#about">{t.nav.about}</a>
           <a href="#waitlist" className="nav-cta">
-            Early list
+            {t.nav.join}
           </a>
+          <button
+            type="button"
+            className="lang-toggle"
+            onClick={toggleLang}
+            aria-label={t.langToggleAria}
+            lang={nextLang}
+          >
+            {t.langToggle}
+          </button>
         </nav>
       </header>
 
@@ -87,21 +142,18 @@ function App() {
           </div>
 
           <div className="hero-content">
-            <p className="hero-welcome" lang="ar">
-              مرحباً بكم في دربها
+            <p className="hero-brand-ar" lang="ar">
+              {t.hero.brandAr}
             </p>
-            <h1 className="hero-brand">Darboha</h1>
-            <p className="hero-tagline">Know the trail. Respect the land.</p>
-            <p className="hero-lede">
-              Adventure guidance for foreigners, travelers, and hikers exploring
-              Oman — clearer routes, safer habits, gentler footprints.
-            </p>
+            <h1 className="hero-brand">{t.hero.brandEn}</h1>
+            <p className="hero-tagline">{t.hero.tagline}</p>
+            <p className="hero-lede">{t.hero.lede}</p>
             <div className="hero-actions">
               <a className="btn btn-primary" href="#waitlist">
-                Join the early list
+                {t.hero.ctaPrimary}
               </a>
-              <a className="btn btn-ghost" href="#promise">
-                See the idea
+              <a className="btn btn-ghost" href="#trails">
+                {t.hero.ctaSecondary}
               </a>
             </div>
           </div>
@@ -113,97 +165,143 @@ function App() {
           ref={promiseRef}
         >
           <div className="section-inner">
-            <p className="eyebrow">Why Darboha</p>
-            <h2>Oman’s wild is generous — if you arrive prepared.</h2>
-            <p className="section-lede">
-              Too many trips begin with beautiful photos and end with guesswork:
-              which path, which season, what to pack, when to turn back. Darboha
-              is being built as a web companion that turns curiosity into a
-              clearer plan.
-            </p>
+            <p className="eyebrow">{t.promise.eyebrow}</p>
+            <h2>{t.promise.title}</h2>
+            <p className="section-lede">{t.promise.lede}</p>
           </div>
         </section>
 
         <section
-          className="section pillars reveal"
-          id="pillars"
-          ref={pillarsRef}
+          className="section trails reveal"
+          id="trails"
+          ref={trailsRef}
         >
-          <div className="section-inner pillars-grid">
-            <article>
-              <h3>Trail clarity</h3>
-              <p>
-                Discover outdoor routes with plain-language difficulty, season
-                notes, and what the day actually asks of you.
-              </p>
-            </article>
-            <article>
-              <h3>Safety as a feature</h3>
-              <p>
-                Heat, water, footwear, weather windows, and turn-back sense —
-                guided by a dedicated health &amp; safety role on our team.
-              </p>
-            </article>
-            <article>
-              <h3>Leave the land whole</h3>
-              <p>
-                Eco habits baked into the experience: pack-out tips, fragile
-                places, and respect for wadis, mountains, and wildlife.
-              </p>
-            </article>
+          <div className="section-inner trails-intro">
+            <p className="eyebrow">{t.trails.eyebrow}</p>
+            <h2>{t.trails.title}</h2>
+            <p className="section-lede">{t.trails.lede}</p>
           </div>
-          <figure className="pillars-visual">
+
+          <ul className="trail-list">
+            {t.trails.items.map((trail, index) => (
+              <li
+                key={trail.id}
+                className="trail-row"
+                style={{ ['--i' as string]: index }}
+              >
+                <figure className="trail-visual">
+                  <img
+                    src={trail.image}
+                    alt=""
+                    width={1200}
+                    height={800}
+                    loading="lazy"
+                  />
+                </figure>
+                <div className="trail-copy">
+                  <p className="trail-region">{trail.region}</p>
+                  <h3>{trail.name}</h3>
+                  <p className="trail-blurb">{trail.blurb}</p>
+                  <dl className="trail-meta">
+                    <div>
+                      <dt>{t.trails.metaDistance}</dt>
+                      <dd>{trail.distance}</dd>
+                    </div>
+                    <div>
+                      <dt>{t.trails.metaDifficulty}</dt>
+                      <dd>{trail.difficulty}</dd>
+                    </div>
+                    <div>
+                      <dt>{t.trails.metaSeason}</dt>
+                      <dd>{trail.season}</dd>
+                    </div>
+                  </dl>
+                </div>
+              </li>
+            ))}
+          </ul>
+        </section>
+
+        <section
+          className="section safety reveal"
+          id="safety"
+          ref={safetyRef}
+        >
+          <div className="section-inner">
+            <p className="eyebrow light">{t.safety.eyebrow}</p>
+            <h2>{t.safety.title}</h2>
+            <p className="section-lede">{t.safety.lede}</p>
+            <ul className="safety-list">
+              {t.safety.items.map((item) => (
+                <li key={item.title}>
+                  <h3>{item.title}</h3>
+                  <p>{item.body}</p>
+                </li>
+              ))}
+            </ul>
+          </div>
+          <figure className="safety-visual">
             <img
               src="/images/trail.jpg"
-              alt="Ridges of Jebel Shams in Oman under open sky"
+              alt=""
               width={1800}
               height={1200}
+              loading="lazy"
             />
-            <figcaption>Jebel Shams — high ground, clear horizons.</figcaption>
           </figure>
         </section>
 
-        <section className="section coming reveal" id="coming" ref={comingRef}>
-          <div className="coming-split">
+        <section className="section how reveal" id="how" ref={howRef}>
+          <div className="how-split">
             <div>
-              <p className="eyebrow">Prototype path</p>
-              <h2>Marketing first. Product next.</h2>
-              <p className="section-lede">
-                This site is our public trailhead. The adventure app — maps,
-                structured trail guidance, and practical prep — comes after we
-                lock brand, audience, and safety tone.
-              </p>
-              <ul className="coming-list">
-                <li>Web app first, ready to grow</li>
-                <li>Built for Oman Wijhati: adventure tourism &amp; eco innovation</li>
-                <li>Student-owned idea, prototype, and story</li>
-              </ul>
+              <p className="eyebrow">{t.how.eyebrow}</p>
+              <h2>{t.how.title}</h2>
+              <p className="section-lede">{t.how.lede}</p>
+              <ol className="how-steps">
+                {t.how.steps.map((step) => (
+                  <li key={step.title}>
+                    <h3>{step.title}</h3>
+                    <p>{step.body}</p>
+                  </li>
+                ))}
+              </ol>
+              <p className="how-note">{t.how.note}</p>
             </div>
-            <figure className="coming-visual">
+            <figure className="how-visual">
               <img
                 src="/images/coast.jpg"
-                alt="Oman’s east coast cliffs meeting the sea"
+                alt=""
                 width={2000}
                 height={1333}
+                loading="lazy"
               />
+              <div className="map-tease" aria-hidden="true">
+                <svg viewBox="0 0 200 140" className="map-svg">
+                  <path
+                    className="map-route"
+                    d="M22 112 C48 96, 58 70, 78 58 S120 40, 148 28 S178 18, 188 22"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2.5"
+                    strokeLinecap="round"
+                  />
+                  <circle cx="22" cy="112" r="5" fill="currentColor" />
+                  <circle cx="188" cy="22" r="5" fill="currentColor" />
+                </svg>
+              </div>
             </figure>
           </div>
         </section>
 
-        <section className="section team reveal" id="team" ref={teamRef}>
+        <section className="section team reveal" id="about" ref={teamRef}>
           <div className="section-inner">
-            <p className="eyebrow">Company of seven</p>
-            <h2>A Grade 9 team building in public.</h2>
-            <p className="section-lede">
-              Darboha is a student company for Oman Wijhati 2026/2027 — field:
-              سياحة المغامرات والابتكار البيئي.
-            </p>
+            <p className="eyebrow">{t.team.eyebrow}</p>
+            <h2>{t.team.title}</h2>
+            <p className="section-lede">{t.team.lede}</p>
             <ul className="role-row">
-              <li>CEO / Developer</li>
-              <li>Data analysts ×2</li>
-              <li>CFO / VP</li>
-              <li>Social media ×2</li>
-              <li>Health &amp; safety</li>
+              {t.team.roles.map((role) => (
+                <li key={role}>{role}</li>
+              ))}
             </ul>
           </div>
         </section>
@@ -215,22 +313,18 @@ function App() {
         >
           <div className="waitlist-panel">
             <div>
-              <p className="eyebrow light">Stay close</p>
-              <h2>Be first when the trail guide opens.</h2>
-              <p>
-                Leave an email for prototype updates — or follow along as we
-                share safety tips, eco notes, and build progress.
-              </p>
+              <p className="eyebrow light">{t.waitlist.eyebrow}</p>
+              <h2>{t.waitlist.title}</h2>
+              <p>{t.waitlist.lede}</p>
             </div>
             {submitted ? (
               <p className="thanks" role="status">
-                Thanks — you’re on the early list. We’ll be in touch as Darboha
-                grows.
+                {t.waitlist.thanks}
               </p>
             ) : (
               <form className="waitlist-form" onSubmit={onWaitlist}>
                 <label className="sr-only" htmlFor="email">
-                  Email
+                  {t.waitlist.emailLabel}
                 </label>
                 <input
                   id="email"
@@ -238,12 +332,12 @@ function App() {
                   type="email"
                   required
                   autoComplete="email"
-                  placeholder="you@email.com"
+                  placeholder={t.waitlist.placeholder}
                   value={email}
                   onChange={(event) => setEmail(event.target.value)}
                 />
                 <button className="btn btn-primary" type="submit">
-                  Join early list
+                  {t.waitlist.submit}
                 </button>
               </form>
             )}
@@ -256,18 +350,15 @@ function App() {
           <div>
             <strong>Darboha</strong>
             <span lang="ar"> · دربها</span>
-            <p>Know the trail. Respect the land.</p>
+            <p>{t.footer.tagline}</p>
           </div>
           <div className="footer-links">
-            <a href="#top">Top</a>
-            <a href="#promise">Promise</a>
-            <a href="#waitlist">Early list</a>
+            <a href="#top">{t.footer.top}</a>
+            <a href="#trails">{t.nav.trails}</a>
+            <a href="#safety">{t.nav.safety}</a>
+            <a href="#waitlist">{t.nav.join}</a>
           </div>
-          <p className="footer-note">
-            Photos: Wikimedia Commons (Hajar Mountains / Nizwa area, Jebel
-            Shams, Oman east coast). Marketing site only — adventure product app
-            coming later.
-          </p>
+          <p className="footer-note">{t.footer.note}</p>
         </div>
       </footer>
     </div>
