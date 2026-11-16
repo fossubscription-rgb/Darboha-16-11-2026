@@ -153,6 +153,9 @@ export function CeoFinance() {
   const { session, store, updateStore } = useAdmin()
   if (!session) return null
 
+  const pending = store.finance.filter((f) => f.status === 'pending_approval')
+  const others = store.finance.filter((f) => f.status !== 'pending_approval')
+
   function decide(id: string, status: 'approved' | 'rejected') {
     if (!session) return
     const draft = store.finance.find((f) => f.id === id)
@@ -161,7 +164,7 @@ export function CeoFinance() {
         setFinanceStatus(store, id, status),
         session.displayName,
         `finance.${status}`,
-        `${status === 'approved' ? 'Approved' : 'Rejected'} ${draft?.category || id}`,
+        `${status === 'approved' ? 'Approved' : 'Rejected'} ${draft?.category || id} (${draft?.amountOmr || '?'} OMR)`,
       ),
     )
   }
@@ -172,54 +175,80 @@ export function CeoFinance() {
       <div className="admin-page-head">
         <div>
           <h1>CFO approvals</h1>
-          <p>Approve or reject budget drafts.</p>
+          <p>
+            Review category, who-for, description, and <strong>pricing (OMR)</strong>{' '}
+            before approving.
+          </p>
         </div>
       </div>
-      <div className="admin-panel">
-        <table className="admin-table">
-          <thead>
-            <tr>
-              <th>Category</th>
-              <th>Who for</th>
-              <th>Description</th>
-              <th>Status</th>
-              <th />
-            </tr>
-          </thead>
-          <tbody>
-            {store.finance.map((f) => (
-              <tr key={f.id}>
-                <td>{f.category}</td>
-                <td>{f.whoFor}</td>
-                <td>{f.description}</td>
-                <td>
-                  <StatusChip status={f.status} />
-                </td>
-                <td>
-                  {f.status === 'pending_approval' && (
-                    <div className="admin-actions" style={{ marginTop: 0 }}>
-                      <button
-                        type="button"
-                        className="admin-btn"
-                        onClick={() => decide(f.id, 'approved')}
-                      >
-                        Approve
-                      </button>
-                      <button
-                        type="button"
-                        className="admin-btn danger"
-                        onClick={() => decide(f.id, 'rejected')}
-                      >
-                        Reject
-                      </button>
-                    </div>
-                  )}
-                </td>
+
+      {pending.length === 0 ? (
+        <div className="admin-panel admin-empty">No drafts waiting for approval.</div>
+      ) : (
+        pending.map((f) => (
+          <div key={f.id} className="admin-panel" style={{ marginBottom: '0.85rem' }}>
+            <div className="admin-page-head" style={{ marginBottom: '0.75rem' }}>
+              <div>
+                <h2 style={{ fontSize: '1.15rem', margin: 0 }}>{f.category}</h2>
+                <p>
+                  <StatusChip status={f.status} /> · Who for: {f.whoFor}
+                </p>
+              </div>
+              <div className="admin-stat" style={{ minWidth: '140px' }}>
+                <div className="n">{f.amountOmr || '—'} </div>
+                <div className="l">Pricing (OMR)</div>
+              </div>
+            </div>
+            <p style={{ margin: '0 0 0.85rem', lineHeight: 1.45 }}>{f.description}</p>
+            <div className="admin-actions" style={{ marginTop: 0 }}>
+              <button
+                type="button"
+                className="admin-btn"
+                onClick={() => decide(f.id, 'approved')}
+              >
+                Approve {f.amountOmr ? `(${f.amountOmr} OMR)` : ''}
+              </button>
+              <button
+                type="button"
+                className="admin-btn danger"
+                onClick={() => decide(f.id, 'rejected')}
+              >
+                Reject
+              </button>
+            </div>
+          </div>
+        ))
+      )}
+
+      {others.length > 0 && (
+        <div className="admin-panel" style={{ marginTop: '1rem' }}>
+          <h3 style={{ margin: '0 0 0.75rem', fontSize: '1rem' }}>Other drafts</h3>
+          <table className="admin-table">
+            <thead>
+              <tr>
+                <th>Category</th>
+                <th>Who for</th>
+                <th>Pricing (OMR)</th>
+                <th>Status</th>
               </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
+            </thead>
+            <tbody>
+              {others.map((f) => (
+                <tr key={f.id}>
+                  <td>{f.category}</td>
+                  <td>{f.whoFor}</td>
+                  <td>
+                    <strong>{f.amountOmr || '—'}</strong>
+                  </td>
+                  <td>
+                    <StatusChip status={f.status} />
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      )}
     </div>
   )
 }

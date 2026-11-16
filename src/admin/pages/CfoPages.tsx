@@ -2,6 +2,7 @@ import { useState } from 'react'
 import type { FormEvent } from 'react'
 import { Link, useNavigate, useParams } from 'react-router-dom'
 import { useAdmin } from '../AdminContext'
+import { PlaceEditor } from '../components/PlaceEditor'
 import { StatusChip } from '../components/StatusChip'
 import { blankFinance } from '../mockData'
 import { pushActivity, upsertFinance } from '../store'
@@ -50,7 +51,9 @@ export function CfoDrafts() {
                   </Link>
                 </td>
                 <td>{f.whoFor || '—'}</td>
-                <td>{f.amountOmr || '—'}</td>
+                <td>
+                  <strong>{f.amountOmr || '—'}</strong>
+                </td>
                 <td>
                   <StatusChip status={f.status} />
                 </td>
@@ -97,6 +100,10 @@ export function CfoDraftEditor() {
     if (!draft || !session) return
     if (!draft.category.trim() || !draft.whoFor.trim() || !draft.description.trim()) {
       setMsg('Category, who-for, and description are required.')
+      return
+    }
+    if (!draft.amountOmr.trim()) {
+      setMsg('Pricing (OMR) is required before submitting for CEO approval.')
       return
     }
     const next: FinanceDraft = {
@@ -156,10 +163,11 @@ export function CfoDraftEditor() {
             />
           </div>
           <div className="admin-field">
-            <label>Amount (OMR) — optional</label>
+            <label>Pricing (OMR) — required for approval</label>
             <input
               value={draft.amountOmr}
               onChange={(e) => setDraft({ ...draft, amountOmr: e.target.value })}
+              placeholder="e.g. 45"
             />
           </div>
         </div>
@@ -178,6 +186,121 @@ export function CfoDraftEditor() {
           )}
         </div>
       </form>
+    </div>
+  )
+}
+
+export function CfoPlaces() {
+  const { store } = useAdmin()
+  return (
+    <div>
+      <div className="admin-crumb">CFO / VP · Places</div>
+      <div className="admin-page-head">
+        <div>
+          <h1>Places (read-only)</h1>
+          <p>
+            VP glance — open any place to view Basics / Access / Photos / Safety.
+            No edits.
+          </p>
+        </div>
+      </div>
+      <div className="admin-panel">
+        <table className="admin-table">
+          <thead>
+            <tr>
+              <th>Name</th>
+              <th>Owner</th>
+              <th>Region</th>
+              <th>Status</th>
+            </tr>
+          </thead>
+          <tbody>
+            {store.places.map((p) => (
+              <tr key={p.id}>
+                <td>
+                  <Link to={`/admin/cfo/places/${p.id}`}>{p.nameEn}</Link>
+                </td>
+                <td>{p.ownerLabel}</td>
+                <td>{p.region}</td>
+                <td>
+                  <StatusChip status={p.status} />
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  )
+}
+
+export function CfoPlaceDetail({ id }: { id: string }) {
+  return <PlaceEditor placeId={id} backTo="/admin/cfo/places" />
+}
+
+export function CfoActivity() {
+  const { store } = useAdmin()
+  const worked = store.members.filter((m) => m.hasAdmin && m.workedThisWeek)
+  const idle = store.members.filter((m) => m.hasAdmin && !m.workedThisWeek)
+
+  return (
+    <div>
+      <div className="admin-crumb">CFO / VP · Activity</div>
+      <div className="admin-page-head">
+        <div>
+          <h1>Team activity</h1>
+          <p>Who’s been working — read-only VP view (mock feed).</p>
+        </div>
+      </div>
+      <div className="admin-split">
+        <div className="admin-panel">
+          <h3 style={{ margin: '0 0 0.75rem', fontSize: '1rem' }}>
+            Who worked this week
+          </h3>
+          <ul style={{ margin: 0, paddingLeft: '1.1rem' }}>
+            {worked.map((m) => (
+              <li key={m.id}>
+                {m.displayName} — {m.jobTitle}
+              </li>
+            ))}
+          </ul>
+        </div>
+        <div className="admin-panel">
+          <h3 style={{ margin: '0 0 0.75rem', fontSize: '1rem' }}>
+            Who didn’t
+          </h3>
+          <ul style={{ margin: 0, paddingLeft: '1.1rem' }}>
+            {idle.map((m) => (
+              <li key={m.id}>
+                {m.displayName} — {m.jobTitle}
+              </li>
+            ))}
+          </ul>
+        </div>
+      </div>
+      <div className="admin-panel" style={{ marginTop: '1rem' }}>
+        <h3 style={{ margin: '0 0 0.75rem', fontSize: '1rem' }}>
+          Recent activity
+        </h3>
+        <table className="admin-table">
+          <thead>
+            <tr>
+              <th>When</th>
+              <th>Who</th>
+              <th>Summary</th>
+            </tr>
+          </thead>
+          <tbody>
+            {store.activity.map((a) => (
+              <tr key={a.id}>
+                <td>{new Date(a.createdAt).toLocaleString()}</td>
+                <td>{a.actor}</td>
+                <td>{a.summary}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
     </div>
   )
 }
@@ -206,7 +329,9 @@ export function CfoPublishedGlance() {
           <tbody>
             {published.map((p) => (
               <tr key={p.id}>
-                <td>{p.nameEn}</td>
+                <td>
+                  <Link to={`/admin/cfo/places/${p.id}`}>{p.nameEn}</Link>
+                </td>
                 <td>{p.region}</td>
                 <td>
                   <StatusChip status={p.status} />

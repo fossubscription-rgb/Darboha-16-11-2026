@@ -21,6 +21,8 @@ function navForRole(roleKey: string): NavItem[] {
   if (roleKey === 'cfo') {
     return [
       { to: '/admin/cfo', label: 'Budget drafts', end: true },
+      { to: '/admin/cfo/places', label: 'Places (read-only)' },
+      { to: '/admin/cfo/activity', label: 'Team activity' },
       { to: '/admin/cfo/published', label: 'Published glance' },
       { to: '/admin/cfo/sponsors', label: 'Sponsors' },
     ]

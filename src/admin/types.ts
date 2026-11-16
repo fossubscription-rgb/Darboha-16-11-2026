@@ -46,8 +46,9 @@ export type Place = {
   summaryAr: string
   region: string
   difficulty: string
-  seasonEn: string
-  seasonAr: string
+  /** Season window: from-month → to-month (1–12). */
+  seasonFrom: number | null
+  seasonTo: number | null
   distanceKm: string
   durationText: string
   fragile: boolean

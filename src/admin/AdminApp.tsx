@@ -1,7 +1,14 @@
 import type { ReactNode } from 'react'
-import { Navigate, Route, Routes, useParams } from 'react-router-dom'
+import { useEffect } from 'react'
+import {
+  Navigate,
+  Route,
+  Routes,
+  useLocation,
+  useParams,
+} from 'react-router-dom'
 import { AdminProvider, useAdmin } from './AdminContext'
-import { roleHome } from './auth'
+import { routeModuleFromPath, sessionOwnsModule } from './constants'
 import { Shell } from './components/Shell'
 import { Gate } from './pages/Gate'
 import { DaMyPlaces, DaPlaceDetail, DaTeamPlaces } from './pages/DaPages'
@@ -11,8 +18,11 @@ import {
   SafetyQueue,
 } from './pages/SafetyPages'
 import {
+  CfoActivity,
   CfoDraftEditor,
   CfoDrafts,
+  CfoPlaceDetail,
+  CfoPlaces,
   CfoPublishedGlance,
   CfoSponsors,
 } from './pages/CfoPages'
@@ -29,6 +39,10 @@ import {
 import type { RoleKey } from './types'
 import './admin.css'
 
+/**
+ * Critical AuthZ: session role must own the /admin/{module} prefix.
+ * Mismatch → clear session and force re-auth at the gate.
+ */
 function RequireRole({
   allow,
   children,
@@ -36,11 +50,18 @@ function RequireRole({
   allow: RoleKey[]
   children: ReactNode
 }) {
-  const { session } = useAdmin()
-  if (!session) return <Navigate to="/admin" replace />
-  if (!allow.includes(session.roleKey)) {
-    return <Navigate to={roleHome(session.roleKey)} replace />
-  }
+  const { session, setSession } = useAdmin()
+  const location = useLocation()
+  const module = routeModuleFromPath(location.pathname)
+  const roleOk = !!session && allow.includes(session.roleKey)
+  const pathOk = !!session && sessionOwnsModule(session.roleKey, module)
+  const denied = !!session && (!roleOk || !pathOk)
+
+  useEffect(() => {
+    if (denied) setSession(null)
+  }, [denied, setSession])
+
+  if (!session || denied) return <Navigate to="/admin" replace />
   return children
 }
 
@@ -57,6 +78,11 @@ function SafetyPlaceRoute() {
 function CeoPlaceRoute() {
   const { id } = useParams()
   return <CeoPlaceDetail id={id!} />
+}
+
+function CfoPlaceRoute() {
+  const { id } = useParams()
+  return <CfoPlaceDetail id={id!} />
 }
 
 function AdminRoutes() {
@@ -133,6 +159,30 @@ function AdminRoutes() {
           element={
             <RequireRole allow={['cfo']}>
               <CfoDraftEditor />
+            </RequireRole>
+          }
+        />
+        <Route
+          path="cfo/places"
+          element={
+            <RequireRole allow={['cfo']}>
+              <CfoPlaces />
+            </RequireRole>
+          }
+        />
+        <Route
+          path="cfo/places/:id"
+          element={
+            <RequireRole allow={['cfo']}>
+              <CfoPlaceRoute />
+            </RequireRole>
+          }
+        />
+        <Route
+          path="cfo/activity"
+          element={
+            <RequireRole allow={['cfo']}>
+              <CfoActivity />
             </RequireRole>
           }
         />

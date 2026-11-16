@@ -8,6 +8,7 @@ import {
   safetyComplete,
   upsertPlace,
 } from '../store'
+import { DIFFICULTY_OPTIONS, MONTHS } from '../constants'
 import type { Place, PlacePhoto, RoleKey, VehicleAccess } from '../types'
 import { StatusChip } from './StatusChip'
 
@@ -23,6 +24,7 @@ const VEHICLE_OPTIONS: { value: VehicleAccess; label: string }[] = [
 function modeFor(role: RoleKey, place: Place, memberId: string): Mode {
   if (role === 'safety') return 'safety'
   if (role === 'ceo') return 'ceo'
+  if (role === 'cfo') return 'readonly'
   if (role === 'da1' || role === 'da2') {
     return place.createdBy === memberId ? 'da' : 'readonly'
   }
@@ -63,6 +65,7 @@ export function PlaceEditor({
 
   const daEditable = mode === 'da' || mode === 'ceo'
   const safetyEditable = mode === 'safety' || mode === 'ceo'
+  // DA never sees Safety; CFO/VP + Safety + CEO do (CFO read-only)
   const showSafetyTab = mode !== 'da'
 
   function patch(partial: Partial<Place>) {
@@ -292,8 +295,8 @@ export function PlaceEditor({
 
       {mode === 'readonly' && (
         <div className="admin-banner">
-          View only — owned by {place.ownerLabel}. You can open teammates’
-          places but not edit them.
+          View only — owned by {place.ownerLabel}. Fields are read-only (no
+          edits).
         </div>
       )}
       {mode === 'safety' && (
@@ -355,25 +358,60 @@ export function PlaceEditor({
               disabled={!daEditable}
               onChange={(v) => patch({ region: v })}
             />
-            <Field
-              label="Difficulty"
-              value={place.difficulty}
-              disabled={!daEditable}
-              onChange={(v) => patch({ difficulty: v })}
-            />
-            <Field
-              label="Season (EN)"
-              value={place.seasonEn}
-              disabled={!daEditable}
-              onChange={(v) => patch({ seasonEn: v })}
-            />
-            <Field
-              label="الموسم (AR)"
-              value={place.seasonAr}
-              disabled={!daEditable}
-              dir="rtl"
-              onChange={(v) => patch({ seasonAr: v })}
-            />
+            <div className="admin-field">
+              <label>Difficulty</label>
+              <select
+                value={place.difficulty}
+                disabled={!daEditable}
+                onChange={(e) => patch({ difficulty: e.target.value })}
+              >
+                {DIFFICULTY_OPTIONS.map((opt) => (
+                  <option key={opt} value={opt}>
+                    {opt}
+                  </option>
+                ))}
+              </select>
+            </div>
+            <div className="admin-field">
+              <label>Season from</label>
+              <select
+                value={place.seasonFrom ?? ''}
+                disabled={!daEditable}
+                onChange={(e) =>
+                  patch({
+                    seasonFrom: e.target.value
+                      ? Number(e.target.value)
+                      : null,
+                  })
+                }
+              >
+                <option value="">Select month</option>
+                {MONTHS.map((m) => (
+                  <option key={m.value} value={m.value}>
+                    {m.en} · {m.ar}
+                  </option>
+                ))}
+              </select>
+            </div>
+            <div className="admin-field">
+              <label>Season to</label>
+              <select
+                value={place.seasonTo ?? ''}
+                disabled={!daEditable}
+                onChange={(e) =>
+                  patch({
+                    seasonTo: e.target.value ? Number(e.target.value) : null,
+                  })
+                }
+              >
+                <option value="">Select month</option>
+                {MONTHS.map((m) => (
+                  <option key={m.value} value={m.value}>
+                    {m.en} · {m.ar}
+                  </option>
+                ))}
+              </select>
+            </div>
             <Field
               label="Distance (km)"
               value={place.distanceKm}

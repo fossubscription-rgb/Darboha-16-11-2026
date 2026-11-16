@@ -13,7 +13,7 @@ import type {
   PlaceStatus,
 } from './types'
 
-const STORE_KEY = 'darboha-admin-store-v1'
+const STORE_KEY = 'darboha-admin-store-v2'
 
 export type AdminStore = {
   members: Member[]
@@ -128,6 +128,9 @@ export function daCanSubmit(place: Place): string | null {
   if (!place.summaryEn.trim() || !place.summaryAr.trim())
     return 'Basics: English and Arabic summaries are required.'
   if (!place.region.trim()) return 'Basics: region is required.'
+  if (!place.difficulty) return 'Basics: difficulty is required.'
+  if (!place.seasonFrom || !place.seasonTo)
+    return 'Basics: season from → to months are required.'
   if (!place.vehicleAccess) return 'Access: vehicle type is required.'
   if (!place.accessNotesEn.trim() || !place.accessNotesAr.trim())
     return 'Access: English and Arabic notes are required.'
