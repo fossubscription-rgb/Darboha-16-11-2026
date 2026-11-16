@@ -24,8 +24,7 @@ Project marketing plan: `/cursor/stores/self/docs/marketing-plan.md` (Darboha pr
 3. Curated featured trails (6 placeholders)  
 4. Safety & eco guidance  
 5. How it works (map-guided hiking tease)  
-6. About / team  
-7. Waitlist CTA  
+6. Waitlist CTA  
 
 ## Run locally
 
@@ -49,4 +48,4 @@ npm run preview  # preview the production build
 
 ## Scope note
 
-Built for Oman Wijhati schools 2026/2027 — field: سياحة المغامرات والابتكار البيئي. Student company (Grade 9, 7 members). Marketing site only — no admin app in this repo yet.
+Marketing site only — no admin app in this repo yet.

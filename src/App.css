@@ -618,28 +618,6 @@
   animation: route-draw 1.8s ease forwards 0.2s;
 }
 
-.team {
-  background:
-    radial-gradient(circle at 0% 100%, rgba(230, 201, 137, 0.18), transparent 35%),
-    var(--foam);
-}
-
-.role-row {
-  list-style: none;
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.65rem;
-  margin: 2rem 0 0;
-  padding: 0;
-}
-
-.role-row li {
-  font-weight: 600;
-  color: var(--ink-soft);
-  border-bottom: 2px solid color-mix(in srgb, var(--teal) 55%, transparent);
-  padding: 0.35rem 0.15rem;
-}
-
 .waitlist {
   background: #081612;
   color: var(--text);

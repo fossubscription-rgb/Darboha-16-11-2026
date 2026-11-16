@@ -17,7 +17,6 @@ type Copy = {
     trails: string
     safety: string
     how: string
-    about: string
     join: string
   }
   langToggle: string
@@ -59,12 +58,6 @@ type Copy = {
     steps: { title: string; body: string }[]
     note: string
   }
-  team: {
-    eyebrow: string
-    title: string
-    lede: string
-    roles: string[]
-  }
   waitlist: {
     eyebrow: string
     title: string
@@ -88,7 +81,6 @@ export const copy: Record<Lang, Copy> = {
       trails: 'Trails',
       safety: 'Safety',
       how: 'How it works',
-      about: 'About',
       join: 'Join waitlist',
     },
     langToggle: 'العربية',
@@ -181,7 +173,7 @@ export const copy: Record<Lang, Copy> = {
     safety: {
       eyebrow: 'Safety & the land',
       title: 'Guidance first. Thrill second.',
-      lede: 'Health & safety is a core role on our team — not a footer disclaimer. Eco habits travel with every trail tip.',
+      lede: 'Health & safety sits at the center of Darboha — not a footer disclaimer. Eco habits travel with every trail tip.',
       items: [
         {
           title: 'Know before you go',
@@ -221,18 +213,6 @@ export const copy: Record<Lang, Copy> = {
       ],
       note: 'Marketing site now. Interactive map prototype next — we will not fake live GPS before it ships.',
     },
-    team: {
-      eyebrow: 'About Darboha',
-      title: 'A Grade 9 company for Oman Wijhati.',
-      lede: 'Seven students building in the field سياحة المغامرات والابتكار البيئي — adventure tourism and eco innovation. Student-owned idea, prototype path, and story.',
-      roles: [
-        'CEO / Developer',
-        'Data analysts ×2',
-        'CFO / VP',
-        'Social media ×2',
-        'Health & safety',
-      ],
-    },
     waitlist: {
       eyebrow: 'Stay close',
       title: 'Join the waitlist for the trail companion.',
@@ -254,7 +234,6 @@ export const copy: Record<Lang, Copy> = {
       trails: 'المسارات',
       safety: 'السلامة',
       how: 'كيف يعمل',
-      about: 'من نحن',
       join: 'قائمة الانتظار',
     },
     langToggle: 'English',
@@ -347,7 +326,7 @@ export const copy: Record<Lang, Copy> = {
     safety: {
       eyebrow: 'السلامة والأرض',
       title: 'الإرشاد أولاً. الإثارة ثانياً.',
-      lede: 'الصحة والسلامة دور أساسي في فريقنا — لا ملاحظة في التذييل. عادات احترام البيئة ترافق كل نصيحة مسار.',
+      lede: 'الصحة والسلامة في صميم دربها — لا ملاحظة في التذييل. عادات احترام البيئة ترافق كل نصيحة مسار.',
       items: [
         {
           title: 'اعرف قبل أن تذهب',
@@ -386,18 +365,6 @@ export const copy: Record<Lang, Copy> = {
         },
       ],
       note: 'موقع تسويقي الآن. نموذج أولي تفاعلي للخريطة لاحقاً — لن ندّعي GPS حيّاً قبل أن يُطلق.',
-    },
-    team: {
-      eyebrow: 'عن دربها',
-      title: 'شركة طلابية من الصف التاسع في عمان وجهتي.',
-      lede: 'سبعة طلاب يبنون في مجال سياحة المغامرات والابتكار البيئي. فكرة ونموذج أولي وقصة يملكها الطلبة.',
-      roles: [
-        'الرئيس التنفيذي / المطوّر',
-        'محللو بيانات ×٢',
-        'المدير المالي / نائب الرئيس',
-        'وسائل التواصل ×٢',
-        'الصحة والسلامة',
-      ],
     },
     waitlist: {
       eyebrow: 'ابقَ قريباً',

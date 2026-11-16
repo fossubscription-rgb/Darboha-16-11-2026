@@ -48,7 +48,6 @@ function App() {
   const trailsRef = useReveal<HTMLElement>()
   const safetyRef = useReveal<HTMLElement>()
   const howRef = useReveal<HTMLElement>()
-  const teamRef = useReveal<HTMLElement>()
   const ctaRef = useReveal<HTMLElement>()
 
   const t = copy[lang]
@@ -111,7 +110,6 @@ function App() {
           <a href="#trails">{t.nav.trails}</a>
           <a href="#safety">{t.nav.safety}</a>
           <a href="#how">{t.nav.how}</a>
-          <a href="#about">{t.nav.about}</a>
           <a href="#waitlist" className="nav-cta">
             {t.nav.join}
           </a>
@@ -291,19 +289,6 @@ function App() {
                 </svg>
               </div>
             </figure>
-          </div>
-        </section>
-
-        <section className="section team reveal" id="about" ref={teamRef}>
-          <div className="section-inner">
-            <p className="eyebrow">{t.team.eyebrow}</p>
-            <h2>{t.team.title}</h2>
-            <p className="section-lede">{t.team.lede}</p>
-            <ul className="role-row">
-              {t.team.roles.map((role) => (
-                <li key={role}>{role}</li>
-              ))}
-            </ul>
           </div>
         </section>
 
