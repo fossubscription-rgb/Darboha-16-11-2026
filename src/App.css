@@ -475,6 +475,14 @@
   font-size: 0.95rem;
 }
 
+.trail-placeholder {
+  margin-top: 0.65rem;
+  font-size: 0.78rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  color: var(--teal);
+}
+
 .safety {
   background: var(--ink);
   color: var(--text);

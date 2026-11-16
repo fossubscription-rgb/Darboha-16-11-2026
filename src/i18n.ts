@@ -39,12 +39,13 @@ type Copy = {
     eyebrow: string
     title: string
     lede: string
-    explore: string
-    metaDistance: string
-    metaDifficulty: string
-    metaSeason: string
-    items: Trail[]
-  }
+      explore: string
+      metaDistance: string
+      metaDifficulty: string
+      metaSeason: string
+      placeholderBadge: string
+      items: Trail[]
+    }
   safety: {
     eyebrow: string
     title: string
@@ -113,6 +114,7 @@ export const copy: Record<Lang, Copy> = {
       metaDistance: 'Distance',
       metaDifficulty: 'Difficulty',
       metaSeason: 'Season',
+      placeholderBadge: 'Placeholder content',
       items: [
         {
           id: 'balcony',
@@ -234,10 +236,10 @@ export const copy: Record<Lang, Copy> = {
     waitlist: {
       eyebrow: 'Stay close',
       title: 'Join the waitlist for the trail companion.',
-      lede: 'Leave an email for prototype updates — or explore the featured trails while we build.',
+      lede: 'Draft form — no backend yet. Submit to see a local confirmation; real signup comes later.',
       placeholder: 'you@email.com',
       submit: 'Join waitlist',
-      thanks: 'Thanks — you’re on the list. We’ll be in touch as Darboha grows.',
+      thanks: 'Saved locally for this draft — thanks! Real waitlist storage comes later (no email sent).',
       emailLabel: 'Email',
     },
     footer: {
@@ -278,6 +280,7 @@ export const copy: Record<Lang, Copy> = {
       metaDistance: 'المسافة',
       metaDifficulty: 'الصعوبة',
       metaSeason: 'الموسم',
+      placeholderBadge: 'محتوى مؤقت',
       items: [
         {
           id: 'balcony',
@@ -399,10 +402,10 @@ export const copy: Record<Lang, Copy> = {
     waitlist: {
       eyebrow: 'ابقَ قريباً',
       title: 'انضم لقائمة انتظار رفيق المسار.',
-      lede: 'اترك بريداً لتحديثات النموذج الأولي — أو استكشف المسارات المميزة بينما نبني.',
+      lede: 'نموذج مسودة — بلا خلفية بعد. أرسل لترى تأكيداً محلياً؛ التسجيل الحقيقي لاحقاً.',
       placeholder: 'you@email.com',
       submit: 'انضم للقائمة',
-      thanks: 'شكراً — أنت على القائمة. سنتواصل مع نمو دربها.',
+      thanks: 'حُفظ محلياً لهذه المسودة — شكراً! تخزين قائمة الانتظار الحقيقي لاحقاً (لم يُرسل بريد).',
       emailLabel: 'البريد الإلكتروني',
     },
     footer: {

@@ -216,6 +216,7 @@ function App() {
                       <dd>{trail.season}</dd>
                     </div>
                   </dl>
+                  <p className="trail-placeholder">{t.trails.placeholderBadge}</p>
                 </div>
               </li>
             ))}
