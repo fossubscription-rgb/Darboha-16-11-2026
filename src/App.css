@@ -580,7 +580,7 @@
   color: color-mix(in srgb, var(--ink) 68%, white);
 }
 
-[dir='rtl'] .trail-caption[lang='ar'] {
+.trail-caption[lang='ar'] {
   line-height: 1.6;
 }
 

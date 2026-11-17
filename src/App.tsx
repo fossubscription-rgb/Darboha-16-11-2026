@@ -91,13 +91,13 @@ function TrailGallery({
         ) : null}
       </div>
       <figcaption className="trail-captions">
-        <p className="trail-caption" lang="en">
+        <p className="trail-caption" lang="en" dir="ltr">
           <span className="trail-caption-lang">{captionEnLabel}</span>
-          {active.captionEn}
+          <span>{active.captionEn}</span>
         </p>
-        <p className="trail-caption" lang="ar">
+        <p className="trail-caption" lang="ar" dir="rtl">
           <span className="trail-caption-lang">{captionArLabel}</span>
-          {active.captionAr}
+          <span>{active.captionAr}</span>
         </p>
       </figcaption>
       {ordered.length > 1 ? (
