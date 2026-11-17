@@ -1,8 +1,7 @@
 export type Lang = 'en' | 'ar'
 
-export type Trail = {
+export type TrailCopy = {
   id: string
-  image: string
   name: string
   region: string
   blurb: string
@@ -22,8 +21,9 @@ type Copy = {
   langToggle: string
   langToggleAria: string
   hero: {
-    brandAr: string
-    brandEn: string
+    brandPrimary: string
+    brandSecondary: string
+    brandSecondaryLang: Lang
     tagline: string
     lede: string
     ctaPrimary: string
@@ -38,13 +38,34 @@ type Copy = {
     eyebrow: string
     title: string
     lede: string
-      explore: string
-      metaDistance: string
-      metaDifficulty: string
-      metaSeason: string
-      placeholderBadge: string
-      items: Trail[]
+    explore: string
+    metaDistance: string
+    metaDifficulty: string
+    metaSeason: string
+    placeholderBadge: string
+    coverBadge: string
+    captionEnLabel: string
+    captionArLabel: string
+    filters: {
+      difficultyLabel: string
+      seasonLabel: string
+      all: string
+      empty: string
+      reset: string
+      difficulty: {
+        easy: string
+        'easy-moderate': string
+        moderate: string
+        varies: string
+      }
+      season: {
+        cool: string
+        spring: string
+        extended: string
+      }
     }
+    items: TrailCopy[]
+  }
   safety: {
     eyebrow: string
     title: string
@@ -86,8 +107,9 @@ export const copy: Record<Lang, Copy> = {
     langToggle: 'العربية',
     langToggleAria: 'Switch to Arabic',
     hero: {
-      brandAr: 'دربها',
-      brandEn: 'Darboha',
+      brandPrimary: 'Darboha',
+      brandSecondary: 'دربها',
+      brandSecondaryLang: 'ar',
       tagline: 'Know the trail. Respect the land.',
       lede: 'Self-guided travel for Oman’s wild places — follow curated trails on an in-app map, without a tour guide. Clearer routes, safer habits, gentler footprints.',
       ctaPrimary: 'Join the waitlist',
@@ -96,7 +118,7 @@ export const copy: Record<Lang, Copy> = {
     promise: {
       eyebrow: 'The promise',
       title: 'Walk Oman with a map in your pocket — and respect in your pack.',
-      lede: 'Darboha is a safety-and-guidance companion for foreigners, travelers, and hikers. We curate the trails that matter, show you how to prepare, and teach you how to leave the land whole — so you can explore without hiring a guide for every step.',
+      lede: 'Darboha is a trail companion for foreigners, travelers, and hikers — not a tour shop. We curate the paths that matter, show you how to prepare, and help you leave the land whole, so you can explore on your own map.',
     },
     trails: {
       eyebrow: 'Curated, not endless',
@@ -107,10 +129,30 @@ export const copy: Record<Lang, Copy> = {
       metaDifficulty: 'Difficulty',
       metaSeason: 'Season',
       placeholderBadge: 'Placeholder content',
+      coverBadge: 'Cover',
+      captionEnLabel: 'EN',
+      captionArLabel: 'AR',
+      filters: {
+        difficultyLabel: 'Difficulty',
+        seasonLabel: 'Season',
+        all: 'All',
+        empty: 'No trails match these filters. Reset to see the full curated set.',
+        reset: 'Reset filters',
+        difficulty: {
+          easy: 'Easy',
+          'easy-moderate': 'Easy–moderate',
+          moderate: 'Moderate',
+          varies: 'Varies',
+        },
+        season: {
+          cool: 'Cool (Oct–Mar)',
+          spring: 'Spring (Feb–Apr)',
+          extended: 'Extended (Sep–May)',
+        },
+      },
       items: [
         {
           id: 'balcony',
-          image: '/images/trail.jpg',
           name: 'Jebel Shams — W6 Balcony Walk',
           region: 'Al Dakhiliyah',
           blurb: 'Iconic canyon rim path with big views and honest exposure notes.',
@@ -120,7 +162,6 @@ export const copy: Record<Lang, Copy> = {
         },
         {
           id: 'shab',
-          image: '/images/wadi.jpg',
           name: 'Wadi Shab',
           region: 'Ash Sharqiyah',
           blurb: 'Boat crossing, pools, and a cave swim — footwear and swim skill matter.',
@@ -130,7 +171,6 @@ export const copy: Record<Lang, Copy> = {
         },
         {
           id: 'bani-khalid',
-          image: '/images/hero.jpg',
           name: 'Wadi Bani Khalid',
           region: 'Ash Sharqiyah',
           blurb: 'Oasis pools and stone walls — classic, crowded in peak season.',
@@ -140,7 +180,6 @@ export const copy: Record<Lang, Copy> = {
         },
         {
           id: 'akhdar',
-          image: '/images/coast.jpg',
           name: 'Jebel Akhdar terraces',
           region: 'Al Dakhiliyah',
           blurb: 'Green mountain villages and short terrace walks — cooler air, checkpoint culture.',
@@ -150,7 +189,6 @@ export const copy: Record<Lang, Copy> = {
         },
         {
           id: 'tiwi',
-          image: '/images/wadi.jpg',
           name: 'Wadi Tiwi / Mibam',
           region: 'Ash Sharqiyah',
           blurb: 'Adventure wadi alternative — hiking and swimming with local path sense.',
@@ -160,7 +198,6 @@ export const copy: Record<Lang, Copy> = {
         },
         {
           id: 'wahiba',
-          image: '/images/hero.jpg',
           name: 'Wahiba Sands',
           region: 'Ash Sharqiyah',
           blurb: 'Desert travel context, not a hiking trail — dunes, night sky, and heat honesty.',
@@ -172,20 +209,20 @@ export const copy: Record<Lang, Copy> = {
     },
     safety: {
       eyebrow: 'Safety & the land',
-      title: 'Guidance first. Thrill second.',
-      lede: 'Health & safety sits at the center of Darboha — not a footer disclaimer. Eco habits travel with every trail tip.',
+      title: 'Your companion for a careful day out.',
+      lede: 'Darboha walks beside you with clear prep — not a booking desk. Safety notes and Leave No Trace habits sit with every trail, so you decide when to go and when to turn back.',
       items: [
         {
           title: 'Know before you go',
-          body: 'Difficulty, length, heat, water, and “when not to go” before you lace up.',
+          body: 'Difficulty, length, heat, water, and “when not to go” — read them before you lace up.',
         },
         {
           title: 'Weather & floods',
-          body: 'Skip midday summer heat when you can. Never camp on a wadi floor — flash floods are real.',
+          body: 'Skip harsh midday heat when you can. Never camp on a wadi floor — flash floods are real.',
         },
         {
           title: 'Kit that matches the land',
-          body: 'No flip-flops in wadis. Swim skill for caves and pools. Modest dress on village paths.',
+          body: 'Solid shoes in wadis. Swim skill for caves and pools. Modest dress on village paths.',
         },
         {
           title: 'Leave No Trace',
@@ -234,22 +271,23 @@ export const copy: Record<Lang, Copy> = {
       trails: 'المسارات',
       safety: 'السلامة',
       how: 'كيف يعمل',
-      join: 'قائمة الانتظار',
+      join: 'القائمة',
     },
     langToggle: 'English',
     langToggleAria: 'التبديل إلى الإنجليزية',
     hero: {
-      brandAr: 'دربها',
-      brandEn: 'Darboha',
+      brandPrimary: 'دربها',
+      brandSecondary: 'Darboha',
+      brandSecondaryLang: 'en',
       tagline: 'اعرف الدرب. احترم الأرض.',
       lede: 'سفر موجّه ذاتياً في أماكن عُمان البرية — اتبع مسارات مختارة عبر خريطة داخل التطبيق، دون مرشد سياحي. مسارات أوضح، عادات أأمن، وبصمة ألطف.',
-      ctaPrimary: 'انضم لقائمة الانتظار',
+      ctaPrimary: 'انضم للقائمة',
       ctaSecondary: 'استكشف المسارات',
     },
     promise: {
       eyebrow: 'وعدنا',
       title: 'امشِ عُمان وخريطتك في جيبك — والاحترام في حقيبتك.',
-      lede: 'دربها رفيق سلامة وإرشاد للمسافرين والمتنزهين. نختار المسارات بعناية، ونوضح كيف تستعد، ونعلّم كيف تترك الأرض سليمة — لتستكشف دون الحاجة لمرشد في كل خطوة.',
+      lede: 'دربها رفيق مسار للمسافرين والمتنزهين — لا متجر جولات. نختار الدروب بعناية، ونوضح كيف تستعد، ونساعدك على ترك الأرض سليمة، لتستكشف بخريطتك أنت.',
     },
     trails: {
       eyebrow: 'مختار لا موسوعة',
@@ -260,10 +298,30 @@ export const copy: Record<Lang, Copy> = {
       metaDifficulty: 'الصعوبة',
       metaSeason: 'الموسم',
       placeholderBadge: 'محتوى مؤقت',
+      coverBadge: 'الغلاف',
+      captionEnLabel: 'EN',
+      captionArLabel: 'ع',
+      filters: {
+        difficultyLabel: 'الصعوبة',
+        seasonLabel: 'الموسم',
+        all: 'الكل',
+        empty: 'لا مسارات تطابق هذه المرشّحات. أعد التعيين لرؤية المجموعة المختارة كاملة.',
+        reset: 'إعادة تعيين المرشّحات',
+        difficulty: {
+          easy: 'سهل',
+          'easy-moderate': 'سهل–متوسط',
+          moderate: 'متوسط',
+          varies: 'متفاوت',
+        },
+        season: {
+          cool: 'بارد (أكتوبر–مارس)',
+          spring: 'ربيع (فبراير–أبريل)',
+          extended: 'ممتد (سبتمبر–مايو)',
+        },
+      },
       items: [
         {
           id: 'balcony',
-          image: '/images/trail.jpg',
           name: 'جبل شمس — ممشى الشرفة W6',
           region: 'الداخلية',
           blurb: 'درب شهير على حافة الوادي بإطلالات واسعة وملاحظات صريحة عن التعرض.',
@@ -273,7 +331,6 @@ export const copy: Record<Lang, Copy> = {
         },
         {
           id: 'shab',
-          image: '/images/wadi.jpg',
           name: 'وادي شاب',
           region: 'الشرقية',
           blurb: 'عبور بالقارب وبرك وسباحة في كهف — الحذاء ومهارة السباحة مهمان.',
@@ -283,7 +340,6 @@ export const copy: Record<Lang, Copy> = {
         },
         {
           id: 'bani-khalid',
-          image: '/images/hero.jpg',
           name: 'وادي بني خالد',
           region: 'الشرقية',
           blurb: 'برك واحة وجدران صخرية — كلاسيكي ومزدحم في ذروة الموسم.',
@@ -293,7 +349,6 @@ export const copy: Record<Lang, Copy> = {
         },
         {
           id: 'akhdar',
-          image: '/images/coast.jpg',
           name: 'مدرجات الجبل الأخضر',
           region: 'الداخلية',
           blurb: 'قرى جبلية خضراء ومشاوير مدرجات قصيرة — هواء أبرد وثقافة نقاط التفتيش.',
@@ -303,7 +358,6 @@ export const copy: Record<Lang, Copy> = {
         },
         {
           id: 'tiwi',
-          image: '/images/wadi.jpg',
           name: 'وادي طوي / ميام',
           region: 'الشرقية',
           blurb: 'بديل مغامرات في الوادي — مشي وسباحة مع حسّ المسار المحلي.',
@@ -313,7 +367,6 @@ export const copy: Record<Lang, Copy> = {
         },
         {
           id: 'wahiba',
-          image: '/images/hero.jpg',
           name: 'رمال وهيبة',
           region: 'الشرقية',
           blurb: 'سياق سفر صحراوي لا درب مشي — كثبان وسماء ليلية وصدق مع الحرارة.',
@@ -325,20 +378,20 @@ export const copy: Record<Lang, Copy> = {
     },
     safety: {
       eyebrow: 'السلامة والأرض',
-      title: 'الإرشاد أولاً. الإثارة ثانياً.',
-      lede: 'الصحة والسلامة في صميم دربها — لا ملاحظة في التذييل. عادات احترام البيئة ترافق كل نصيحة مسار.',
+      title: 'رفيقك ليومٍ حذر في الطبيعة.',
+      lede: 'دربها يسير معك بتجهيز واضح — لا مكتب حجوزات. ملاحظات السلامة وعادات «لا تترك أثراً» ترافق كل مسار، فتقرر متى تذهب ومتى تعود.',
       items: [
         {
           title: 'اعرف قبل أن تذهب',
-          body: 'الصعوبة والطول والحرارة والماء و«متى لا تذهب» قبل أن تربط حذاءك.',
+          body: 'الصعوبة والطول والحرارة والماء و«متى لا تذهب» — اقرأها قبل أن تربط حذاءك.',
         },
         {
           title: 'الطقس والسيول',
-          body: 'تجنب حرارة منتصف صيف إن أمكن. لا تخيّم في قاع الوادي — السيول حقيقية.',
+          body: 'تجنّب حرارة الظهيرة القاسية إن أمكن. لا تخيّم في قاع الوادي — السيول حقيقية.',
         },
         {
           title: 'عدة تناسب الأرض',
-          body: 'لا صندل في الأودية. مهارة سباحة للكهوف والبرك. لباس محتشم في مسارات القرى.',
+          body: 'حذاء متين في الأودية. مهارة سباحة للكهوف والبرك. لباس محتشم في مسارات القرى.',
         },
         {
           title: 'لا تترك أثراً',
