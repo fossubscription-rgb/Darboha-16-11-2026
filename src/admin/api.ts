@@ -73,6 +73,10 @@ type PlaceRow = {
         kit: string
         emergency_contacts: string
         nearest_clinic: string
+        nearest_clinic_place_id: string
+        nearest_clinic_lat: number | null
+        nearest_clinic_lng: number | null
+        nearest_clinic_maps_url: string
         notes_en: string
         notes_ar: string
         completed: boolean
@@ -88,6 +92,10 @@ type PlaceRow = {
         kit: string
         emergency_contacts: string
         nearest_clinic: string
+        nearest_clinic_place_id: string
+        nearest_clinic_lat: number | null
+        nearest_clinic_lng: number | null
+        nearest_clinic_maps_url: string
         notes_en: string
         notes_ar: string
         completed: boolean
@@ -182,6 +190,16 @@ function mapPlace(row: PlaceRow): Place {
       kit: safety?.kit ?? '',
       emergencyContacts: safety?.emergency_contacts ?? '',
       nearestClinic: safety?.nearest_clinic ?? '',
+      nearestClinicPlaceId: safety?.nearest_clinic_place_id ?? '',
+      nearestClinicLat:
+        typeof safety?.nearest_clinic_lat === 'number'
+          ? safety.nearest_clinic_lat
+          : null,
+      nearestClinicLng:
+        typeof safety?.nearest_clinic_lng === 'number'
+          ? safety.nearest_clinic_lng
+          : null,
+      nearestClinicMapsUrl: safety?.nearest_clinic_maps_url ?? '',
       notesEn: safety?.notes_en ?? '',
       notesAr: safety?.notes_ar ?? '',
       completed: safety?.completed ?? false,
@@ -416,6 +434,10 @@ export async function upsertPlaceSafetyApi(place: Place, actorId: string) {
     kit: place.safety.kit,
     emergency_contacts: place.safety.emergencyContacts,
     nearest_clinic: place.safety.nearestClinic,
+    nearest_clinic_place_id: place.safety.nearestClinicPlaceId,
+    nearest_clinic_lat: place.safety.nearestClinicLat,
+    nearest_clinic_lng: place.safety.nearestClinicLng,
+    nearest_clinic_maps_url: place.safety.nearestClinicMapsUrl,
     notes_en: place.safety.notesEn,
     notes_ar: place.safety.notesAr,
     completed: place.safety.completed,

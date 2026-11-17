@@ -16,6 +16,7 @@ import type {
   VehicleAccess,
 } from '../types'
 import { StatusChip } from './StatusChip'
+import { ClinicMapPicker } from './ClinicMapPicker'
 
 type Mode = 'da' | 'safety' | 'ceo' | 'readonly'
 
@@ -522,7 +523,7 @@ export function PlaceEditor({
       {mode === 'safety' && (
         <div className="admin-banner info">
           DA fields are read-only. Complete Safety dropdowns + emergency
-          contacts + nearest clinic, then Mark Ready.
+          contacts, then pick nearest clinic on the map before Mark Ready.
         </div>
       )}
       {msg && <div className="admin-banner info">{msg}</div>}
@@ -988,13 +989,16 @@ export function PlaceEditor({
               className="full"
               onChange={(v) => patchSafety({ emergencyContacts: v })}
             />
-            <Field
-              label="Nearest clinic (required)"
-              value={place.safety.nearestClinic}
+            <ClinicMapPicker
               disabled={!safetyEditable}
-              textarea
-              className="full"
-              onChange={(v) => patchSafety({ nearestClinic: v })}
+              value={{
+                nearestClinic: place.safety.nearestClinic,
+                nearestClinicPlaceId: place.safety.nearestClinicPlaceId,
+                nearestClinicLat: place.safety.nearestClinicLat,
+                nearestClinicLng: place.safety.nearestClinicLng,
+                nearestClinicMapsUrl: place.safety.nearestClinicMapsUrl,
+              }}
+              onChange={(clinic) => patchSafety(clinic)}
             />
             <Field
               label="Extra notes (EN)"

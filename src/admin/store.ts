@@ -87,8 +87,14 @@ export function safetyComplete(place: Place): string | null {
   if (!s.emergencyContacts.trim()) {
     return 'Safety: emergency contacts are required before Ready.'
   }
-  if (!s.nearestClinic.trim()) {
-    return 'Safety: nearest clinic is required before Ready.'
+  if (
+    !s.nearestClinic.trim() ||
+    !s.nearestClinicPlaceId.trim() ||
+    s.nearestClinicLat == null ||
+    s.nearestClinicLng == null ||
+    !s.nearestClinicMapsUrl.trim()
+  ) {
+    return 'Safety: pick nearest clinic on the map (Google Places) before Ready.'
   }
   return null
 }

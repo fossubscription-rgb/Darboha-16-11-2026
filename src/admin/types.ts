@@ -90,7 +90,12 @@ export type Place = {
     kit: string
     /** Required before Ready/Publish. */
     emergencyContacts: string
+    /** Clinic display name from Google Places picker. */
     nearestClinic: string
+    nearestClinicPlaceId: string
+    nearestClinicLat: number | null
+    nearestClinicLng: number | null
+    nearestClinicMapsUrl: string
     notesEn: string
     notesAr: string
     completed: boolean

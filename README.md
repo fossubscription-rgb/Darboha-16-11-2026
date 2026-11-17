@@ -43,7 +43,7 @@ Password-only gate. Each password opens a role module. Session token is bound to
 | Health & Safety | `darboha-safety` | `/admin/safety` |
 | CFO / VP | `darboha-cfo` | `/admin/cfo` |
 
-Env vars (local): `VITE_SUPABASE_URL`, `VITE_SUPABASE_ANON_KEY`.
+Env vars (local): `VITE_SUPABASE_URL`, `VITE_SUPABASE_ANON_KEY`, `VITE_GOOGLE_MAPS_API_KEY` (Safety clinic map picker).
 
 ## Stack
 
