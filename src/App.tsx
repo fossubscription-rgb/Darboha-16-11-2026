@@ -1,9 +1,27 @@
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import type { FormEvent } from 'react'
 import { copy, type Lang } from './i18n'
+import {
+  coverFirstPhotos,
+  monthsOverlap,
+  seasonFilterMonths,
+  trailCatalog,
+  type DifficultyKey,
+  type SeasonFilterKey,
+  type TrailPhoto,
+} from './trails'
 import './App.css'
 
 const LANG_KEY = 'darboha-lang'
+
+const DIFFICULTY_KEYS: DifficultyKey[] = [
+  'easy',
+  'easy-moderate',
+  'moderate',
+  'varies',
+]
+
+const SEASON_KEYS: SeasonFilterKey[] = ['cool', 'spring', 'extended']
 
 function useReveal<T extends HTMLElement>() {
   const ref = useRef<T | null>(null)
@@ -39,10 +57,92 @@ function readInitialLang(): Lang {
   return 'en'
 }
 
+function TrailGallery({
+  photos,
+  coverBadge,
+  captionEnLabel,
+  captionArLabel,
+}: {
+  photos: TrailPhoto[]
+  coverBadge: string
+  captionEnLabel: string
+  captionArLabel: string
+}) {
+  const ordered = coverFirstPhotos(photos)
+  const [activeIndex, setActiveIndex] = useState(0)
+  const safeIndex =
+    ordered.length === 0 ? 0 : Math.min(activeIndex, ordered.length - 1)
+  const active = ordered[safeIndex]
+
+  if (!active) return null
+
+  return (
+    <figure className="trail-gallery">
+      <div className="trail-cover">
+        <img
+          src={active.src}
+          alt=""
+          width={1200}
+          height={800}
+          loading="lazy"
+        />
+        {active.isCover ? (
+          <span className="trail-cover-badge">{coverBadge}</span>
+        ) : null}
+      </div>
+      <figcaption className="trail-captions">
+        <p className="trail-caption" lang="en">
+          <span className="trail-caption-lang">{captionEnLabel}</span>
+          {active.captionEn}
+        </p>
+        <p className="trail-caption" lang="ar">
+          <span className="trail-caption-lang">{captionArLabel}</span>
+          {active.captionAr}
+        </p>
+      </figcaption>
+      {ordered.length > 1 ? (
+        <ul className="trail-thumbs" aria-label="Trail photos">
+          {ordered.map((photo, index) => (
+            <li key={`${photo.src}-${index}`}>
+              <button
+                type="button"
+                  className={
+                  index === safeIndex ? 'trail-thumb is-active' : 'trail-thumb'
+                }
+                aria-pressed={index === safeIndex}
+                aria-label={
+                  photo.isCover
+                    ? `${coverBadge}: ${photo.captionEn}`
+                    : photo.captionEn
+                }
+                onClick={() => setActiveIndex(index)}
+              >
+                <img
+                  src={photo.src}
+                  alt=""
+                  width={320}
+                  height={220}
+                  loading="lazy"
+                />
+              </button>
+            </li>
+          ))}
+        </ul>
+      ) : null}
+    </figure>
+  )
+}
+
 function App() {
   const [lang, setLang] = useState<Lang>(readInitialLang)
   const [email, setEmail] = useState('')
   const [submitted, setSubmitted] = useState(false)
+  const [difficultyFilter, setDifficultyFilter] = useState<
+    DifficultyKey | 'all'
+  >('all')
+  const [seasonFilter, setSeasonFilter] = useState<SeasonFilterKey | 'all'>(
+    'all',
+  )
 
   const promiseRef = useReveal<HTMLElement>()
   const trailsRef = useReveal<HTMLElement>()
@@ -52,6 +152,34 @@ function App() {
 
   const t = copy[lang]
   const nextLang: Lang = lang === 'en' ? 'ar' : 'en'
+  const filtersActive = difficultyFilter !== 'all' || seasonFilter !== 'all'
+
+  const trails = useMemo(() => {
+    const byId = new Map(t.trails.items.map((item) => [item.id, item]))
+
+    return trailCatalog
+      .map((entry) => {
+        const localized = byId.get(entry.id)
+        if (!localized) return null
+        return { ...entry, ...localized }
+      })
+      .filter((trail): trail is NonNullable<typeof trail> => trail !== null)
+      .filter((trail) => {
+        if (
+          difficultyFilter !== 'all' &&
+          trail.difficultyKey !== difficultyFilter
+        ) {
+          return false
+        }
+        if (seasonFilter !== 'all') {
+          return monthsOverlap(
+            trail.seasonMonths,
+            seasonFilterMonths[seasonFilter],
+          )
+        }
+        return true
+      })
+  }, [t.trails.items, difficultyFilter, seasonFilter])
 
   useEffect(() => {
     document.documentElement.lang = lang
@@ -70,6 +198,11 @@ function App() {
   function toggleLang() {
     setLang(nextLang)
     setSubmitted(false)
+  }
+
+  function resetFilters() {
+    setDifficultyFilter('all')
+    setSeasonFilter('all')
   }
 
   function onWaitlist(event: FormEvent<HTMLFormElement>) {
@@ -140,10 +273,13 @@ function App() {
           </div>
 
           <div className="hero-content">
-            <p className="hero-brand-ar" lang="ar">
-              {t.hero.brandAr}
+            <p
+              className="hero-brand-secondary"
+              lang={t.hero.brandSecondaryLang}
+            >
+              {t.hero.brandSecondary}
             </p>
-            <h1 className="hero-brand">{t.hero.brandEn}</h1>
+            <h1 className="hero-brand">{t.hero.brandPrimary}</h1>
             <p className="hero-tagline">{t.hero.tagline}</p>
             <p className="hero-lede">{t.hero.lede}</p>
             <div className="hero-actions">
@@ -178,47 +314,139 @@ function App() {
             <p className="eyebrow">{t.trails.eyebrow}</p>
             <h2>{t.trails.title}</h2>
             <p className="section-lede">{t.trails.lede}</p>
+
+            <div className="trail-filters">
+              <div
+                className="filter-group"
+                role="group"
+                aria-label={t.trails.filters.difficultyLabel}
+              >
+                <p className="filter-label">{t.trails.filters.difficultyLabel}</p>
+                <div className="filter-options">
+                  <button
+                    type="button"
+                    className={
+                      difficultyFilter === 'all'
+                        ? 'filter-chip is-active'
+                        : 'filter-chip'
+                    }
+                    aria-pressed={difficultyFilter === 'all'}
+                    onClick={() => setDifficultyFilter('all')}
+                  >
+                    {t.trails.filters.all}
+                  </button>
+                  {DIFFICULTY_KEYS.map((key) => (
+                    <button
+                      key={key}
+                      type="button"
+                      className={
+                        difficultyFilter === key
+                          ? 'filter-chip is-active'
+                          : 'filter-chip'
+                      }
+                      aria-pressed={difficultyFilter === key}
+                      onClick={() => setDifficultyFilter(key)}
+                    >
+                      {t.trails.filters.difficulty[key]}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              <div
+                className="filter-group"
+                role="group"
+                aria-label={t.trails.filters.seasonLabel}
+              >
+                <p className="filter-label">{t.trails.filters.seasonLabel}</p>
+                <div className="filter-options">
+                  <button
+                    type="button"
+                    className={
+                      seasonFilter === 'all'
+                        ? 'filter-chip is-active'
+                        : 'filter-chip'
+                    }
+                    aria-pressed={seasonFilter === 'all'}
+                    onClick={() => setSeasonFilter('all')}
+                  >
+                    {t.trails.filters.all}
+                  </button>
+                  {SEASON_KEYS.map((key) => (
+                    <button
+                      key={key}
+                      type="button"
+                      className={
+                        seasonFilter === key
+                          ? 'filter-chip is-active'
+                          : 'filter-chip'
+                      }
+                      aria-pressed={seasonFilter === key}
+                      onClick={() => setSeasonFilter(key)}
+                    >
+                      {t.trails.filters.season[key]}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              {filtersActive ? (
+                <button
+                  type="button"
+                  className="filter-reset"
+                  onClick={resetFilters}
+                >
+                  {t.trails.filters.reset}
+                </button>
+              ) : null}
+            </div>
           </div>
 
-          <ul className="trail-list">
-            {t.trails.items.map((trail, index) => (
-              <li
-                key={trail.id}
-                className="trail-row"
-                style={{ ['--i' as string]: index }}
-              >
-                <figure className="trail-visual">
-                  <img
-                    src={trail.image}
-                    alt=""
-                    width={1200}
-                    height={800}
-                    loading="lazy"
+          {trails.length === 0 ? (
+            <p className="trail-empty" role="status">
+              {t.trails.filters.empty}
+            </p>
+          ) : (
+            <ul className="trail-list">
+              {trails.map((trail, index) => (
+                <li
+                  key={trail.id}
+                  className="trail-row"
+                  style={{ ['--i' as string]: index }}
+                >
+                  <TrailGallery
+                    key={trail.id}
+                    photos={trail.photos}
+                    coverBadge={t.trails.coverBadge}
+                    captionEnLabel={t.trails.captionEnLabel}
+                    captionArLabel={t.trails.captionArLabel}
                   />
-                </figure>
-                <div className="trail-copy">
-                  <p className="trail-region">{trail.region}</p>
-                  <h3>{trail.name}</h3>
-                  <p className="trail-blurb">{trail.blurb}</p>
-                  <dl className="trail-meta">
-                    <div>
-                      <dt>{t.trails.metaDistance}</dt>
-                      <dd>{trail.distance}</dd>
-                    </div>
-                    <div>
-                      <dt>{t.trails.metaDifficulty}</dt>
-                      <dd>{trail.difficulty}</dd>
-                    </div>
-                    <div>
-                      <dt>{t.trails.metaSeason}</dt>
-                      <dd>{trail.season}</dd>
-                    </div>
-                  </dl>
-                  <p className="trail-placeholder">{t.trails.placeholderBadge}</p>
-                </div>
-              </li>
-            ))}
-          </ul>
+                  <div className="trail-copy">
+                    <p className="trail-region">{trail.region}</p>
+                    <h3>{trail.name}</h3>
+                    <p className="trail-blurb">{trail.blurb}</p>
+                    <dl className="trail-meta">
+                      <div>
+                        <dt>{t.trails.metaDistance}</dt>
+                        <dd>{trail.distance}</dd>
+                      </div>
+                      <div>
+                        <dt>{t.trails.metaDifficulty}</dt>
+                        <dd>{trail.difficulty}</dd>
+                      </div>
+                      <div>
+                        <dt>{t.trails.metaSeason}</dt>
+                        <dd>{trail.season}</dd>
+                      </div>
+                    </dl>
+                    <p className="trail-placeholder">
+                      {t.trails.placeholderBadge}
+                    </p>
+                  </div>
+                </li>
+              ))}
+            </ul>
+          )}
         </section>
 
         <section
