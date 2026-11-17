@@ -101,7 +101,7 @@ export function safetyComplete(place: Place): string | null {
     s.nearestClinicLng == null ||
     !s.nearestClinicMapsUrl.trim()
   ) {
-    return 'Safety: pick nearest clinic on the map (Google Places) before Ready.'
+    return 'Safety: pick nearest clinic on the map (OpenStreetMap) before Ready.'
   }
   return null
 }

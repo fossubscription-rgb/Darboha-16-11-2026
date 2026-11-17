@@ -524,7 +524,7 @@ export function PlaceEditor({
       {mode === 'safety' && (
         <div className="admin-banner info">
           DA fields are read-only. Complete Safety dropdowns + emergency
-          contacts, then pick nearest clinic on the map before Mark Ready.
+          contacts, then pick nearest clinic on the OSM map before Mark Ready.
         </div>
       )}
       {msg && <div className="admin-banner info">{msg}</div>}
@@ -741,11 +741,12 @@ export function PlaceEditor({
               onChange={(v) => patch({ trailheadNotesAr: v })}
             />
             <div className="admin-field full">
-              <label>Nearby amenities (Google Maps)</label>
+              <label>Nearby amenities (OpenStreetMap)</label>
               <p className="admin-muted" style={{ margin: '0 0 0.65rem' }}>
-                Search and pick coffee shops / services on the map (same pattern
-                as Safety clinic). Each item stores name, Place ID, lat/lng, and
-                Maps URL. Bilingual notes below are optional extras.
+                Search and pick coffee shops / services on the free OSM map
+                (same pattern as Safety clinic). Each item stores name, place
+                id, lat/lng, and maps URL. Bilingual notes below are optional
+                extras.
               </p>
               {place.nearbyAmenities.map((am, idx) => (
                 <AmenityMapPicker
