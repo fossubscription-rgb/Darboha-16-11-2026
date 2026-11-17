@@ -1,8 +1,9 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
-import type { FormEvent } from 'react'
+import type { CSSProperties, FormEvent } from 'react'
 import { copy, type Lang } from './i18n'
 import {
   coverFirstPhotos,
+  getTrendingHeroSlides,
   monthsOverlap,
   seasonFilterMonths,
   trailCatalog,
@@ -13,6 +14,7 @@ import {
 import './App.css'
 
 const LANG_KEY = 'darboha-lang'
+const HERO_ROTATE_MS = 7000
 
 const DIFFICULTY_KEYS: DifficultyKey[] = [
   'easy',
@@ -143,6 +145,7 @@ function App() {
   const [seasonFilter, setSeasonFilter] = useState<SeasonFilterKey | 'all'>(
     'all',
   )
+  const [heroSlide, setHeroSlide] = useState(0)
 
   const promiseRef = useReveal<HTMLElement>()
   const trailsRef = useReveal<HTMLElement>()
@@ -153,6 +156,20 @@ function App() {
   const t = copy[lang]
   const nextLang: Lang = lang === 'en' ? 'ar' : 'en'
   const filtersActive = difficultyFilter !== 'all' || seasonFilter !== 'all'
+  const trendingSlides = useMemo(() => getTrendingHeroSlides(), [])
+  const heroPhotos =
+    trendingSlides.length > 0
+      ? trendingSlides
+      : [
+          {
+            trailId: 'fallback',
+            src: '/images/hero.jpg',
+            captionEn: '',
+            captionAr: '',
+          },
+        ]
+  const activeHeroIndex = heroSlide % heroPhotos.length
+  const activeHero = heroPhotos[activeHeroIndex] ?? null
 
   const trails = useMemo(() => {
     const byId = new Map(t.trails.items.map((item) => [item.id, item]))
@@ -194,6 +211,20 @@ function App() {
       /* ignore */
     }
   }, [lang])
+
+  useEffect(() => {
+    if (trendingSlides.length < 2) return
+    const reduceMotion = window.matchMedia(
+      '(prefers-reduced-motion: reduce)',
+    ).matches
+    if (reduceMotion) return
+
+    const timer = window.setInterval(() => {
+      setHeroSlide((current) => (current + 1) % trendingSlides.length)
+    }, HERO_ROTATE_MS)
+
+    return () => window.clearInterval(timer)
+  }, [trendingSlides.length])
 
   function toggleLang() {
     setLang(nextLang)
@@ -259,51 +290,71 @@ function App() {
       </header>
 
       <main id="main">
-        <section className="hero" id="top" aria-label="Darboha hero">
-          <div className="hero-media" aria-hidden="true">
-            <img
-              src="/images/hero.jpg"
-              alt=""
-              className="hero-photo"
-              width={2133}
-              height={1600}
-            />
-            <div className="hero-wash" />
-            <div className="hero-glow" />
-          </div>
-
-          <div className="hero-content">
-            <p
-              className="hero-brand-secondary"
-              lang={t.hero.brandSecondaryLang}
-            >
-              {t.hero.brandSecondary}
-            </p>
-            <h1 className="hero-brand">{t.hero.brandPrimary}</h1>
-            <p className="hero-tagline">{t.hero.tagline}</p>
-            <p className="hero-lede">{t.hero.lede}</p>
-            <div className="hero-actions">
-              <a className="btn btn-primary" href="#waitlist">
-                {t.hero.ctaPrimary}
-              </a>
-              <a className="btn btn-ghost" href="#trails">
-                {t.hero.ctaSecondary}
-              </a>
-            </div>
-          </div>
-        </section>
-
-        <section
-          className="section promise reveal"
-          id="promise"
-          ref={promiseRef}
+        <div
+          className="open-band"
+          style={
+            activeHero
+              ? ({
+                  ['--hero-atmosphere-image']: `url(${activeHero.src})`,
+                } as CSSProperties)
+              : undefined
+          }
         >
-          <div className="section-inner">
-            <p className="eyebrow">{t.promise.eyebrow}</p>
-            <h2>{t.promise.title}</h2>
-            <p className="section-lede">{t.promise.lede}</p>
-          </div>
-        </section>
+          <section className="hero" id="top" aria-label="Darboha hero">
+            <div className="hero-media" aria-hidden="true">
+              {heroPhotos.map((slide, index) => (
+                <img
+                  key={slide.trailId}
+                  src={slide.src}
+                  alt=""
+                  className={
+                    index === activeHeroIndex
+                      ? 'hero-photo is-active'
+                      : 'hero-photo'
+                  }
+                  width={2133}
+                  height={1600}
+                />
+              ))}
+              <div className="hero-wash" />
+              <div className="hero-glow" />
+              <div className="hero-blend" />
+            </div>
+
+            <div className="hero-content">
+              <p
+                className="hero-brand-secondary"
+                lang={t.hero.brandSecondaryLang}
+              >
+                {t.hero.brandSecondary}
+              </p>
+              <h1 className="hero-brand">{t.hero.brandPrimary}</h1>
+              <p className="hero-tagline">{t.hero.tagline}</p>
+              <p className="hero-lede">{t.hero.lede}</p>
+              <div className="hero-actions">
+                <a className="btn btn-primary" href="#waitlist">
+                  {t.hero.ctaPrimary}
+                </a>
+                <a className="btn btn-ghost" href="#trails">
+                  {t.hero.ctaSecondary}
+                </a>
+              </div>
+            </div>
+          </section>
+
+          <section
+            className="section promise reveal"
+            id="promise"
+            ref={promiseRef}
+          >
+            <div className="promise-atmosphere" aria-hidden="true" />
+            <div className="section-inner">
+              <p className="eyebrow">{t.promise.eyebrow}</p>
+              <h2>{t.promise.title}</h2>
+              <p className="section-lede">{t.promise.lede}</p>
+            </div>
+          </section>
+        </div>
 
         <section
           className="section trails reveal"

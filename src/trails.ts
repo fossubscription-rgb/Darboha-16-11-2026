@@ -16,6 +16,19 @@ export type TrailCatalogEntry = {
   /** Inclusive months 1–12 when the trail is in season (placeholder). */
   seasonMonths: number[]
   photos: TrailPhoto[]
+  /**
+   * Lower number = higher trend priority for the marketing hero rotation.
+   * Omit when a place is not currently featured as a trend slide.
+   * Placeholder until Supabase-published places drive this.
+   */
+  trendRank?: number
+}
+
+export type HeroTrendSlide = {
+  trailId: string
+  src: string
+  captionEn: string
+  captionAr: string
 }
 
 const MONTHS = {
@@ -32,6 +45,7 @@ export const trailCatalog: TrailCatalogEntry[] = [
     id: 'balcony',
     difficultyKey: 'easy-moderate',
     seasonMonths: [10, 11, 12, 1, 2, 3, 4],
+    trendRank: 1,
     photos: [
       {
         src: '/images/trail.jpg',
@@ -51,6 +65,7 @@ export const trailCatalog: TrailCatalogEntry[] = [
     id: 'shab',
     difficultyKey: 'moderate',
     seasonMonths: [9, 10, 11, 12, 1, 2, 3, 4, 5],
+    trendRank: 2,
     photos: [
       {
         src: '/images/wadi.jpg',
@@ -89,6 +104,7 @@ export const trailCatalog: TrailCatalogEntry[] = [
     id: 'akhdar',
     difficultyKey: 'easy-moderate',
     seasonMonths: [10, 11, 12, 1, 2, 3],
+    trendRank: 3,
     photos: [
       {
         src: '/images/coast.jpg',
@@ -127,6 +143,7 @@ export const trailCatalog: TrailCatalogEntry[] = [
     id: 'wahiba',
     difficultyKey: 'varies',
     seasonMonths: [10, 11, 12, 1, 2, 3],
+    trendRank: 4,
     photos: [
       {
         src: '/images/hero.jpg',
@@ -148,6 +165,27 @@ export function coverFirstPhotos(photos: TrailPhoto[]): TrailPhoto[] {
   const cover = photos.find((photo) => photo.isCover)
   const rest = photos.filter((photo) => !photo.isCover)
   return cover ? [cover, ...rest] : [...photos]
+}
+
+/** Cover images for places currently marked as trending (placeholder ranks). */
+export function getTrendingHeroSlides(
+  catalog: TrailCatalogEntry[] = trailCatalog,
+): HeroTrendSlide[] {
+  return catalog
+    .filter((entry) => typeof entry.trendRank === 'number')
+    .sort((a, b) => (a.trendRank ?? 99) - (b.trendRank ?? 99))
+    .map((entry) => {
+      const cover =
+        entry.photos.find((photo) => photo.isCover) ?? entry.photos[0]
+      if (!cover) return null
+      return {
+        trailId: entry.id,
+        src: cover.src,
+        captionEn: cover.captionEn,
+        captionAr: cover.captionAr,
+      }
+    })
+    .filter((slide): slide is HeroTrendSlide => slide !== null)
 }
 
 export function monthsOverlap(

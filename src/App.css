@@ -142,6 +142,14 @@
   }
 }
 
+.open-band {
+  --hero-atmosphere-image: none;
+  position: relative;
+  background:
+    linear-gradient(180deg, #081612 0%, #0c1f1a 42%, #e9f1ec 100%);
+  overflow: clip;
+}
+
 .hero {
   position: relative;
   min-height: 100svh;
@@ -149,35 +157,49 @@
   align-items: end;
   color: var(--text);
   isolation: isolate;
+  padding-bottom: clamp(3.5rem, 9vw, 6.5rem);
+  margin-bottom: clamp(-3.5rem, -8vw, -2.5rem);
 }
 
 .hero-media {
   position: absolute;
-  inset: 0;
+  inset: 0 0 -28% 0;
   z-index: -1;
   overflow: hidden;
   background: var(--ink);
 }
 
 .hero-photo {
+  position: absolute;
+  inset: 0;
   width: 100%;
   height: 100%;
   object-fit: cover;
   object-position: center 42%;
+  opacity: 0;
+  transition: opacity 1.25s ease;
+  will-change: opacity, transform;
+}
+
+.hero-photo.is-active {
+  opacity: 1;
   animation: ken-burns 22s ease-out forwards;
-  will-change: transform;
+  z-index: 1;
 }
 
 .hero-wash {
   position: absolute;
   inset: 0;
+  z-index: 2;
   background:
     linear-gradient(
       180deg,
       rgba(8, 22, 18, 0.38) 0%,
-      rgba(8, 22, 18, 0.2) 36%,
-      rgba(8, 22, 18, 0.74) 72%,
-      rgba(8, 22, 18, 0.94) 100%
+      rgba(8, 22, 18, 0.2) 34%,
+      rgba(8, 22, 18, 0.62) 62%,
+      rgba(8, 22, 18, 0.78) 78%,
+      rgba(12, 31, 26, 0.35) 92%,
+      rgba(243, 248, 245, 0) 100%
     ),
     linear-gradient(
       90deg,
@@ -192,9 +214,11 @@
     linear-gradient(
       180deg,
       rgba(8, 22, 18, 0.38) 0%,
-      rgba(8, 22, 18, 0.2) 36%,
-      rgba(8, 22, 18, 0.74) 72%,
-      rgba(8, 22, 18, 0.94) 100%
+      rgba(8, 22, 18, 0.2) 34%,
+      rgba(8, 22, 18, 0.62) 62%,
+      rgba(8, 22, 18, 0.78) 78%,
+      rgba(12, 31, 26, 0.35) 92%,
+      rgba(243, 248, 245, 0) 100%
     ),
     linear-gradient(
       270deg,
@@ -206,8 +230,9 @@
 
 .hero-glow {
   position: absolute;
-  inset-block-end: -20%;
+  inset-block-end: -8%;
   inset-inline-end: -10%;
+  z-index: 2;
   width: min(60vw, 34rem);
   height: min(60vw, 34rem);
   background: radial-gradient(
@@ -220,7 +245,25 @@
   pointer-events: none;
 }
 
+.hero-blend {
+  position: absolute;
+  inset-inline: 0;
+  inset-block-end: 0;
+  z-index: 3;
+  height: min(42%, 18rem);
+  background: linear-gradient(
+    180deg,
+    rgba(12, 31, 26, 0) 0%,
+    rgba(12, 31, 26, 0.28) 38%,
+    rgba(233, 241, 236, 0.72) 78%,
+    #e9f1ec 100%
+  );
+  pointer-events: none;
+}
+
 .hero-content {
+  position: relative;
+  z-index: 4;
   width: min(920px, calc(100% - 2rem));
   margin-inline: clamp(1rem, 4vw, 3rem) auto;
   padding: clamp(5.75rem, 12vw, 7.5rem) 0 clamp(2.75rem, 7vw, 4.5rem);
@@ -387,13 +430,42 @@
 }
 
 .promise {
+  position: relative;
+  z-index: 1;
+  padding-top: clamp(5rem, 12vw, 7.5rem);
   background:
-    radial-gradient(circle at 90% 10%, rgba(31, 138, 122, 0.12), transparent 40%),
-    linear-gradient(180deg, #f3f8f5, #e9f1ec);
+    radial-gradient(circle at 90% 18%, rgba(31, 138, 122, 0.14), transparent 42%),
+    linear-gradient(
+      180deg,
+      rgba(233, 241, 236, 0.2) 0%,
+      #f3f8f5 34%,
+      #e9f1ec 100%
+    );
+}
+
+.promise-atmosphere {
+  position: absolute;
+  inset: -18% 0 auto;
+  height: min(58%, 22rem);
+  background-image:
+    linear-gradient(
+      180deg,
+      rgba(233, 241, 236, 0.15) 0%,
+      rgba(243, 248, 245, 0.78) 55%,
+      #e9f1ec 100%
+    ),
+    var(--hero-atmosphere-image);
+  background-size: cover;
+  background-position: center 58%;
+  filter: saturate(0.85) blur(0.4px);
+  opacity: 0.34;
+  pointer-events: none;
+  mask-image: linear-gradient(180deg, black 0%, black 42%, transparent 100%);
 }
 
 .trails {
-  background: var(--foam);
+  background:
+    linear-gradient(180deg, #e9f1ec 0%, var(--foam) 18%, var(--foam) 100%);
   padding-bottom: clamp(3rem, 6vw, 4.5rem);
 }
 
@@ -1127,6 +1199,14 @@
   .trail-cover img {
     animation: none !important;
     transition: none !important;
+  }
+
+  .hero-photo.is-active {
+    opacity: 1;
+  }
+
+  .promise-atmosphere {
+    filter: none;
   }
 
   .how.is-visible .map-route {
