@@ -1,162 +1,101 @@
-import {
-  SEED_ACTIVITY,
-  SEED_FINANCE,
-  SEED_MEMBERS,
-  SEED_PLACES,
-} from './mockData'
-import type {
-  ActivityItem,
-  FinanceDraft,
-  FinanceStatus,
-  Member,
-  Place,
-  PlaceStatus,
-} from './types'
-
-const STORE_KEY = 'darboha-admin-store-v2'
+import type { Place } from './types'
 
 export type AdminStore = {
-  members: Member[]
+  members: import('./types').Member[]
   places: Place[]
-  finance: FinanceDraft[]
-  activity: ActivityItem[]
+  finance: import('./types').FinanceDraft[]
+  activity: import('./types').ActivityItem[]
 }
 
-function seed(): AdminStore {
+export type RequiredProgress = {
+  done: number
+  total: number
+  missing: string[]
+  percent: number
+}
+
+/** Required DA fields before submit-for-safety. */
+export function daRequiredProgress(place: Place): RequiredProgress {
+  const checks: { label: string; ok: boolean }[] = [
+    { label: 'Name EN', ok: !!place.nameEn.trim() },
+    { label: 'Name AR', ok: !!place.nameAr.trim() },
+    { label: 'Summary EN', ok: !!place.summaryEn.trim() },
+    { label: 'Summary AR', ok: !!place.summaryAr.trim() },
+    { label: 'Region', ok: !!place.region.trim() },
+    { label: 'Difficulty', ok: !!place.difficulty },
+    { label: 'Season from', ok: !!place.seasonFrom },
+    { label: 'Season to', ok: !!place.seasonTo },
+    { label: 'Hike length (km)', ok: !!place.distanceKm.trim() },
+    { label: 'Estimated time', ok: !!place.durationText.trim() },
+    { label: 'Start place EN', ok: !!place.startPlaceEn.trim() },
+    { label: 'Start place AR', ok: !!place.startPlaceAr.trim() },
+    { label: 'End place EN', ok: !!place.endPlaceEn.trim() },
+    { label: 'End place AR', ok: !!place.endPlaceAr.trim() },
+    { label: 'Vehicle access', ok: !!place.vehicleAccess },
+    { label: 'Access notes EN', ok: !!place.accessNotesEn.trim() },
+    { label: 'Access notes AR', ok: !!place.accessNotesAr.trim() },
+    {
+      label: 'Nearby amenities',
+      ok:
+        place.nearbyAmenities.some((a) => a.nameEn.trim() || a.nameAr.trim()) ||
+        !!place.amenitiesNotesEn.trim() ||
+        !!place.amenitiesNotesAr.trim(),
+    },
+    { label: 'Photos (2–10)', ok: place.photos.length >= 2 && place.photos.length <= 10 },
+    { label: 'Cover photo', ok: place.photos.some((p) => p.isCover) },
+    {
+      label: 'Photo captions EN+AR',
+      ok:
+        place.photos.length >= 2 &&
+        place.photos.every((p) => !!p.captionEn?.trim() && !!p.captionAr?.trim()),
+    },
+  ]
+  const missing = checks.filter((c) => !c.ok).map((c) => c.label)
+  const done = checks.length - missing.length
   return {
-    members: structuredClone(SEED_MEMBERS),
-    places: structuredClone(SEED_PLACES),
-    finance: structuredClone(SEED_FINANCE),
-    activity: structuredClone(SEED_ACTIVITY),
-  }
-}
-
-export function loadStore(): AdminStore {
-  try {
-    const raw = localStorage.getItem(STORE_KEY)
-    if (!raw) return seed()
-    const parsed = JSON.parse(raw) as AdminStore
-    if (!parsed.members?.length) return seed()
-    return parsed
-  } catch {
-    return seed()
-  }
-}
-
-export function saveStore(store: AdminStore) {
-  try {
-    localStorage.setItem(STORE_KEY, JSON.stringify(store))
-  } catch {
-    /* ignore */
-  }
-}
-
-export function resetStore(): AdminStore {
-  const next = seed()
-  saveStore(next)
-  return next
-}
-
-export function pushActivity(
-  store: AdminStore,
-  actor: string,
-  action: string,
-  summary: string,
-): AdminStore {
-  const item: ActivityItem = {
-    id: `a-${Date.now()}`,
-    actor,
-    action,
-    summary,
-    createdAt: new Date().toISOString(),
-  }
-  return { ...store, activity: [item, ...store.activity] }
-}
-
-export function upsertPlace(store: AdminStore, place: Place): AdminStore {
-  const exists = store.places.some((p) => p.id === place.id)
-  const places = exists
-    ? store.places.map((p) => (p.id === place.id ? place : p))
-    : [place, ...store.places]
-  return { ...store, places }
-}
-
-export function deletePlace(store: AdminStore, id: string): AdminStore {
-  return { ...store, places: store.places.filter((p) => p.id !== id) }
-}
-
-export function upsertFinance(
-  store: AdminStore,
-  draft: FinanceDraft,
-): AdminStore {
-  const exists = store.finance.some((f) => f.id === draft.id)
-  const finance = exists
-    ? store.finance.map((f) => (f.id === draft.id ? draft : f))
-    : [draft, ...store.finance]
-  return { ...store, finance }
-}
-
-export function setFinanceStatus(
-  store: AdminStore,
-  id: string,
-  status: FinanceStatus,
-): AdminStore {
-  return {
-    ...store,
-    finance: store.finance.map((f) =>
-      f.id === id ? { ...f, status, updatedAt: new Date().toISOString() } : f,
-    ),
-  }
-}
-
-export function setPlaceStatus(
-  store: AdminStore,
-  id: string,
-  status: PlaceStatus,
-): AdminStore {
-  return {
-    ...store,
-    places: store.places.map((p) =>
-      p.id === id ? { ...p, status, updatedAt: new Date().toISOString() } : p,
-    ),
+    done,
+    total: checks.length,
+    missing,
+    percent: Math.round((done / checks.length) * 100),
   }
 }
 
 export function daCanSubmit(place: Place): string | null {
-  if (!place.nameEn.trim() || !place.nameAr.trim())
-    return 'Basics: English and Arabic names are required.'
-  if (!place.summaryEn.trim() || !place.summaryAr.trim())
-    return 'Basics: English and Arabic summaries are required.'
-  if (!place.region.trim()) return 'Basics: region is required.'
-  if (!place.difficulty) return 'Basics: difficulty is required.'
-  if (!place.seasonFrom || !place.seasonTo)
-    return 'Basics: season from → to months are required.'
-  if (!place.vehicleAccess) return 'Access: vehicle type is required.'
-  if (!place.accessNotesEn.trim() || !place.accessNotesAr.trim())
-    return 'Access: English and Arabic notes are required.'
-  if (place.photos.length < 2) return 'Photos: at least 2 photos required.'
-  if (place.photos.length > 10) return 'Photos: maximum 10 photos.'
-  if (!place.photos.some((p) => p.isCover))
-    return 'Photos: mark one cover photo.'
-  return null
+  const progress = daRequiredProgress(place)
+  if (progress.missing.length === 0) return null
+  return `Still needed: ${progress.missing.slice(0, 4).join(', ')}${
+    progress.missing.length > 4 ? '…' : ''
+  }`
 }
 
 export function safetyComplete(place: Place): string | null {
   const s = place.safety
-  const fields: (keyof typeof s)[] = [
+  const dropdownKeys: (keyof typeof s)[] = [
     'hazards',
     'heat',
     'flood',
     'water',
     'signal',
-    'emergency',
     'whenNotToGo',
     'kit',
   ]
-  for (const key of fields) {
+  for (const key of dropdownKeys) {
     if (typeof s[key] === 'string' && !String(s[key]).trim()) {
-      return `Safety: complete “${key}” before Ready.`
+      return `Safety: choose “${key}” before Ready.`
     }
   }
+  if (!s.emergencyContacts.trim()) {
+    return 'Safety: emergency contacts are required before Ready.'
+  }
+  if (!s.nearestClinic.trim()) {
+    return 'Safety: nearest clinic is required before Ready.'
+  }
   return null
+}
+
+/** Ensure cover is first in the gallery array. */
+export function sortPhotosCoverFirst<T extends { isCover: boolean }>(
+  photos: T[],
+): T[] {
+  return [...photos].sort((a, b) => Number(b.isCover) - Number(a.isCover))
 }

@@ -1,15 +1,20 @@
-import { useMemo, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { useAdmin } from '../AdminContext'
 import {
   daCanSubmit,
-  deletePlace,
-  pushActivity,
+  daRequiredProgress,
   safetyComplete,
-  upsertPlace,
+  sortPhotosCoverFirst,
 } from '../store'
-import { DIFFICULTY_OPTIONS, MONTHS } from '../constants'
-import type { Place, PlacePhoto, RoleKey, VehicleAccess } from '../types'
+import { DIFFICULTY_OPTIONS, MONTHS, SAFETY_DROPDOWNS } from '../constants'
+import type {
+  Place,
+  PlaceAmenity,
+  PlacePhoto,
+  RoleKey,
+  VehicleAccess,
+} from '../types'
 import { StatusChip } from './StatusChip'
 
 type Mode = 'da' | 'safety' | 'ceo' | 'readonly'
@@ -19,6 +24,15 @@ const VEHICLE_OPTIONS: { value: VehicleAccess; label: string }[] = [
   { value: 'four_wd', label: '4WD recommended' },
   { value: 'four_x4_recommended', label: '4x4 recommended' },
   { value: 'other', label: 'Other / walk-in' },
+]
+
+const AMENITY_KINDS: { value: PlaceAmenity['kind']; label: string }[] = [
+  { value: 'cafe', label: 'Cafe / coffee' },
+  { value: 'shop', label: 'Shop / services' },
+  { value: 'restroom', label: 'Restroom' },
+  { value: 'water', label: 'Water point' },
+  { value: 'parking', label: 'Parking' },
+  { value: 'other', label: 'Other' },
 ]
 
 function modeFor(role: RoleKey, place: Place, memberId: string): Mode {
@@ -38,7 +52,7 @@ export function PlaceEditor({
   placeId: string
   backTo: string
 }) {
-  const { session, store, updateStore } = useAdmin()
+  const { session, store, savePlace, removePlace } = useAdmin()
   const navigate = useNavigate()
   const original = store.places.find((p) => p.id === placeId)
   const [place, setPlace] = useState<Place | null>(() =>
@@ -48,11 +62,58 @@ export function PlaceEditor({
     'basics',
   )
   const [msg, setMsg] = useState<string | null>(null)
+  const [busy, setBusy] = useState(false)
+  const [autosaveState, setAutosaveState] = useState<
+    'idle' | 'pending' | 'saved' | 'error'
+  >('idle')
+  const skipAutosave = useRef(true)
+  const placeRef = useRef(place)
+  placeRef.current = place
+
+  useEffect(() => {
+    const next = store.places.find((p) => p.id === placeId)
+    if (next) {
+      skipAutosave.current = true
+      setPlace(structuredClone(next))
+    }
+  }, [store.places, placeId])
 
   const mode = useMemo(() => {
     if (!session || !place) return 'readonly' as Mode
     return modeFor(session.roleKey, place, session.memberId)
   }, [session, place])
+
+  const progress = useMemo(
+    () => (place ? daRequiredProgress(place) : null),
+    [place],
+  )
+
+  // Autosave drafts for DA (and CEO editing drafts)
+  useEffect(() => {
+    if (!place || !session) return
+    if (mode !== 'da' && !(mode === 'ceo' && place.status === 'draft')) return
+    if (place.status !== 'draft' && mode === 'da') return
+    if (skipAutosave.current) {
+      skipAutosave.current = false
+      return
+    }
+    setAutosaveState('pending')
+    const timer = window.setTimeout(() => {
+      const snapshot = placeRef.current
+      if (!snapshot) return
+      void savePlace(
+        {
+          ...snapshot,
+          photos: sortPhotosCoverFirst(snapshot.photos),
+          updatedAt: new Date().toISOString(),
+        },
+        { withSafety: false },
+      )
+        .then(() => setAutosaveState('saved'))
+        .catch(() => setAutosaveState('error'))
+    }, 1200)
+    return () => window.clearTimeout(timer)
+  }, [place, mode, session, savePlace])
 
   if (!session || !place) {
     return (
@@ -65,7 +126,6 @@ export function PlaceEditor({
 
   const daEditable = mode === 'da' || mode === 'ceo'
   const safetyEditable = mode === 'safety' || mode === 'ceo'
-  // DA never sees Safety; CFO/VP + Safety + CEO do (CFO read-only)
   const showSafetyTab = mode !== 'da'
 
   function patch(partial: Partial<Place>) {
@@ -78,55 +138,81 @@ export function PlaceEditor({
     )
   }
 
-  function save(extra?: Partial<Place>, activity?: string) {
+  async function save(
+    extra?: Partial<Place>,
+    activitySummary?: string,
+    withSafety = false,
+  ) {
     if (!place || !session) return
-    const base = place
-    const actor = session
-    let next: Place = {
-      ...base,
-      ...extra,
-      updatedAt: new Date().toISOString(),
-    }
+    setBusy(true)
+    setMsg(null)
+    try {
+      let next: Place = {
+        ...place,
+        ...extra,
+        photos: sortPhotosCoverFirst((extra?.photos ?? place.photos)),
+        updatedAt: new Date().toISOString(),
+      }
 
-    // Editing published → unpublish back to safety
-    if (
-      base.status === 'published' &&
-      (mode === 'da' || mode === 'ceo') &&
-      !extra?.status
-    ) {
-      next = { ...next, status: 'awaiting_safety' }
-      setMsg('Published place edited — returned to Awaiting safety.')
-    }
+      if (
+        place.status === 'published' &&
+        (mode === 'da' || mode === 'ceo') &&
+        !extra?.status
+      ) {
+        next = { ...next, status: 'awaiting_safety' }
+        setMsg('Published place edited — returned to Awaiting safety.')
+      }
 
-    let storeNext = upsertPlace(store, next)
-    if (activity) {
-      storeNext = pushActivity(
-        storeNext,
-        actor.displayName,
-        'place.saved',
-        activity,
-      )
+      await savePlace(next, {
+        withSafety: withSafety || mode === 'safety' || mode === 'ceo',
+        activity: activitySummary
+          ? { action: 'place.saved', summary: activitySummary }
+          : undefined,
+      })
+      skipAutosave.current = true
+      setPlace(next)
+      if (!msg) setMsg('Saved to Supabase.')
+      setAutosaveState('saved')
+    } catch (err) {
+      setMsg(err instanceof Error ? err.message : 'Save failed')
+    } finally {
+      setBusy(false)
     }
-    updateStore(storeNext)
-    setPlace(next)
-    if (!msg) setMsg('Saved (local mock).')
   }
 
-  function submitSafety() {
+  async function submitSafety() {
     if (!place) return
     const err = daCanSubmit(place)
     if (err) {
       setMsg(err)
       return
     }
-    save(
-      { status: 'awaiting_safety' },
-      `Submitted ${place.nameEn || 'place'} for safety`,
-    )
-    setMsg('Submitted → Awaiting safety.')
+    setBusy(true)
+    setMsg(null)
+    try {
+      const next: Place = {
+        ...place,
+        status: 'awaiting_safety',
+        photos: sortPhotosCoverFirst(place.photos),
+        updatedAt: new Date().toISOString(),
+      }
+      await savePlace(next, {
+        activity: {
+          action: 'place.submitted',
+          summary: `Submitted ${place.nameEn || 'place'} for safety`,
+        },
+      })
+      skipAutosave.current = true
+      setPlace(next)
+      setMsg('Submitted → Awaiting safety.')
+    } catch (e) {
+      setMsg(e instanceof Error ? e.message : 'Submit failed')
+    } finally {
+      setBusy(false)
+    }
   }
 
-  function markReady() {
+  async function markReady() {
     if (!place || !session) return
     const err = safetyComplete(place)
     if (err) {
@@ -140,33 +226,67 @@ export function PlaceEditor({
       status: 'ready',
       updatedAt: new Date().toISOString(),
     }
-    let storeNext = upsertPlace(store, next)
-    storeNext = pushActivity(
-      storeNext,
-      session.displayName,
-      'safety.ready',
-      `Marked ${next.nameEn} Ready`,
-    )
-    updateStore(storeNext)
-    setPlace(next)
-    setMsg('Marked Ready.')
+    setBusy(true)
+    try {
+      await savePlace(next, {
+        withSafety: true,
+        activity: {
+          action: 'safety.ready',
+          summary: `Marked ${next.nameEn} Ready`,
+        },
+      })
+      skipAutosave.current = true
+      setPlace(next)
+      setMsg('Marked Ready.')
+    } catch (e) {
+      setMsg(e instanceof Error ? e.message : 'Failed')
+    } finally {
+      setBusy(false)
+    }
   }
 
-  function publish() {
+  async function publish() {
     if (!place) return
     if (place.status !== 'ready') {
       setMsg('Only Ready places can be published.')
       return
     }
-    save({ status: 'published' }, `Published ${place.nameEn}`)
-    setMsg('Published.')
+    const err = safetyComplete(place)
+    if (err) {
+      setMsg(err)
+      setTab('safety')
+      return
+    }
+    setBusy(true)
+    try {
+      const next: Place = {
+        ...place,
+        status: 'published',
+        updatedAt: new Date().toISOString(),
+      }
+      await savePlace(next, {
+        withSafety: true,
+        activity: {
+          action: 'place.published',
+          summary: `Published ${place.nameEn}`,
+        },
+      })
+      skipAutosave.current = true
+      setPlace(next)
+      setMsg('Published.')
+    } catch (e) {
+      setMsg(e instanceof Error ? e.message : 'Publish failed')
+    } finally {
+      setBusy(false)
+    }
   }
 
-  function sendBack(status: 'needs_changes' | 'rejected') {
+  async function sendBack(status: 'needs_changes' | 'rejected') {
     if (!place) return
-    save(
+    await save(
       { status },
       `Set ${place.nameEn} to ${status.replace('_', ' ')}`,
+      true,
     )
   }
 
@@ -184,43 +304,57 @@ export function PlaceEditor({
         id: `ph-${Date.now()}-${i}`,
         url: URL.createObjectURL(file),
         isCover: existing.length === 0 && i === 0,
-        captionEn: file.name,
+        captionEn: '',
+        captionAr: '',
       }))
-    patch({ photos: [...existing, ...added] })
+    patch({ photos: sortPhotosCoverFirst([...existing, ...added]) })
   }
 
   function setCover(id: string) {
     if (!place) return
     patch({
-      photos: place.photos.map((p) => ({ ...p, isCover: p.id === id })),
+      photos: sortPhotosCoverFirst(
+        place.photos.map((p) => ({ ...p, isCover: p.id === id })),
+      ),
     })
   }
 
   function removePhoto(id: string) {
     if (!place) return
-    const photos = place.photos.filter((p) => p.id !== id)
+    let photos = place.photos.filter((p) => p.id !== id)
     if (photos.length && !photos.some((p) => p.isCover)) {
-      photos[0] = { ...photos[0], isCover: true }
+      photos = [{ ...photos[0], isCover: true }, ...photos.slice(1)]
     }
-    patch({ photos })
+    patch({ photos: sortPhotosCoverFirst(photos) })
   }
 
-  function onDelete() {
+  function patchPhoto(id: string, partial: Partial<PlacePhoto>) {
+    if (!place) return
+    patch({
+      photos: place.photos.map((p) =>
+        p.id === id ? { ...p, ...partial } : p,
+      ),
+    })
+  }
+
+  async function onDelete() {
     if (!place || !session) return
     if (!confirm('Delete this place?')) return
     const can =
       mode === 'ceo' ||
       (mode === 'da' && place.createdBy === session.memberId)
     if (!can) return
-    updateStore(
-      pushActivity(
-        deletePlace(store, place.id),
-        session.displayName,
-        'place.deleted',
-        `Deleted ${place.nameEn || place.id}`,
-      ),
-    )
-    navigate(backTo)
+    setBusy(true)
+    try {
+      await removePlace(place.id, {
+        action: 'place.deleted',
+        summary: `Deleted ${place.nameEn || place.id}`,
+      })
+      navigate(backTo)
+    } catch (e) {
+      setMsg(e instanceof Error ? e.message : 'Delete failed')
+      setBusy(false)
+    }
   }
 
   const tabs: { id: typeof tab; label: string }[] = [
@@ -229,6 +363,15 @@ export function PlaceEditor({
     { id: 'photos', label: 'Photos' },
   ]
   if (showSafetyTab) tabs.push({ id: 'safety', label: 'Safety' })
+
+  const autosaveLabel =
+    autosaveState === 'pending'
+      ? 'Autosaving…'
+      : autosaveState === 'saved'
+        ? 'Draft autosaved'
+        : autosaveState === 'error'
+          ? 'Autosave failed'
+          : null
 
   return (
     <div>
@@ -240,6 +383,7 @@ export function PlaceEditor({
           <h1>{place.nameEn || 'Untitled place'}</h1>
           <p>
             <StatusChip status={place.status} /> · Owned by {place.ownerLabel}
+            {autosaveLabel ? ` · ${autosaveLabel}` : ''}
           </p>
         </div>
         <div className="admin-actions" style={{ marginTop: 0 }}>
@@ -247,13 +391,33 @@ export function PlaceEditor({
             <button
               type="button"
               className="admin-btn secondary"
-              onClick={() => save(undefined, `Saved ${place.nameEn || 'place'}`)}
+              disabled={busy}
+              onClick={() =>
+                void save(undefined, `Saved ${place.nameEn || 'place'}`)
+              }
             >
               Save
             </button>
           )}
+          {mode === 'safety' && (
+            <button
+              type="button"
+              className="admin-btn secondary"
+              disabled={busy}
+              onClick={() =>
+                void save(undefined, `Updated safety for ${place.nameEn}`, true)
+              }
+            >
+              Save safety
+            </button>
+          )}
           {mode === 'da' && place.status === 'draft' && (
-            <button type="button" className="admin-btn" onClick={submitSafety}>
+            <button
+              type="button"
+              className="admin-btn"
+              disabled={busy}
+              onClick={() => void submitSafety()}
+            >
               Submit for safety
             </button>
           )}
@@ -261,37 +425,93 @@ export function PlaceEditor({
             (place.status === 'awaiting_safety' ||
               place.status === 'needs_changes') && (
               <>
-                <button type="button" className="admin-btn" onClick={markReady}>
+                <button
+                  type="button"
+                  className="admin-btn"
+                  disabled={busy}
+                  onClick={() => void markReady()}
+                >
                   Mark Ready
                 </button>
                 <button
                   type="button"
                   className="admin-btn sand"
-                  onClick={() => sendBack('needs_changes')}
+                  disabled={busy}
+                  onClick={() => void sendBack('needs_changes')}
                 >
                   Needs changes
                 </button>
                 <button
                   type="button"
                   className="admin-btn danger"
-                  onClick={() => sendBack('rejected')}
+                  disabled={busy}
+                  onClick={() => void sendBack('rejected')}
                 >
                   Reject
                 </button>
               </>
             )}
           {mode === 'ceo' && place.status === 'ready' && (
-            <button type="button" className="admin-btn" onClick={publish}>
+            <button
+              type="button"
+              className="admin-btn"
+              disabled={busy}
+              onClick={() => void publish()}
+            >
               Publish
             </button>
           )}
           {(mode === 'ceo' || mode === 'da') && (
-            <button type="button" className="admin-btn danger" onClick={onDelete}>
+            <button
+              type="button"
+              className="admin-btn danger"
+              disabled={busy}
+              onClick={() => void onDelete()}
+            >
               Delete
             </button>
           )}
         </div>
       </div>
+
+      {mode === 'da' && progress && (
+        <div className="admin-panel" style={{ marginBottom: '0.85rem' }}>
+          <div
+            style={{
+              display: 'flex',
+              justifyContent: 'space-between',
+              gap: '1rem',
+              marginBottom: '0.45rem',
+            }}
+          >
+            <strong style={{ fontSize: '0.92rem' }}>
+              Required fields · {progress.done}/{progress.total}
+            </strong>
+            <span className="admin-muted">{progress.percent}%</span>
+          </div>
+          <div
+            style={{
+              height: 8,
+              borderRadius: 999,
+              background: '#e2ebe5',
+              overflow: 'hidden',
+            }}
+          >
+            <div
+              style={{
+                width: `${progress.percent}%`,
+                height: '100%',
+                background: progress.percent === 100 ? '#1F8A7A' : '#E6C989',
+              }}
+            />
+          </div>
+          {progress.missing.length > 0 && (
+            <p className="admin-muted" style={{ margin: '0.55rem 0 0' }}>
+              Still needed: {progress.missing.join(' · ')}
+            </p>
+          )}
+        </div>
+      )}
 
       {mode === 'readonly' && (
         <div className="admin-banner">
@@ -301,7 +521,8 @@ export function PlaceEditor({
       )}
       {mode === 'safety' && (
         <div className="admin-banner info">
-          DA fields are read-only. Edit the Safety tab, then Mark Ready.
+          DA fields are read-only. Complete Safety dropdowns + emergency
+          contacts + nearest clinic, then Mark Ready.
         </div>
       )}
       {msg && <div className="admin-banner info">{msg}</div>}
@@ -413,16 +634,42 @@ export function PlaceEditor({
               </select>
             </div>
             <Field
-              label="Distance (km)"
+              label="Hike length (km)"
               value={place.distanceKm}
               disabled={!daEditable}
               onChange={(v) => patch({ distanceKm: v })}
             />
             <Field
-              label="Duration"
+              label="Estimated time"
               value={place.durationText}
               disabled={!daEditable}
               onChange={(v) => patch({ durationText: v })}
+            />
+            <Field
+              label="Start place (EN)"
+              value={place.startPlaceEn}
+              disabled={!daEditable}
+              onChange={(v) => patch({ startPlaceEn: v })}
+            />
+            <Field
+              label="نقطة البداية (AR)"
+              value={place.startPlaceAr}
+              disabled={!daEditable}
+              dir="rtl"
+              onChange={(v) => patch({ startPlaceAr: v })}
+            />
+            <Field
+              label="End place (EN)"
+              value={place.endPlaceEn}
+              disabled={!daEditable}
+              onChange={(v) => patch({ endPlaceEn: v })}
+            />
+            <Field
+              label="نقطة النهاية (AR)"
+              value={place.endPlaceAr}
+              disabled={!daEditable}
+              dir="rtl"
+              onChange={(v) => patch({ endPlaceAr: v })}
             />
             <div className="admin-field full">
               <label>
@@ -491,14 +738,131 @@ export function PlaceEditor({
               className="full"
               onChange={(v) => patch({ trailheadNotesAr: v })}
             />
+            <div className="admin-field full">
+              <label>Nearby amenities</label>
+              <p className="admin-muted" style={{ margin: '0 0 0.65rem' }}>
+                Coffee shops / services near the trail — list and/or bilingual
+                notes (offline hiking UX later).
+              </p>
+              {place.nearbyAmenities.map((am, idx) => (
+                <div
+                  key={am.id}
+                  className="admin-form-grid"
+                  style={{
+                    marginBottom: '0.75rem',
+                    paddingBottom: '0.75rem',
+                    borderBottom: '1px solid #e2ebe5',
+                  }}
+                >
+                  <div className="admin-field">
+                    <label>Kind</label>
+                    <select
+                      value={am.kind}
+                      disabled={!daEditable}
+                      onChange={(e) => {
+                        const kind = e.target.value as PlaceAmenity['kind']
+                        const next = [...place.nearbyAmenities]
+                        next[idx] = { ...am, kind }
+                        patch({ nearbyAmenities: next })
+                      }}
+                    >
+                      {AMENITY_KINDS.map((k) => (
+                        <option key={k.value} value={k.value}>
+                          {k.label}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+                  <div className="admin-field">
+                    <label>&nbsp;</label>
+                    {daEditable && (
+                      <button
+                        type="button"
+                        className="admin-btn danger"
+                        style={{ padding: '0.35rem 0.55rem', fontSize: '0.75rem' }}
+                        onClick={() =>
+                          patch({
+                            nearbyAmenities: place.nearbyAmenities.filter(
+                              (a) => a.id !== am.id,
+                            ),
+                          })
+                        }
+                      >
+                        Remove
+                      </button>
+                    )}
+                  </div>
+                  <Field
+                    label="Name (EN)"
+                    value={am.nameEn}
+                    disabled={!daEditable}
+                    onChange={(v) => {
+                      const next = [...place.nearbyAmenities]
+                      next[idx] = { ...am, nameEn: v }
+                      patch({ nearbyAmenities: next })
+                    }}
+                  />
+                  <Field
+                    label="الاسم (AR)"
+                    value={am.nameAr}
+                    disabled={!daEditable}
+                    dir="rtl"
+                    onChange={(v) => {
+                      const next = [...place.nearbyAmenities]
+                      next[idx] = { ...am, nameAr: v }
+                      patch({ nearbyAmenities: next })
+                    }}
+                  />
+                </div>
+              ))}
+              {daEditable && (
+                <button
+                  type="button"
+                  className="admin-btn secondary"
+                  style={{ marginBottom: '0.85rem' }}
+                  onClick={() =>
+                    patch({
+                      nearbyAmenities: [
+                        ...place.nearbyAmenities,
+                        {
+                          id: crypto.randomUUID(),
+                          kind: 'cafe',
+                          nameEn: '',
+                          nameAr: '',
+                        },
+                      ],
+                    })
+                  }
+                >
+                  Add amenity
+                </button>
+              )}
+            </div>
+            <Field
+              label="Amenities notes (EN)"
+              value={place.amenitiesNotesEn}
+              disabled={!daEditable}
+              textarea
+              className="full"
+              onChange={(v) => patch({ amenitiesNotesEn: v })}
+            />
+            <Field
+              label="ملاحظات الخدمات القريبة (AR)"
+              value={place.amenitiesNotesAr}
+              disabled={!daEditable}
+              textarea
+              dir="rtl"
+              className="full"
+              onChange={(v) => patch({ amenitiesNotesAr: v })}
+            />
           </div>
         )}
 
         {tab === 'photos' && (
           <div>
             <p className="admin-muted" style={{ marginBottom: '0.75rem' }}>
-              Mock upload only (no Supabase). Need 2–10 photos and one cover.
-              Currently {place.photos.length}/10.
+              2–10 photos, one cover (shown first). Each photo needs EN + AR
+              captions. Storage upload later — metadata saved on the place.
             </p>
             {daEditable && (
               <div className="admin-actions" style={{ marginTop: 0 }}>
@@ -518,12 +882,12 @@ export function PlaceEditor({
               </div>
             )}
             <div className="admin-photo-grid" style={{ marginTop: '0.85rem' }}>
-              {place.photos.map((ph) => (
+              {sortPhotosCoverFirst(place.photos).map((ph) => (
                 <div key={ph.id} className="admin-photo">
                   <img src={ph.url} alt={ph.captionEn || 'Place photo'} />
                   <div className="meta">
                     {ph.isCover ? (
-                      <strong>Cover</strong>
+                      <strong>Cover (first)</strong>
                     ) : daEditable ? (
                       <button
                         type="button"
@@ -547,6 +911,40 @@ export function PlaceEditor({
                       </button>
                     )}
                   </div>
+                  <div style={{ padding: '0.45rem 0.5rem 0.6rem' }}>
+                    <input
+                      placeholder="Caption EN"
+                      value={ph.captionEn ?? ''}
+                      disabled={!daEditable}
+                      onChange={(e) =>
+                        patchPhoto(ph.id, { captionEn: e.target.value })
+                      }
+                      style={{
+                        width: '100%',
+                        marginBottom: 4,
+                        border: '1px solid #d5e0d9',
+                        borderRadius: 6,
+                        padding: '0.3rem 0.4rem',
+                        fontSize: '0.78rem',
+                      }}
+                    />
+                    <input
+                      placeholder="التعليق AR"
+                      dir="rtl"
+                      value={ph.captionAr ?? ''}
+                      disabled={!daEditable}
+                      onChange={(e) =>
+                        patchPhoto(ph.id, { captionAr: e.target.value })
+                      }
+                      style={{
+                        width: '100%',
+                        border: '1px solid #d5e0d9',
+                        borderRadius: 6,
+                        padding: '0.3rem 0.4rem',
+                        fontSize: '0.78rem',
+                      }}
+                    />
+                  </div>
                 </div>
               ))}
             </div>
@@ -562,21 +960,59 @@ export function PlaceEditor({
                 ['flood', 'Flood'],
                 ['water', 'Water'],
                 ['signal', 'Signal'],
-                ['emergency', 'Emergency'],
                 ['whenNotToGo', 'When not to go'],
                 ['kit', 'Kit'],
               ] as const
             ).map(([key, label]) => (
-              <Field
-                key={key}
-                label={label}
-                value={place.safety[key]}
-                disabled={!safetyEditable}
-                textarea
-                className="full"
-                onChange={(v) => patchSafety({ [key]: v })}
-              />
+              <div className="admin-field" key={key}>
+                <label>{label}</label>
+                <select
+                  value={place.safety[key]}
+                  disabled={!safetyEditable}
+                  onChange={(e) => patchSafety({ [key]: e.target.value })}
+                >
+                  <option value="">Select…</option>
+                  {SAFETY_DROPDOWNS[key].map((opt) => (
+                    <option key={opt.value} value={opt.value}>
+                      {opt.label}
+                    </option>
+                  ))}
+                </select>
+              </div>
             ))}
+            <Field
+              label="Emergency contacts (required)"
+              value={place.safety.emergencyContacts}
+              disabled={!safetyEditable}
+              textarea
+              className="full"
+              onChange={(v) => patchSafety({ emergencyContacts: v })}
+            />
+            <Field
+              label="Nearest clinic (required)"
+              value={place.safety.nearestClinic}
+              disabled={!safetyEditable}
+              textarea
+              className="full"
+              onChange={(v) => patchSafety({ nearestClinic: v })}
+            />
+            <Field
+              label="Extra notes (EN)"
+              value={place.safety.notesEn}
+              disabled={!safetyEditable}
+              textarea
+              className="full"
+              onChange={(v) => patchSafety({ notesEn: v })}
+            />
+            <Field
+              label="ملاحظات إضافية (AR)"
+              value={place.safety.notesAr}
+              disabled={!safetyEditable}
+              textarea
+              dir="rtl"
+              className="full"
+              onChange={(v) => patchSafety({ notesAr: v })}
+            />
           </div>
         )}
       </div>

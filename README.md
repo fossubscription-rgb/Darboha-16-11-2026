@@ -1,6 +1,6 @@
 # Darboha
 
-Bilingual marketing site for **Darboha** (دربها) — self-guided adventure guidance for travelers and hikers exploring Oman — plus a **draft `/admin` UI** (mock data / localStorage only; no Supabase yet).
+Bilingual marketing site for **Darboha** (دربها) — self-guided adventure guidance for travelers and hikers exploring Oman — plus `/admin` wired to Supabase (password-only role gates).
 
 > Know the trail. Respect the land. · اعرف الدرب. احترم الأرض.
 
@@ -16,22 +16,24 @@ Bilingual marketing site for **Darboha** (دربها) — self-guided adventure 
 ## Run locally
 
 ```bash
+cp .env.example .env.local
+# set VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY (names only in example)
 npm install
 npm run dev
 ```
 
 Open the URL Vite prints (usually `http://localhost:5173`).
 
-- Marketing: `/`
-- Admin draft: `/admin`
+- Marketing: `/` (waitlist → Supabase `waitlist`)
+- Admin: `/admin`
 
 ```bash
 npm run build && npm run preview
 ```
 
-## Admin draft (placeholder)
+## Admin (Supabase)
 
-Password-only gate. Each password opens a role module. Data is **hardcoded seed + localStorage** — not Supabase.
+Password-only gate. Each password opens a role module. Session token is bound to that role (URL swap cannot skip auth).
 
 | Role | Demo password | Lands at |
 |------|---------------|----------|
@@ -41,16 +43,14 @@ Password-only gate. Each password opens a role module. Data is **hardcoded seed 
 | Health & Safety | `darboha-safety` | `/admin/safety` |
 | CFO / VP | `darboha-cfo` | `/admin/cfo` |
 
-Use **Reset demo data** in the sidebar to restore seed content.
-
-Static clickable mock (Context store): `/cursor/stores/self/media/admin-draft/admin-preview.html`
+Env vars (local): `VITE_SUPABASE_URL`, `VITE_SUPABASE_ANON_KEY`.
 
 ## Stack
 
 - Vite + React + TypeScript + React Router
-- Admin lazy-loaded at `/admin/*`
+- Supabase (Postgres + RLS + password-gate RPCs)
 - Deploy target (later): Vercel + Supabase
 
 ## Scope note
 
-Built for Oman Wijhati schools 2026/2027 — field: سياحة المغامرات والابتكار البيئي. Student company (Grade 9, 7 members). Admin is a **UI draft for click-through** — real auth/DB tomorrow.
+Built for Oman Wijhati schools 2026/2027 — field: سياحة المغامرات والابتكار البيئي. Student company (Grade 9, 7 members).

@@ -1,7 +1,6 @@
 import { NavLink, Outlet, useNavigate } from 'react-router-dom'
 import { roleHome } from '../auth'
 import { useAdmin } from '../AdminContext'
-import { resetStore } from '../store'
 
 type NavItem = { to: string; label: string; end?: boolean }
 
@@ -47,19 +46,15 @@ const ROLE_LABEL: Record<string, string> = {
 }
 
 export function Shell() {
-  const { session, setSession, updateStore } = useAdmin()
+  const { session, logout, loading, error, refresh } = useAdmin()
   const navigate = useNavigate()
   if (!session) return null
 
   const items = navForRole(session.roleKey)
 
-  function logout() {
-    setSession(null)
+  async function onLogout() {
+    await logout()
     navigate('/admin')
-  }
-
-  function resetDemo() {
-    updateStore(resetStore())
   }
 
   return (
@@ -84,16 +79,16 @@ export function Shell() {
           ))}
         </nav>
         <div className="sidebar-foot">
-          <button type="button" className="admin-btn ghost" onClick={logout}>
+          <button type="button" className="admin-btn ghost" onClick={onLogout}>
             Log out
           </button>
           <button
             type="button"
             className="admin-btn ghost"
-            onClick={resetDemo}
-            title="Reset mock localStorage data"
+            onClick={() => void refresh()}
+            title="Reload from Supabase"
           >
-            Reset demo data
+            Refresh data
           </button>
           <a
             className="admin-btn ghost"
@@ -105,6 +100,16 @@ export function Shell() {
         </div>
       </aside>
       <main className="admin-main">
+        {loading && (
+          <div className="admin-banner info" style={{ marginBottom: '1rem' }}>
+            Loading from Supabase…
+          </div>
+        )}
+        {error && (
+          <div className="admin-banner" style={{ marginBottom: '1rem' }}>
+            {error}
+          </div>
+        )}
         <Outlet />
       </main>
     </div>

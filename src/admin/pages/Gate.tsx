@@ -1,28 +1,43 @@
 import { useState } from 'react'
 import type { FormEvent } from 'react'
 import { Navigate, useNavigate } from 'react-router-dom'
-import { DEMO_PASSWORD_LIST, loginWithPassword, roleHome } from '../auth'
+import { loginWithPasswordApi } from '../api'
+import { DEMO_PASSWORD_LIST, roleHome } from '../auth'
 import { useAdmin } from '../AdminContext'
+import { isSupabaseConfigured } from '../../lib/supabase'
 
 export function Gate() {
-  const { session, setSession, store } = useAdmin()
+  const { session, setSession } = useAdmin()
   const navigate = useNavigate()
   const [password, setPassword] = useState('')
   const [error, setError] = useState<string | null>(null)
+  const [busy, setBusy] = useState(false)
 
   if (session) {
     return <Navigate to={roleHome(session.roleKey)} replace />
   }
 
-  function onSubmit(e: FormEvent) {
+  async function onSubmit(e: FormEvent) {
     e.preventDefault()
-    const next = loginWithPassword(password, store.members)
-    if (!next) {
-      setError('Incorrect password')
+    if (!isSupabaseConfigured()) {
+      setError('Missing VITE_SUPABASE_URL / VITE_SUPABASE_ANON_KEY')
       return
     }
-    setSession(next)
-    navigate(roleHome(next.roleKey))
+    setBusy(true)
+    setError(null)
+    try {
+      const next = await loginWithPasswordApi(password)
+      if (!next) {
+        setError('Incorrect password')
+        return
+      }
+      setSession(next)
+      navigate(roleHome(next.roleKey))
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Login failed')
+    } finally {
+      setBusy(false)
+    }
   }
 
   return (
@@ -30,8 +45,8 @@ export function Gate() {
       <form className="admin-gate-card" onSubmit={onSubmit}>
         <h1 className="wordmark">Darboha Admin</h1>
         <p className="sub">
-          Password-only gate (draft). Enter your role password — no username.
-          Mock localStorage only; Supabase lands tomorrow.
+          Password-only gate. Enter your role password — no username. Session is
+          bound to that role (URL swap cannot skip auth).
         </p>
         <label htmlFor="admin-password">Password</label>
         <input
@@ -44,13 +59,19 @@ export function Gate() {
             setError(null)
           }}
           placeholder="••••••••"
+          disabled={busy}
         />
         {error && <p className="admin-error">{error}</p>}
-        <button type="submit" className="admin-btn" style={{ width: '100%' }}>
-          Enter
+        <button
+          type="submit"
+          className="admin-btn"
+          style={{ width: '100%' }}
+          disabled={busy}
+        >
+          {busy ? 'Checking…' : 'Enter'}
         </button>
         <div className="admin-hint">
-          <strong>Demo passwords (draft only):</strong>
+          <strong>Demo passwords (local/dev):</strong>
           <ul style={{ paddingLeft: '1.1rem', margin: '0.4rem 0 0' }}>
             {DEMO_PASSWORD_LIST.map((row) => (
               <li key={row.password}>
