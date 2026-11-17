@@ -35,9 +35,16 @@ export function daRequiredProgress(place: Place): RequiredProgress {
     { label: 'Access notes EN', ok: !!place.accessNotesEn.trim() },
     { label: 'Access notes AR', ok: !!place.accessNotesAr.trim() },
     {
-      label: 'Nearby amenities',
+      label: 'Nearby amenities (Maps)',
       ok:
-        place.nearbyAmenities.some((a) => a.nameEn.trim() || a.nameAr.trim()) ||
+        place.nearbyAmenities.some(
+          (a) =>
+            !!a.placeId.trim() &&
+            a.lat != null &&
+            a.lng != null &&
+            !!a.mapsUrl.trim() &&
+            (!!a.nameEn.trim() || !!a.nameAr.trim()),
+        ) ||
         !!place.amenitiesNotesEn.trim() ||
         !!place.amenitiesNotesAr.trim(),
     },

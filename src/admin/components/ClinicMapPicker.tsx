@@ -1,4 +1,10 @@
 import { useEffect, useRef, useState } from 'react'
+import {
+  googleMapsApiKey,
+  loadGoogleMaps,
+  mapsEmbedSrc,
+  mapsSearchUrl,
+} from '../../lib/googleMaps'
 
 export type ClinicSelection = {
   nearestClinic: string
@@ -14,56 +20,14 @@ type Props = {
   onChange: (next: ClinicSelection) => void
 }
 
-const SCRIPT_ID = 'darboha-google-maps-js'
-let mapsLoader: Promise<typeof google> | null = null
-
-function mapsKey(): string {
-  return (import.meta.env.VITE_GOOGLE_MAPS_API_KEY as string | undefined)?.trim() || ''
-}
-
-function loadGoogleMaps(apiKey: string): Promise<typeof google> {
-  if (typeof window !== 'undefined' && window.google?.maps?.places) {
-    return Promise.resolve(window.google)
-  }
-  if (mapsLoader) return mapsLoader
-
-  mapsLoader = new Promise((resolve, reject) => {
-    const existing = document.getElementById(SCRIPT_ID) as HTMLScriptElement | null
-    if (existing) {
-      existing.addEventListener('load', () => resolve(window.google))
-      existing.addEventListener('error', () =>
-        reject(new Error('Google Maps failed to load')),
-      )
-      return
-    }
-    const script = document.createElement('script')
-    script.id = SCRIPT_ID
-    script.async = true
-    script.defer = true
-    script.src = `https://maps.googleapis.com/maps/api/js?key=${encodeURIComponent(apiKey)}&libraries=places&v=weekly`
-    script.onload = () => resolve(window.google)
-    script.onerror = () => reject(new Error('Google Maps failed to load'))
-    document.head.appendChild(script)
-  })
-  return mapsLoader
-}
-
-function mapsSearchUrl(name: string, placeId: string, lat: number, lng: number) {
-  if (placeId) {
-    return `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(name)}&query_place_id=${encodeURIComponent(placeId)}`
-  }
-  return `https://www.google.com/maps/search/?api=1&query=${lat},${lng}`
-}
-
 export function ClinicMapPicker({ value, disabled, onChange }: Props) {
-  const key = mapsKey()
+  const key = googleMapsApiKey()
   const inputRef = useRef<HTMLInputElement | null>(null)
   const autocompleteRef = useRef<google.maps.places.Autocomplete | null>(null)
   const [status, setStatus] = useState<'idle' | 'loading' | 'ready' | 'error'>(
     key ? 'loading' : 'idle',
   )
   const [error, setError] = useState<string | null>(null)
-
   const onChangeRef = useRef(onChange)
   onChangeRef.current = onChange
 
@@ -81,7 +45,6 @@ export function ClinicMapPicker({ value, disabled, onChange }: Props) {
         if (autocompleteRef.current) {
           google.maps.event.clearInstanceListeners(autocompleteRef.current)
         }
-        // Bias to Oman clinics/hospitals; establishment keeps Places Autocomplete happy.
         const ac = new g.maps.places.Autocomplete(inputRef.current, {
           fields: ['place_id', 'name', 'geometry', 'formatted_address', 'url'],
           types: ['establishment'],
@@ -129,14 +92,14 @@ export function ClinicMapPicker({ value, disabled, onChange }: Props) {
     }
   }, [key, disabled])
 
-  const embedSrc =
-    key && value.nearestClinicPlaceId
-      ? `https://www.google.com/maps/embed/v1/place?key=${encodeURIComponent(key)}&q=place_id:${encodeURIComponent(value.nearestClinicPlaceId)}`
-      : key && value.nearestClinicLat != null && value.nearestClinicLng != null
-        ? `https://www.google.com/maps/embed/v1/view?key=${encodeURIComponent(key)}&center=${value.nearestClinicLat},${value.nearestClinicLng}&zoom=14`
-        : key
-          ? `https://www.google.com/maps/embed/v1/view?key=${encodeURIComponent(key)}&center=23.5880,58.3829&zoom=7`
-          : null
+  const embedSrc = key
+    ? mapsEmbedSrc(
+        key,
+        value.nearestClinicPlaceId,
+        value.nearestClinicLat,
+        value.nearestClinicLng,
+      )
+    : null
 
   function clearClinic() {
     onChange({

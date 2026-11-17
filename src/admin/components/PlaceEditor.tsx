@@ -17,6 +17,7 @@ import type {
 } from '../types'
 import { StatusChip } from './StatusChip'
 import { ClinicMapPicker } from './ClinicMapPicker'
+import { AmenityMapPicker } from './AmenityMapPicker'
 
 type Mode = 'da' | 'safety' | 'ceo' | 'readonly'
 
@@ -740,81 +741,34 @@ export function PlaceEditor({
               onChange={(v) => patch({ trailheadNotesAr: v })}
             />
             <div className="admin-field full">
-              <label>Nearby amenities</label>
+              <label>Nearby amenities (Google Maps)</label>
               <p className="admin-muted" style={{ margin: '0 0 0.65rem' }}>
-                Coffee shops / services near the trail — list and/or bilingual
-                notes (offline hiking UX later).
+                Search and pick coffee shops / services on the map (same pattern
+                as Safety clinic). Each item stores name, Place ID, lat/lng, and
+                Maps URL. Bilingual notes below are optional extras.
               </p>
               {place.nearbyAmenities.map((am, idx) => (
-                <div
+                <AmenityMapPicker
                   key={am.id}
-                  className="admin-form-grid"
-                  style={{
-                    marginBottom: '0.75rem',
-                    paddingBottom: '0.75rem',
-                    borderBottom: '1px solid #e2ebe5',
+                  value={am}
+                  disabled={!daEditable}
+                  kindOptions={AMENITY_KINDS}
+                  onChange={(next) => {
+                    const list = [...place.nearbyAmenities]
+                    list[idx] = next
+                    patch({ nearbyAmenities: list })
                   }}
-                >
-                  <div className="admin-field">
-                    <label>Kind</label>
-                    <select
-                      value={am.kind}
-                      disabled={!daEditable}
-                      onChange={(e) => {
-                        const kind = e.target.value as PlaceAmenity['kind']
-                        const next = [...place.nearbyAmenities]
-                        next[idx] = { ...am, kind }
-                        patch({ nearbyAmenities: next })
-                      }}
-                    >
-                      {AMENITY_KINDS.map((k) => (
-                        <option key={k.value} value={k.value}>
-                          {k.label}
-                        </option>
-                      ))}
-                    </select>
-                  </div>
-                  <div className="admin-field">
-                    <label>&nbsp;</label>
-                    {daEditable && (
-                      <button
-                        type="button"
-                        className="admin-btn danger"
-                        style={{ padding: '0.35rem 0.55rem', fontSize: '0.75rem' }}
-                        onClick={() =>
+                  onRemove={
+                    daEditable
+                      ? () =>
                           patch({
                             nearbyAmenities: place.nearbyAmenities.filter(
                               (a) => a.id !== am.id,
                             ),
                           })
-                        }
-                      >
-                        Remove
-                      </button>
-                    )}
-                  </div>
-                  <Field
-                    label="Name (EN)"
-                    value={am.nameEn}
-                    disabled={!daEditable}
-                    onChange={(v) => {
-                      const next = [...place.nearbyAmenities]
-                      next[idx] = { ...am, nameEn: v }
-                      patch({ nearbyAmenities: next })
-                    }}
-                  />
-                  <Field
-                    label="الاسم (AR)"
-                    value={am.nameAr}
-                    disabled={!daEditable}
-                    dir="rtl"
-                    onChange={(v) => {
-                      const next = [...place.nearbyAmenities]
-                      next[idx] = { ...am, nameAr: v }
-                      patch({ nearbyAmenities: next })
-                    }}
-                  />
-                </div>
+                      : undefined
+                  }
+                />
               ))}
               {daEditable && (
                 <button
@@ -830,6 +784,10 @@ export function PlaceEditor({
                           kind: 'cafe',
                           nameEn: '',
                           nameAr: '',
+                          placeId: '',
+                          lat: null,
+                          lng: null,
+                          mapsUrl: '',
                         },
                       ],
                     })

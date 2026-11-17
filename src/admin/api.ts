@@ -166,7 +166,18 @@ function mapPlace(row: PlaceRow): Place {
     endPlaceEn: row.end_place_en ?? '',
     endPlaceAr: row.end_place_ar ?? '',
     nearbyAmenities: Array.isArray(row.nearby_amenities)
-      ? row.nearby_amenities
+      ? row.nearby_amenities.map((a) => ({
+          id: a.id || crypto.randomUUID(),
+          kind: a.kind || 'other',
+          nameEn: a.nameEn || '',
+          nameAr: a.nameAr || '',
+          placeId: a.placeId || '',
+          lat: typeof a.lat === 'number' ? a.lat : null,
+          lng: typeof a.lng === 'number' ? a.lng : null,
+          mapsUrl: a.mapsUrl || '',
+          notesEn: a.notesEn,
+          notesAr: a.notesAr,
+        }))
       : [],
     amenitiesNotesEn: row.amenities_notes_en ?? '',
     amenitiesNotesAr: row.amenities_notes_ar ?? '',

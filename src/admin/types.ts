@@ -41,6 +41,11 @@ export type PlaceAmenity = {
   kind: 'cafe' | 'shop' | 'restroom' | 'water' | 'parking' | 'other'
   nameEn: string
   nameAr: string
+  /** Google Places pick (same pattern as nearest clinic). */
+  placeId: string
+  lat: number | null
+  lng: number | null
+  mapsUrl: string
   notesEn?: string
   notesAr?: string
 }
