@@ -146,8 +146,8 @@
   --hero-atmosphere-image: none;
   position: relative;
   background:
-    linear-gradient(180deg, #081612 0%, #0c1f1a 42%, #e9f1ec 100%);
-  overflow: clip;
+    linear-gradient(180deg, #081612 0%, #0c1f1a 48%, #e9f1ec 100%);
+  overflow-x: clip;
 }
 
 .hero {
@@ -157,13 +157,13 @@
   align-items: end;
   color: var(--text);
   isolation: isolate;
-  padding-bottom: clamp(3.5rem, 9vw, 6.5rem);
-  margin-bottom: clamp(-3.5rem, -8vw, -2.5rem);
+  padding-bottom: clamp(5.5rem, 14vw, 8.5rem);
+  margin-bottom: -6.5rem;
 }
 
 .hero-media {
   position: absolute;
-  inset: 0 0 -28% 0;
+  inset: 0 0 -42% 0;
   z-index: -1;
   overflow: hidden;
   background: var(--ink);
@@ -250,12 +250,13 @@
   inset-inline: 0;
   inset-block-end: 0;
   z-index: 3;
-  height: min(42%, 18rem);
+  height: min(62%, 28rem);
   background: linear-gradient(
     180deg,
     rgba(12, 31, 26, 0) 0%,
-    rgba(12, 31, 26, 0.28) 38%,
-    rgba(233, 241, 236, 0.72) 78%,
+    rgba(12, 31, 26, 0.12) 22%,
+    rgba(233, 241, 236, 0.42) 48%,
+    rgba(233, 241, 236, 0.82) 72%,
     #e9f1ec 100%
   );
   pointer-events: none;
@@ -432,35 +433,36 @@
 .promise {
   position: relative;
   z-index: 1;
-  padding-top: clamp(5rem, 12vw, 7.5rem);
+  padding-top: clamp(5.5rem, 13vw, 8rem);
   background:
     radial-gradient(circle at 90% 18%, rgba(31, 138, 122, 0.14), transparent 42%),
     linear-gradient(
       180deg,
-      rgba(233, 241, 236, 0.2) 0%,
-      #f3f8f5 34%,
+      rgba(233, 241, 236, 0) 0%,
+      rgba(243, 248, 245, 0.72) 28%,
+      #f3f8f5 52%,
       #e9f1ec 100%
     );
 }
 
 .promise-atmosphere {
   position: absolute;
-  inset: -18% 0 auto;
-  height: min(58%, 22rem);
+  inset: -34% 0 auto;
+  height: min(78%, 30rem);
   background-image:
     linear-gradient(
       180deg,
-      rgba(233, 241, 236, 0.15) 0%,
-      rgba(243, 248, 245, 0.78) 55%,
+      rgba(233, 241, 236, 0.05) 0%,
+      rgba(243, 248, 245, 0.62) 42%,
       #e9f1ec 100%
     ),
     var(--hero-atmosphere-image);
   background-size: cover;
-  background-position: center 58%;
-  filter: saturate(0.85) blur(0.4px);
-  opacity: 0.34;
+  background-position: center 64%;
+  filter: saturate(0.9);
+  opacity: 0.48;
   pointer-events: none;
-  mask-image: linear-gradient(180deg, black 0%, black 42%, transparent 100%);
+  mask-image: linear-gradient(180deg, black 0%, black 30%, transparent 100%);
 }
 
 .trails {
