@@ -35,6 +35,16 @@ export type PlacePhoto = {
   captionAr?: string
 }
 
+/** Nearby amenity for offline hiking UX (cafe, shop, restroom, etc.). */
+export type PlaceAmenity = {
+  id: string
+  kind: 'cafe' | 'shop' | 'restroom' | 'water' | 'parking' | 'other'
+  nameEn: string
+  nameAr: string
+  notesEn?: string
+  notesAr?: string
+}
+
 export type Place = {
   id: string
   createdBy: string
@@ -49,8 +59,17 @@ export type Place = {
   /** Season window: from-month → to-month (1–12). */
   seasonFrom: number | null
   seasonTo: number | null
+  /** Hike length; numeric string, unit is always kilometres (km). */
   distanceKm: string
+  /** Estimated hike time (free text, e.g. 3–5 hours). */
   durationText: string
+  startPlaceEn: string
+  startPlaceAr: string
+  endPlaceEn: string
+  endPlaceAr: string
+  nearbyAmenities: PlaceAmenity[]
+  amenitiesNotesEn: string
+  amenitiesNotesAr: string
   fragile: boolean
   vehicleAccess: VehicleAccess
   accessNotesEn: string
@@ -59,14 +78,21 @@ export type Place = {
   trailheadNotesAr: string
   photos: PlacePhoto[]
   safety: {
+    /** Dropdown codes — see SAFETY_DROPDOWNS. */
     hazards: string
     heat: string
     flood: string
     water: string
     signal: string
+    /** Legacy short emergency note (optional extra). */
     emergency: string
     whenNotToGo: string
     kit: string
+    /** Required before Ready/Publish. */
+    emergencyContacts: string
+    nearestClinic: string
+    notesEn: string
+    notesAr: string
     completed: boolean
   }
   updatedAt: string
@@ -95,4 +121,6 @@ export type Session = {
   memberId: string
   roleKey: RoleKey
   displayName: string
+  /** Supabase admin_sessions token — bound to role for RLS + route AuthZ. */
+  token: string
 }

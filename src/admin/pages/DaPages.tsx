@@ -3,28 +3,28 @@ import { useAdmin } from '../AdminContext'
 import { StatusChip } from '../components/StatusChip'
 import { PlaceEditor } from '../components/PlaceEditor'
 import { blankPlace } from '../mockData'
-import { pushActivity, upsertPlace } from '../store'
 
 export function DaMyPlaces() {
-  const { session, store, updateStore } = useAdmin()
+  const { session, store, savePlace } = useAdmin()
   const navigate = useNavigate()
   if (!session) return null
 
   const mine = store.places.filter((p) => p.createdBy === session.memberId)
 
-  function create() {
+  async function create() {
     if (!session) return
-    const actor = session
-    const place = blankPlace(actor.memberId, actor.displayName)
-    updateStore(
-      pushActivity(
-        upsertPlace(store, place),
-        actor.displayName,
-        'place.created',
-        'Created a new draft place',
-      ),
-    )
-    navigate(`/admin/da/places/${place.id}`)
+    const place = blankPlace(session.memberId, session.displayName)
+    try {
+      await savePlace(place, {
+        activity: {
+          action: 'place.created',
+          summary: 'Created a new draft place',
+        },
+      })
+      navigate(`/admin/da/places/${place.id}`)
+    } catch (e) {
+      alert(e instanceof Error ? e.message : 'Create failed')
+    }
   }
 
   return (
@@ -33,9 +33,12 @@ export function DaMyPlaces() {
       <div className="admin-page-head">
         <div>
           <h1>My places</h1>
-          <p>Create and edit your own places. Tabs: Basics · Access · Photos.</p>
+          <p>
+            Create and edit your own places. Tabs: Basics (incl. hike length,
+            time, start/end) · Access (amenities) · Photos.
+          </p>
         </div>
-        <button type="button" className="admin-btn" onClick={create}>
+        <button type="button" className="admin-btn" onClick={() => void create()}>
           New place
         </button>
       </div>

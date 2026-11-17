@@ -8,6 +8,54 @@ export const DIFFICULTY_OPTIONS = [
 
 export type Difficulty = (typeof DIFFICULTY_OPTIONS)[number]
 
+/** Student-friendly Safety checklist dropdowns (stored as codes). */
+export const SAFETY_DROPDOWNS = {
+  hazards: [
+    { value: 'none', label: 'None / low risk' },
+    { value: 'edges', label: 'Cliff / unfenced edges' },
+    { value: 'slippery', label: 'Slippery rock / falaj' },
+    { value: 'wildlife', label: 'Wildlife / insects' },
+    { value: 'other', label: 'Other (see notes)' },
+  ],
+  heat: [
+    { value: 'low', label: 'Low — shade / cool season' },
+    { value: 'moderate', label: 'Moderate — start early' },
+    { value: 'high', label: 'High — midday dangerous' },
+    { value: 'extreme', label: 'Extreme — avoid summer midday' },
+  ],
+  flood: [
+    { value: 'none', label: 'No flood concern' },
+    { value: 'seasonal', label: 'Seasonal wadi flow' },
+    { value: 'flash_risk', label: 'Flash-flood risk' },
+    { value: 'avoid_rain', label: 'Avoid after / during rain' },
+  ],
+  water: [
+    { value: 'bring_all', label: 'Bring all water' },
+    { value: 'limited', label: 'Limited refill on trail' },
+    { value: 'falaj', label: 'Falaj / pools (treat carefully)' },
+    { value: 'shops_nearby', label: 'Shops / village nearby' },
+  ],
+  signal: [
+    { value: 'good', label: 'Usually good' },
+    { value: 'spotty', label: 'Spotty' },
+    { value: 'none', label: 'Little / no signal' },
+  ],
+  whenNotToGo: [
+    { value: 'rain_flood', label: 'Rain / flood risk' },
+    { value: 'midday_heat', label: 'Midday heat' },
+    { value: 'night', label: 'After dark' },
+    { value: 'crowds', label: 'Peak crowds' },
+    { value: 'high_wind', label: 'High wind / fog' },
+    { value: 'other', label: 'Other (see notes)' },
+  ],
+  kit: [
+    { value: 'basic', label: 'Water + phone + shoes' },
+    { value: 'water_sun', label: 'Extra water + sun protection' },
+    { value: 'grippy_shoes', label: 'Grippy shoes + small first-aid' },
+    { value: 'full_day', label: 'Full day pack (food, layers, headlamp)' },
+  ],
+} as const
+
 export const MONTHS = [
   { value: 1, en: 'Jan', ar: 'يناير' },
   { value: 2, en: 'Feb', ar: 'فبراير' },

@@ -1,5 +1,7 @@
 import { useEffect, useRef, useState } from 'react'
 import type { FormEvent } from 'react'
+import { joinWaitlistApi } from './admin/api'
+import { isSupabaseConfigured } from './lib/supabase'
 import { copy, type Lang } from './i18n'
 import './App.css'
 
@@ -43,6 +45,8 @@ function App() {
   const [lang, setLang] = useState<Lang>(readInitialLang)
   const [email, setEmail] = useState('')
   const [submitted, setSubmitted] = useState(false)
+  const [waitlistError, setWaitlistError] = useState<string | null>(null)
+  const [waitlistBusy, setWaitlistBusy] = useState(false)
 
   const promiseRef = useReveal<HTMLElement>()
   const trailsRef = useReveal<HTMLElement>()
@@ -73,10 +77,36 @@ function App() {
     setSubmitted(false)
   }
 
-  function onWaitlist(event: FormEvent<HTMLFormElement>) {
+  async function onWaitlist(event: FormEvent<HTMLFormElement>) {
     event.preventDefault()
-    if (!email.trim()) return
-    setSubmitted(true)
+    if (!email.trim() || waitlistBusy) return
+    setWaitlistError(null)
+    if (!isSupabaseConfigured()) {
+      setWaitlistError(
+        lang === 'ar'
+          ? 'الإعداد غير مكتمل — جرّب لاحقاً.'
+          : 'Waitlist is not configured yet.',
+      )
+      return
+    }
+    setWaitlistBusy(true)
+    try {
+      await joinWaitlistApi(email)
+      setSubmitted(true)
+    } catch (err) {
+      const message =
+        err instanceof Error ? err.message : 'Could not join waitlist'
+      // Unique violation → treat as success for the visitor
+      if (/duplicate|unique/i.test(message)) {
+        setSubmitted(true)
+      } else {
+        setWaitlistError(
+          lang === 'ar' ? 'تعذّر التسجيل. حاول مرة أخرى.' : message,
+        )
+      }
+    } finally {
+      setWaitlistBusy(false)
+    }
   }
 
   return (
@@ -322,7 +352,10 @@ function App() {
                 {t.waitlist.thanks}
               </p>
             ) : (
-              <form className="waitlist-form" onSubmit={onWaitlist}>
+              <form
+                className="waitlist-form"
+                onSubmit={(e) => void onWaitlist(e)}
+              >
                 <label className="sr-only" htmlFor="email">
                   {t.waitlist.emailLabel}
                 </label>
@@ -334,11 +367,24 @@ function App() {
                   autoComplete="email"
                   placeholder={t.waitlist.placeholder}
                   value={email}
-                  onChange={(event) => setEmail(event.target.value)}
+                  disabled={waitlistBusy}
+                  onChange={(event) => {
+                    setEmail(event.target.value)
+                    setWaitlistError(null)
+                  }}
                 />
-                <button className="btn btn-primary" type="submit">
+                <button
+                  className="btn btn-primary"
+                  type="submit"
+                  disabled={waitlistBusy}
+                >
                   {t.waitlist.submit}
                 </button>
+                {waitlistError && (
+                  <p className="waitlist-error" role="alert">
+                    {waitlistError}
+                  </p>
+                )}
               </form>
             )}
           </div>

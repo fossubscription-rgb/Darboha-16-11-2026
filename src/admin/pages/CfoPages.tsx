@@ -1,23 +1,26 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import type { FormEvent } from 'react'
 import { Link, useNavigate, useParams } from 'react-router-dom'
 import { useAdmin } from '../AdminContext'
 import { PlaceEditor } from '../components/PlaceEditor'
 import { StatusChip } from '../components/StatusChip'
 import { blankFinance } from '../mockData'
-import { pushActivity, upsertFinance } from '../store'
 import type { FinanceDraft } from '../types'
 
 export function CfoDrafts() {
-  const { session, store, updateStore } = useAdmin()
+  const { session, store, saveFinance } = useAdmin()
   const navigate = useNavigate()
   if (!session) return null
 
-  function create() {
+  async function create() {
     if (!session) return
     const draft = blankFinance(session.memberId)
-    updateStore(upsertFinance(store, draft))
-    navigate(`/admin/cfo/drafts/${draft.id}`)
+    try {
+      await saveFinance(draft)
+      navigate(`/admin/cfo/drafts/${draft.id}`)
+    } catch (e) {
+      alert(e instanceof Error ? e.message : 'Create failed')
+    }
   }
 
   return (
@@ -28,7 +31,7 @@ export function CfoDrafts() {
           <h1>Budget & pricing drafts</h1>
           <p>Category · who-for · description. CEO approves.</p>
         </div>
-        <button type="button" className="admin-btn" onClick={create}>
+        <button type="button" className="admin-btn" onClick={() => void create()}>
           New draft
         </button>
       </div>
@@ -68,12 +71,17 @@ export function CfoDrafts() {
 
 export function CfoDraftEditor() {
   const { id } = useParams()
-  const { session, store, updateStore } = useAdmin()
+  const { session, store, saveFinance } = useAdmin()
   const existing = store.finance.find((f) => f.id === id)
   const [draft, setDraft] = useState<FinanceDraft | null>(() =>
     existing ? structuredClone(existing) : null,
   )
   const [msg, setMsg] = useState<string | null>(null)
+
+  useEffect(() => {
+    const next = store.finance.find((f) => f.id === id)
+    if (next) setDraft(structuredClone(next))
+  }, [store.finance, id])
 
   if (!session || !draft) {
     return (
@@ -84,19 +92,23 @@ export function CfoDraftEditor() {
     )
   }
 
-  function onSave(e: FormEvent) {
+  async function onSave(e: FormEvent) {
     e.preventDefault()
     if (!draft) return
     const next: FinanceDraft = {
       ...draft,
       updatedAt: new Date().toISOString(),
     }
-    updateStore(upsertFinance(store, next))
-    setDraft(next)
-    setMsg('Saved (local mock).')
+    try {
+      await saveFinance(next)
+      setDraft(next)
+      setMsg('Saved to Supabase.')
+    } catch (err) {
+      setMsg(err instanceof Error ? err.message : 'Save failed')
+    }
   }
 
-  function submitApproval() {
+  async function submitApproval() {
     if (!draft || !session) return
     if (!draft.category.trim() || !draft.whoFor.trim() || !draft.description.trim()) {
       setMsg('Category, who-for, and description are required.')
@@ -111,16 +123,16 @@ export function CfoDraftEditor() {
       status: 'pending_approval',
       updatedAt: new Date().toISOString(),
     }
-    updateStore(
-      pushActivity(
-        upsertFinance(store, next),
-        session.displayName,
-        'finance.submitted',
-        `Submitted ${next.category} for approval`,
-      ),
-    )
-    setDraft(next)
-    setMsg('Submitted for CEO approval.')
+    try {
+      await saveFinance(next, {
+        action: 'finance.submitted',
+        summary: `Submitted ${next.category} for approval`,
+      })
+      setDraft(next)
+      setMsg('Submitted for CEO approval.')
+    } catch (err) {
+      setMsg(err instanceof Error ? err.message : 'Submit failed')
+    }
   }
 
   return (
@@ -137,7 +149,7 @@ export function CfoDraftEditor() {
         </div>
       </div>
       {msg && <div className="admin-banner info">{msg}</div>}
-      <form className="admin-panel" onSubmit={onSave}>
+      <form className="admin-panel" onSubmit={(e) => void onSave(e)}>
         <div className="admin-form-grid">
           <div className="admin-field">
             <label>Category</label>
@@ -179,7 +191,7 @@ export function CfoDraftEditor() {
             <button
               type="button"
               className="admin-btn"
-              onClick={submitApproval}
+              onClick={() => void submitApproval()}
             >
               Submit for approval
             </button>
@@ -249,7 +261,7 @@ export function CfoActivity() {
       <div className="admin-page-head">
         <div>
           <h1>Team activity</h1>
-          <p>Who’s been working — read-only VP view (mock feed).</p>
+          <p>Who’s been working — read-only VP view from activity_log.</p>
         </div>
       </div>
       <div className="admin-split">
