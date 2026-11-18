@@ -14,7 +14,7 @@ Project marketing plan: `/cursor/stores/self/docs/marketing-plan.md` (Darboha pr
 |---|---|
 | Name | Darboha / دربها |
 | Tagline | Know the trail. Respect the land. |
-| Colors | Canyon ink `#0C1F1A`, oasis teal `#1F8A7A`, sunlit sand `#E6C989`, mist `#E7F0EA` |
+| Colors | Navy `#0A1E3D`, glacier `#7EB8C9`, white `#FFFFFF` / mist `#F4F8FB` |
 | Fonts | Syne (EN display) · Figtree (EN body) · Cairo (Arabic) |
 
 ## Pages

@@ -6,12 +6,12 @@ type BrandingPageProps = {
 }
 
 const colors = [
-  { name: 'Canyon ink', hex: '#0C1F1A', varName: '--ink', on: '#E7F0EA' },
-  { name: 'Oasis teal', hex: '#1F8A7A', varName: '--teal', on: '#FFFFFF' },
-  { name: 'Sunlit sand', hex: '#E6C989', varName: '--sand', on: '#0C1F1A' },
-  { name: 'Mist', hex: '#E7F0EA', varName: '--mist', on: '#0C1F1A' },
-  { name: 'Stone', hex: '#6E7A72', varName: '--stone', on: '#FFFFFF' },
-  { name: 'Foam', hex: '#F5FAF7', varName: '--foam', on: '#0C1F1A' },
+  { name: 'Navy', hex: '#0A1E3D', varName: '--ink', on: '#F4F8FB' },
+  { name: 'Glacier', hex: '#7EB8C9', varName: '--teal', on: '#0A1E3D' },
+  { name: 'Glacier light', hex: '#9FCFDD', varName: '--sand', on: '#0A1E3D' },
+  { name: 'White mist', hex: '#F4F8FB', varName: '--mist', on: '#0A1E3D' },
+  { name: 'Stone', hex: '#6A7A8C', varName: '--stone', on: '#FFFFFF' },
+  { name: 'White', hex: '#FFFFFF', varName: '--foam', on: '#0A1E3D' },
 ]
 
 export default function BrandingPage({ lang, onToggleLang }: BrandingPageProps) {
@@ -66,8 +66,8 @@ export default function BrandingPage({ lang, onToggleLang }: BrandingPageProps) 
           <h2>{isAr ? 'الألوان' : 'Colors'}</h2>
           <p className="branding-lede">
             {isAr
-              ? 'لوحة العمل الحالية للموقع التسويقي.'
-              : 'Current working palette for the marketing site.'}
+              ? 'لوحة Glacier · Navy · White للموقع التسويقي.'
+              : 'Glacier · Navy · White — working palette for the marketing site.'}
           </p>
           <ul className="swatch-grid">
             {colors.map((c) => (

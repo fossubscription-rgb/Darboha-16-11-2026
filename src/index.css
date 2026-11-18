@@ -1,16 +1,17 @@
 :root {
-  --ink: #0c1f1a;
-  --ink-soft: #163029;
-  --teal: #1f8a7a;
-  --teal-bright: #2aa894;
-  --sand: #e6c989;
-  --sand-soft: #f0dfb5;
-  --mist: #e7f0ea;
-  --stone: #6e7a72;
-  --foam: #f5faf7;
-  --text: #eef6f1;
-  --text-muted: rgba(238, 246, 241, 0.78);
-  --shadow-deep: rgba(6, 18, 14, 0.55);
+  /* Brand: Glacier · Navy · White */
+  --ink: #0a1e3d;
+  --ink-soft: #132a4d;
+  --teal: #7eb8c9;
+  --teal-bright: #a5d4e2;
+  --sand: #9fcfdd;
+  --sand-soft: #c2e2ed;
+  --mist: #f4f8fb;
+  --stone: #6a7a8c;
+  --foam: #ffffff;
+  --text: #f4f8fb;
+  --text-muted: rgba(244, 248, 251, 0.78);
+  --shadow-deep: rgba(8, 20, 45, 0.55);
 
   font-family: Figtree, Cairo, sans-serif;
   line-height: 1.5;
@@ -61,7 +62,7 @@ body {
 }
 
 *::-webkit-scrollbar-thumb:hover {
-  background: linear-gradient(180deg, var(--sand-soft), var(--sand));
+  background: linear-gradient(180deg, #ffffff, var(--sand-soft));
 }
 
 *::-webkit-scrollbar-corner {
