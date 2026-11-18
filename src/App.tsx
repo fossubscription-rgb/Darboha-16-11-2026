@@ -1,9 +1,25 @@
 import { useEffect, useRef, useState } from 'react'
 import type { FormEvent } from 'react'
+import BrandingPage from './BrandingPage'
 import { copy, type Lang } from './i18n'
 import './App.css'
 
 const LANG_KEY = 'darboha-lang'
+
+type Route = 'branding' | 'home'
+
+function readRoute(): Route {
+  const hash = window.location.hash
+  if (
+    hash === '#/branding' ||
+    hash === '#branding' ||
+    hash === '' ||
+    hash === '#'
+  ) {
+    return 'branding'
+  }
+  return 'home'
+}
 
 function useReveal<T extends HTMLElement>() {
   const ref = useRef<T | null>(null)
@@ -41,6 +57,7 @@ function readInitialLang(): Lang {
 
 function App() {
   const [lang, setLang] = useState<Lang>(readInitialLang)
+  const [route, setRoute] = useState<Route>(readRoute)
   const [email, setEmail] = useState('')
   const [submitted, setSubmitted] = useState(false)
 
@@ -54,18 +71,31 @@ function App() {
   const nextLang: Lang = lang === 'en' ? 'ar' : 'en'
 
   useEffect(() => {
+    if (!window.location.hash || window.location.hash === '#') {
+      window.location.replace('#/branding')
+    }
+    const onHash = () => setRoute(readRoute())
+    window.addEventListener('hashchange', onHash)
+    return () => window.removeEventListener('hashchange', onHash)
+  }, [])
+
+  useEffect(() => {
     document.documentElement.lang = lang
     document.documentElement.dir = lang === 'ar' ? 'rtl' : 'ltr'
     document.title =
-      lang === 'ar'
-        ? 'دربها — اعرف الدرب. احترم الأرض.'
-        : 'Darboha — Know the trail. Respect the land.'
+      route === 'branding'
+        ? lang === 'ar'
+          ? 'دربها — لوحة الهوية'
+          : 'Darboha — Brand board'
+        : lang === 'ar'
+          ? 'دربها — اعرف الدرب. احترم الأرض.'
+          : 'Darboha — Know the trail. Respect the land.'
     try {
       localStorage.setItem(LANG_KEY, lang)
     } catch {
       /* ignore */
     }
-  }, [lang])
+  }, [lang, route])
 
   function toggleLang() {
     setLang(nextLang)
@@ -78,6 +108,10 @@ function App() {
     setSubmitted(true)
   }
 
+  if (route === 'branding') {
+    return <BrandingPage lang={lang} onToggleLang={toggleLang} />
+  }
+
   return (
     <div className="page" data-lang={lang}>
       <a className="skip-link" href="#main">
@@ -85,7 +119,7 @@ function App() {
       </a>
 
       <header className="topbar">
-        <a className="brand-mark" href="#top" aria-label="Darboha / دربها">
+        <a className="brand-mark" href="#/branding" aria-label="Darboha / دربها">
           <svg viewBox="0 0 48 48" aria-hidden="true">
             <path
               className="path-stroke"
@@ -339,6 +373,7 @@ function App() {
             <p>{t.footer.tagline}</p>
           </div>
           <div className="footer-links">
+            <a href="#/branding">{lang === 'ar' ? 'الهوية' : 'Brand'}</a>
             <a href="#top">{t.footer.top}</a>
             <a href="#trails">{t.nav.trails}</a>
             <a href="#safety">{t.nav.safety}</a>

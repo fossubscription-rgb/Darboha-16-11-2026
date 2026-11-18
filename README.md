@@ -17,14 +17,10 @@ Project marketing plan: `/cursor/stores/self/docs/marketing-plan.md` (Darboha pr
 | Colors | Canyon ink `#0C1F1A`, oasis teal `#1F8A7A`, sunlit sand `#E6C989`, mist `#E7F0EA` |
 | Fonts | Syne (EN display) · Figtree (EN body) · Cairo (Arabic) |
 
-## Site sections
+## Pages
 
-1. Brand hero — self-guided map promise  
-2. Promise / audience  
-3. Curated featured trails (6 placeholders)  
-4. Safety & eco guidance  
-5. How it works (map-guided hiking tease)  
-6. Waitlist CTA  
+- **Brand board (default):** `/#/branding` — wordmark, colors, type, UI samples  
+- **Marketing site:** `/#/` — hero, trails, safety, how it works, waitlist  
 
 ## Run locally
 
@@ -33,7 +29,7 @@ npm install
 npm run dev
 ```
 
-Open the URL Vite prints (usually `http://localhost:5173`). Use the **العربية / English** control in the header for language + RTL.
+Open the URL Vite prints (usually `http://localhost:5173`) — it lands on the **brand board** first. Use **Marketing site** to open the landing page. Use **العربية / English** for language + RTL.
 
 ```bash
 npm run build    # production build → dist/
