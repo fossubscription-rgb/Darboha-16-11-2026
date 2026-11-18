@@ -1,0 +1,251 @@
+.branding-page {
+  min-height: 100svh;
+  background:
+    radial-gradient(circle at 12% 0%, rgba(126, 184, 201, 0.18), transparent 42%),
+    linear-gradient(180deg, #f7fbfe, var(--foam));
+  color: var(--ink);
+}
+
+.branding-bar {
+  position: sticky;
+  top: 0;
+  z-index: 20;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 1rem clamp(1.25rem, 4vw, 3rem);
+  background: color-mix(in srgb, var(--foam) 88%, white);
+  border-bottom: 1px solid color-mix(in srgb, var(--ink) 8%, transparent);
+  backdrop-filter: blur(8px);
+}
+
+.branding-mark {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-family: Syne, Cairo, sans-serif;
+  font-weight: 700;
+}
+
+.branding-mark svg {
+  width: 1.5rem;
+  height: 1.5rem;
+  color: var(--teal);
+}
+
+.branding-bar-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+}
+
+.branding-lang,
+.branding-to-site {
+  min-height: 2.4rem;
+  padding: 0.4rem 0.85rem;
+  border-radius: 0.45rem;
+  font-weight: 600;
+  font-size: 0.92rem;
+}
+
+.branding-lang {
+  appearance: none;
+  border: 1px solid color-mix(in srgb, var(--ink) 18%, transparent);
+  background: white;
+  color: var(--ink);
+  cursor: pointer;
+}
+
+.branding-to-site {
+  display: inline-flex;
+  align-items: center;
+  background: var(--ink);
+  color: var(--mist);
+}
+
+.branding-main {
+  width: min(1080px, calc(100% - 2.5rem));
+  margin-inline: auto;
+  padding: clamp(2rem, 5vw, 3.5rem) 0 clamp(4rem, 8vw, 6rem);
+  display: grid;
+  gap: clamp(2.5rem, 6vw, 4rem);
+}
+
+.branding-hero {
+  display: grid;
+  gap: 0.75rem;
+  padding-bottom: 0.5rem;
+  border-bottom: 1px solid color-mix(in srgb, var(--ink) 10%, transparent);
+}
+
+.branding-eyebrow {
+  font-size: 0.8rem;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--teal);
+}
+
+.branding-wordmark-ar {
+  font-family: Cairo, Syne, sans-serif;
+  font-size: clamp(2.5rem, 8vw, 5rem);
+  font-weight: 800;
+  line-height: 1;
+  color: var(--ink);
+}
+
+.branding-wordmark-en {
+  font-family: Syne, sans-serif;
+  font-size: clamp(3.2rem, 10vw, 6.5rem);
+  font-weight: 800;
+  letter-spacing: -0.055em;
+  line-height: 0.9;
+}
+
+.branding-tagline {
+  font-family: Syne, Cairo, sans-serif;
+  font-size: clamp(1.25rem, 3vw, 1.85rem);
+  font-weight: 650;
+  max-width: 20ch;
+}
+
+.branding-tagline.light {
+  color: var(--mist);
+  max-width: 22ch;
+}
+
+.branding-note {
+  color: color-mix(in srgb, var(--ink) 65%, white);
+  max-width: 40rem;
+}
+
+.branding-section h2 {
+  font-size: clamp(1.6rem, 3.5vw, 2.2rem);
+  margin-bottom: 0.65rem;
+}
+
+.branding-lede {
+  color: color-mix(in srgb, var(--ink) 68%, white);
+  margin-bottom: 1.25rem;
+}
+
+.swatch-grid {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 1rem;
+}
+
+.swatch {
+  display: grid;
+  gap: 0.65rem;
+}
+
+.swatch-chip {
+  min-height: 7.5rem;
+  border-radius: 1rem;
+  display: grid;
+  align-items: end;
+  padding: 0.85rem 1rem;
+  font-weight: 700;
+  font-family: Syne, sans-serif;
+  letter-spacing: -0.02em;
+  box-shadow: inset 0 0 0 1px rgba(10, 30, 61, 0.08);
+}
+
+.swatch-meta {
+  display: grid;
+  gap: 0.15rem;
+}
+
+.swatch-meta strong {
+  font-size: 0.98rem;
+}
+
+.swatch-meta code {
+  font-size: 0.82rem;
+  color: var(--stone);
+}
+
+.type-samples {
+  display: grid;
+  gap: 1.5rem;
+}
+
+.type-label {
+  font-size: 0.78rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--teal);
+  margin-bottom: 0.45rem;
+}
+
+.type-display {
+  font-family: Syne, sans-serif;
+  font-size: clamp(2rem, 5vw, 3.4rem);
+  font-weight: 750;
+  letter-spacing: -0.04em;
+  line-height: 1;
+}
+
+.type-body {
+  font-family: Figtree, sans-serif;
+  font-size: 1.15rem;
+  max-width: 40rem;
+  color: color-mix(in srgb, var(--ink) 75%, white);
+}
+
+.type-arabic {
+  font-family: Cairo, sans-serif;
+  font-size: clamp(1.6rem, 4vw, 2.4rem);
+  font-weight: 700;
+}
+
+.ui-samples {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  align-items: center;
+}
+
+.btn-ghost-brand {
+  background: transparent;
+  color: var(--ink);
+  border: 1px solid color-mix(in srgb, var(--ink) 22%, transparent);
+}
+
+.chip-sample {
+  font-size: 0.78rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  color: var(--teal);
+  border-bottom: 2px solid color-mix(in srgb, var(--teal) 45%, transparent);
+  padding: 0.35rem 0.1rem;
+}
+
+.branding-on-ink {
+  background: var(--ink);
+  color: var(--text);
+  border-radius: 1.1rem;
+  padding: clamp(1.5rem, 4vw, 2.5rem);
+}
+
+.branding-on-ink h2 {
+  color: var(--mist);
+}
+
+@media (max-width: 800px) {
+  .swatch-grid {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+@media (max-width: 520px) {
+  .swatch-grid {
+    grid-template-columns: 1fr;
+  }
+}
