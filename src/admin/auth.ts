@@ -1,15 +1,6 @@
 import { getAdminToken, setAdminToken } from '../lib/supabase'
 import type { RoleKey, Session } from './types'
 
-/** Demo passwords shown in the gate UI only — real checks hit Supabase hashes. */
-export const DEMO_PASSWORD_LIST = [
-  { role: 'CEO', password: 'darboha-ceo', lands: '/admin/ceo' },
-  { role: 'Data Analyst 1', password: 'darboha-da1', lands: '/admin/da' },
-  { role: 'Data Analyst 2', password: 'darboha-da2', lands: '/admin/da' },
-  { role: 'Health & Safety', password: 'darboha-safety', lands: '/admin/safety' },
-  { role: 'CFO / VP', password: 'darboha-cfo', lands: '/admin/cfo' },
-] as const
-
 const SESSION_KEY = 'darboha-admin-session'
 
 export function roleHome(role: RoleKey): string {

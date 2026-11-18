@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useState } from 'react'
 import type { FormEvent } from 'react'
 import { joinWaitlistApi } from './admin/api'
 import { isSupabaseConfigured } from './lib/supabase'
@@ -6,30 +6,6 @@ import { copy, type Lang } from './i18n'
 import './App.css'
 
 const LANG_KEY = 'darboha-lang'
-
-function useReveal<T extends HTMLElement>() {
-  const ref = useRef<T | null>(null)
-
-  useEffect(() => {
-    const node = ref.current
-    if (!node) return
-
-    const observer = new IntersectionObserver(
-      ([entry]) => {
-        if (entry.isIntersecting) {
-          node.classList.add('is-visible')
-          observer.unobserve(node)
-        }
-      },
-      { threshold: 0.14 },
-    )
-
-    observer.observe(node)
-    return () => observer.disconnect()
-  }, [])
-
-  return ref
-}
 
 function readInitialLang(): Lang {
   try {
@@ -48,13 +24,6 @@ function App() {
   const [waitlistError, setWaitlistError] = useState<string | null>(null)
   const [waitlistBusy, setWaitlistBusy] = useState(false)
 
-  const promiseRef = useReveal<HTMLElement>()
-  const trailsRef = useReveal<HTMLElement>()
-  const safetyRef = useReveal<HTMLElement>()
-  const howRef = useReveal<HTMLElement>()
-  const teamRef = useReveal<HTMLElement>()
-  const ctaRef = useReveal<HTMLElement>()
-
   const t = copy[lang]
   const nextLang: Lang = lang === 'en' ? 'ar' : 'en'
 
@@ -63,8 +32,8 @@ function App() {
     document.documentElement.dir = lang === 'ar' ? 'rtl' : 'ltr'
     document.title =
       lang === 'ar'
-        ? 'دربها — اعرف الدرب. احترم الأرض.'
-        : 'Darboha — Know the trail. Respect the land.'
+        ? 'دربها — قريباً'
+        : 'Darboha — Coming soon'
     try {
       localStorage.setItem(LANG_KEY, lang)
     } catch {
@@ -96,7 +65,6 @@ function App() {
     } catch (err) {
       const message =
         err instanceof Error ? err.message : 'Could not join waitlist'
-      // Unique violation → treat as success for the visitor
       if (/duplicate|unique/i.test(message)) {
         setSubmitted(true)
       } else {
@@ -110,7 +78,7 @@ function App() {
   }
 
   return (
-    <div className="page" data-lang={lang}>
+    <div className="page coming-soon" data-lang={lang}>
       <a className="skip-link" href="#main">
         {t.skip}
       </a>
@@ -137,28 +105,19 @@ function App() {
           </span>
         </a>
 
-        <nav className="topnav" aria-label="Primary">
-          <a href="#trails">{t.nav.trails}</a>
-          <a href="#safety">{t.nav.safety}</a>
-          <a href="#how">{t.nav.how}</a>
-          <a href="#about">{t.nav.about}</a>
-          <a href="#waitlist" className="nav-cta">
-            {t.nav.join}
-          </a>
-          <button
-            type="button"
-            className="lang-toggle"
-            onClick={toggleLang}
-            aria-label={t.langToggleAria}
-            lang={nextLang}
-          >
-            {t.langToggle}
-          </button>
-        </nav>
+        <button
+          type="button"
+          className="lang-toggle"
+          onClick={toggleLang}
+          aria-label={t.langToggleAria}
+          lang={nextLang}
+        >
+          {t.langToggle}
+        </button>
       </header>
 
       <main id="main">
-        <section className="hero" id="top" aria-label="Darboha hero">
+        <section className="hero" id="top" aria-label="Darboha coming soon">
           <div className="hero-media" aria-hidden="true">
             <img
               src="/images/hero.jpg"
@@ -168,7 +127,6 @@ function App() {
               height={1600}
             />
             <div className="hero-wash" />
-            <div className="hero-glow" />
           </div>
 
           <div className="hero-content">
@@ -176,174 +134,26 @@ function App() {
               {t.hero.brandAr}
             </p>
             <h1 className="hero-brand">{t.hero.brandEn}</h1>
-            <p className="hero-tagline">{t.hero.tagline}</p>
+            <p className="hero-status">{t.hero.status}</p>
             <p className="hero-lede">{t.hero.lede}</p>
             <div className="hero-actions">
               <a className="btn btn-primary" href="#waitlist">
-                {t.hero.ctaPrimary}
-              </a>
-              <a className="btn btn-ghost" href="#trails">
-                {t.hero.ctaSecondary}
+                {t.hero.cta}
               </a>
             </div>
           </div>
         </section>
 
-        <section
-          className="section promise reveal"
-          id="promise"
-          ref={promiseRef}
-        >
+        <section className="section note" id="note">
           <div className="section-inner">
-            <p className="eyebrow">{t.promise.eyebrow}</p>
-            <h2>{t.promise.title}</h2>
-            <p className="section-lede">{t.promise.lede}</p>
+            <h2>{t.note.title}</h2>
+            <p className="section-lede">{t.note.body}</p>
           </div>
         </section>
 
-        <section
-          className="section trails reveal"
-          id="trails"
-          ref={trailsRef}
-        >
-          <div className="section-inner trails-intro">
-            <p className="eyebrow">{t.trails.eyebrow}</p>
-            <h2>{t.trails.title}</h2>
-            <p className="section-lede">{t.trails.lede}</p>
-          </div>
-
-          <ul className="trail-list">
-            {t.trails.items.map((trail, index) => (
-              <li
-                key={trail.id}
-                className="trail-row"
-                style={{ ['--i' as string]: index }}
-              >
-                <figure className="trail-visual">
-                  <img
-                    src={trail.image}
-                    alt=""
-                    width={1200}
-                    height={800}
-                    loading="lazy"
-                  />
-                </figure>
-                <div className="trail-copy">
-                  <p className="trail-region">{trail.region}</p>
-                  <h3>{trail.name}</h3>
-                  <p className="trail-blurb">{trail.blurb}</p>
-                  <dl className="trail-meta">
-                    <div>
-                      <dt>{t.trails.metaDistance}</dt>
-                      <dd>{trail.distance}</dd>
-                    </div>
-                    <div>
-                      <dt>{t.trails.metaDifficulty}</dt>
-                      <dd>{trail.difficulty}</dd>
-                    </div>
-                    <div>
-                      <dt>{t.trails.metaSeason}</dt>
-                      <dd>{trail.season}</dd>
-                    </div>
-                  </dl>
-                </div>
-              </li>
-            ))}
-          </ul>
-        </section>
-
-        <section
-          className="section safety reveal"
-          id="safety"
-          ref={safetyRef}
-        >
-          <div className="section-inner">
-            <p className="eyebrow light">{t.safety.eyebrow}</p>
-            <h2>{t.safety.title}</h2>
-            <p className="section-lede">{t.safety.lede}</p>
-            <ul className="safety-list">
-              {t.safety.items.map((item) => (
-                <li key={item.title}>
-                  <h3>{item.title}</h3>
-                  <p>{item.body}</p>
-                </li>
-              ))}
-            </ul>
-          </div>
-          <figure className="safety-visual">
-            <img
-              src="/images/trail.jpg"
-              alt=""
-              width={1800}
-              height={1200}
-              loading="lazy"
-            />
-          </figure>
-        </section>
-
-        <section className="section how reveal" id="how" ref={howRef}>
-          <div className="how-split">
-            <div>
-              <p className="eyebrow">{t.how.eyebrow}</p>
-              <h2>{t.how.title}</h2>
-              <p className="section-lede">{t.how.lede}</p>
-              <ol className="how-steps">
-                {t.how.steps.map((step) => (
-                  <li key={step.title}>
-                    <h3>{step.title}</h3>
-                    <p>{step.body}</p>
-                  </li>
-                ))}
-              </ol>
-              <p className="how-note">{t.how.note}</p>
-            </div>
-            <figure className="how-visual">
-              <img
-                src="/images/coast.jpg"
-                alt=""
-                width={2000}
-                height={1333}
-                loading="lazy"
-              />
-              <div className="map-tease" aria-hidden="true">
-                <svg viewBox="0 0 200 140" className="map-svg">
-                  <path
-                    className="map-route"
-                    d="M22 112 C48 96, 58 70, 78 58 S120 40, 148 28 S178 18, 188 22"
-                    fill="none"
-                    stroke="currentColor"
-                    strokeWidth="2.5"
-                    strokeLinecap="round"
-                  />
-                  <circle cx="22" cy="112" r="5" fill="currentColor" />
-                  <circle cx="188" cy="22" r="5" fill="currentColor" />
-                </svg>
-              </div>
-            </figure>
-          </div>
-        </section>
-
-        <section className="section team reveal" id="about" ref={teamRef}>
-          <div className="section-inner">
-            <p className="eyebrow">{t.team.eyebrow}</p>
-            <h2>{t.team.title}</h2>
-            <p className="section-lede">{t.team.lede}</p>
-            <ul className="role-row">
-              {t.team.roles.map((role) => (
-                <li key={role}>{role}</li>
-              ))}
-            </ul>
-          </div>
-        </section>
-
-        <section
-          className="section waitlist reveal"
-          id="waitlist"
-          ref={ctaRef}
-        >
+        <section className="section waitlist" id="waitlist">
           <div className="waitlist-panel">
             <div>
-              <p className="eyebrow light">{t.waitlist.eyebrow}</p>
               <h2>{t.waitlist.title}</h2>
               <p>{t.waitlist.lede}</p>
             </div>
@@ -397,12 +207,6 @@ function App() {
             <strong>Darboha</strong>
             <span lang="ar"> · دربها</span>
             <p>{t.footer.tagline}</p>
-          </div>
-          <div className="footer-links">
-            <a href="#top">{t.footer.top}</a>
-            <a href="#trails">{t.nav.trails}</a>
-            <a href="#safety">{t.nav.safety}</a>
-            <a href="#waitlist">{t.nav.join}</a>
           </div>
           <p className="footer-note">{t.footer.note}</p>
         </div>

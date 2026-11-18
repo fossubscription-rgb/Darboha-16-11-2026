@@ -2,7 +2,7 @@ import { useState } from 'react'
 import type { FormEvent } from 'react'
 import { Navigate, useNavigate } from 'react-router-dom'
 import { loginWithPasswordApi } from '../api'
-import { DEMO_PASSWORD_LIST, roleHome } from '../auth'
+import { roleHome } from '../auth'
 import { useAdmin } from '../AdminContext'
 import { isSupabaseConfigured } from '../../lib/supabase'
 
@@ -70,16 +70,9 @@ export function Gate() {
         >
           {busy ? 'Checking…' : 'Enter'}
         </button>
-        <div className="admin-hint">
-          <strong>Demo passwords (local/dev):</strong>
-          <ul style={{ paddingLeft: '1.1rem', margin: '0.4rem 0 0' }}>
-            {DEMO_PASSWORD_LIST.map((row) => (
-              <li key={row.password}>
-                {row.role}: <code>{row.password}</code>
-              </li>
-            ))}
-          </ul>
-        </div>
+        <p className="admin-hint">
+          Ask the CEO for your role password. Passwords are not shown here.
+        </p>
       </form>
     </div>
   )
