@@ -36,34 +36,40 @@ export function CfoDrafts() {
         </button>
       </div>
       <div className="admin-panel">
-        <table className="admin-table">
-          <thead>
-            <tr>
-              <th>Category</th>
-              <th>Who for</th>
-              <th>Amount (OMR)</th>
-              <th>Status</th>
-            </tr>
-          </thead>
-          <tbody>
-            {store.finance.map((f) => (
-              <tr key={f.id}>
-                <td>
-                  <Link to={`/admin/cfo/drafts/${f.id}`}>
-                    {f.category || 'Untitled'}
-                  </Link>
-                </td>
-                <td>{f.whoFor || '—'}</td>
-                <td>
-                  <strong>{f.amountOmr || '—'}</strong>
-                </td>
-                <td>
-                  <StatusChip status={f.status} />
-                </td>
+        {store.finance.length === 0 ? (
+          <div className="admin-empty">
+            No budget drafts yet — create the first line when you need CEO approval.
+          </div>
+        ) : (
+          <table className="admin-table">
+            <thead>
+              <tr>
+                <th>Category</th>
+                <th>Who for</th>
+                <th>Amount (OMR)</th>
+                <th>Status</th>
               </tr>
-            ))}
-          </tbody>
-        </table>
+            </thead>
+            <tbody>
+              {store.finance.map((f) => (
+                <tr key={f.id}>
+                  <td>
+                    <Link to={`/admin/cfo/drafts/${f.id}`}>
+                      {f.category || 'Untitled'}
+                    </Link>
+                  </td>
+                  <td>{f.whoFor || '—'}</td>
+                  <td>
+                    <strong>{f.amountOmr || '—'}</strong>
+                  </td>
+                  <td>
+                    <StatusChip status={f.status} />
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        )}
       </div>
     </div>
   )
@@ -217,30 +223,38 @@ export function CfoPlaces() {
         </div>
       </div>
       <div className="admin-panel">
-        <table className="admin-table">
-          <thead>
-            <tr>
-              <th>Name</th>
-              <th>Owner</th>
-              <th>Region</th>
-              <th>Status</th>
-            </tr>
-          </thead>
-          <tbody>
-            {store.places.map((p) => (
-              <tr key={p.id}>
-                <td>
-                  <Link to={`/admin/cfo/places/${p.id}`}>{p.nameEn}</Link>
-                </td>
-                <td>{p.ownerLabel}</td>
-                <td>{p.region}</td>
-                <td>
-                  <StatusChip status={p.status} />
-                </td>
+        {store.places.length === 0 ? (
+          <div className="admin-empty">
+            No places yet — empty until analysts add the first draft.
+          </div>
+        ) : (
+          <table className="admin-table">
+            <thead>
+              <tr>
+                <th>Name</th>
+                <th>Owner</th>
+                <th>Region</th>
+                <th>Status</th>
               </tr>
-            ))}
-          </tbody>
-        </table>
+            </thead>
+            <tbody>
+              {store.places.map((p) => (
+                <tr key={p.id}>
+                  <td>
+                    <Link to={`/admin/cfo/places/${p.id}`}>
+                      {p.nameEn || 'Untitled'}
+                    </Link>
+                  </td>
+                  <td>{p.ownerLabel}</td>
+                  <td>{p.region || '—'}</td>
+                  <td>
+                    <StatusChip status={p.status} />
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        )}
       </div>
     </div>
   )
@@ -269,49 +283,61 @@ export function CfoActivity() {
           <h3 style={{ margin: '0 0 0.75rem', fontSize: '1rem' }}>
             Who worked this week
           </h3>
-          <ul style={{ margin: 0, paddingLeft: '1.1rem' }}>
-            {worked.map((m) => (
-              <li key={m.id}>
-                {m.displayName} — {m.jobTitle}
-              </li>
-            ))}
-          </ul>
+          {worked.length === 0 ? (
+            <div className="admin-empty">No admin logins this week yet.</div>
+          ) : (
+            <ul style={{ margin: 0, paddingLeft: '1.1rem' }}>
+              {worked.map((m) => (
+                <li key={m.id}>
+                  {m.displayName} — {m.jobTitle}
+                </li>
+              ))}
+            </ul>
+          )}
         </div>
         <div className="admin-panel">
           <h3 style={{ margin: '0 0 0.75rem', fontSize: '1rem' }}>
             Who didn’t
           </h3>
-          <ul style={{ margin: 0, paddingLeft: '1.1rem' }}>
-            {idle.map((m) => (
-              <li key={m.id}>
-                {m.displayName} — {m.jobTitle}
-              </li>
-            ))}
-          </ul>
+          {idle.length === 0 ? (
+            <div className="admin-empty">Everyone with admin access logged in.</div>
+          ) : (
+            <ul style={{ margin: 0, paddingLeft: '1.1rem' }}>
+              {idle.map((m) => (
+                <li key={m.id}>
+                  {m.displayName} — {m.jobTitle}
+                </li>
+              ))}
+            </ul>
+          )}
         </div>
       </div>
       <div className="admin-panel" style={{ marginTop: '1rem' }}>
         <h3 style={{ margin: '0 0 0.75rem', fontSize: '1rem' }}>
           Recent activity
         </h3>
-        <table className="admin-table">
-          <thead>
-            <tr>
-              <th>When</th>
-              <th>Who</th>
-              <th>Summary</th>
-            </tr>
-          </thead>
-          <tbody>
-            {store.activity.map((a) => (
-              <tr key={a.id}>
-                <td>{new Date(a.createdAt).toLocaleString()}</td>
-                <td>{a.actor}</td>
-                <td>{a.summary}</td>
+        {store.activity.length === 0 ? (
+          <div className="admin-empty">Activity feed is empty.</div>
+        ) : (
+          <table className="admin-table">
+            <thead>
+              <tr>
+                <th>When</th>
+                <th>Who</th>
+                <th>Summary</th>
               </tr>
-            ))}
-          </tbody>
-        </table>
+            </thead>
+            <tbody>
+              {store.activity.map((a) => (
+                <tr key={a.id}>
+                  <td>{new Date(a.createdAt).toLocaleString()}</td>
+                  <td>{a.actor}</td>
+                  <td>{a.summary}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        )}
       </div>
     </div>
   )
@@ -330,28 +356,36 @@ export function CfoPublishedGlance() {
         </div>
       </div>
       <div className="admin-panel">
-        <table className="admin-table">
-          <thead>
-            <tr>
-              <th>Name</th>
-              <th>Region</th>
-              <th>Status</th>
-            </tr>
-          </thead>
-          <tbody>
-            {published.map((p) => (
-              <tr key={p.id}>
-                <td>
-                  <Link to={`/admin/cfo/places/${p.id}`}>{p.nameEn}</Link>
-                </td>
-                <td>{p.region}</td>
-                <td>
-                  <StatusChip status={p.status} />
-                </td>
+        {published.length === 0 ? (
+          <div className="admin-empty">
+            Nothing published yet — the public site stays coming soon until the first place goes live.
+          </div>
+        ) : (
+          <table className="admin-table">
+            <thead>
+              <tr>
+                <th>Name</th>
+                <th>Region</th>
+                <th>Status</th>
               </tr>
-            ))}
-          </tbody>
-        </table>
+            </thead>
+            <tbody>
+              {published.map((p) => (
+                <tr key={p.id}>
+                  <td>
+                    <Link to={`/admin/cfo/places/${p.id}`}>
+                      {p.nameEn || 'Untitled'}
+                    </Link>
+                  </td>
+                  <td>{p.region || '—'}</td>
+                  <td>
+                    <StatusChip status={p.status} />
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        )}
       </div>
     </div>
   )
