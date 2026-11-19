@@ -10,7 +10,7 @@ Bilingual marketing site for **Darboha** (دربها) — self-guided adventure 
 |---|---|
 | Name | Darboha / دربها |
 | Tagline | Know the trail. Respect the land. |
-| Colors | Canyon ink `#0C1F1A`, oasis teal `#1F8A7A`, sunlit sand `#E6C989`, mist `#E7F0EA` |
+| Colors | Navy `#0A1E3D`, Glacier `#7EB8C9`, Glacier light `#9FCFDD`, mist `#F4F8FB` |
 | Fonts | Syne (EN display) · Figtree (EN body) · Cairo (Arabic) |
 
 ## Run locally
@@ -35,13 +35,7 @@ npm run build && npm run preview
 
 Password-only gate. Each password opens a role module. Session token is bound to that role (URL swap cannot skip auth).
 
-| Role | Demo password | Lands at |
-|------|---------------|----------|
-| CEO | `darboha-ceo` | `/admin/ceo` |
-| Data Analyst 1 | `darboha-da1` | `/admin/da` |
-| Data Analyst 2 | `darboha-da2` | `/admin/da` |
-| Health & Safety | `darboha-safety` | `/admin/safety` |
-| CFO / VP | `darboha-cfo` | `/admin/cfo` |
+CEO sets teammate passwords in `/admin/ceo` (Team & access). Demo passwords are not published — ask the CEO.
 
 Env vars (local): `VITE_SUPABASE_URL`, `VITE_SUPABASE_ANON_KEY`.  
 Map pickers (clinic + amenities) use free Leaflet + OpenStreetMap/Nominatim — no Google key.

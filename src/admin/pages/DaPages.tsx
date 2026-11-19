@@ -93,30 +93,36 @@ export function DaTeamPlaces() {
         </div>
       </div>
       <div className="admin-panel">
-        <table className="admin-table">
-          <thead>
-            <tr>
-              <th>Name</th>
-              <th>Owner</th>
-              <th>Status</th>
-            </tr>
-          </thead>
-          <tbody>
-            {team.map((p) => (
-              <tr key={p.id}>
-                <td>
-                  <Link to={`/admin/da/places/${p.id}`}>
-                    {p.nameEn || 'Untitled'}
-                  </Link>
-                </td>
-                <td>{p.ownerLabel}</td>
-                <td>
-                  <StatusChip status={p.status} />
-                </td>
+        {team.length === 0 ? (
+          <div className="admin-empty">
+            No teammate places yet — the catalogue is empty until someone drafts one.
+          </div>
+        ) : (
+          <table className="admin-table">
+            <thead>
+              <tr>
+                <th>Name</th>
+                <th>Owner</th>
+                <th>Status</th>
               </tr>
-            ))}
-          </tbody>
-        </table>
+            </thead>
+            <tbody>
+              {team.map((p) => (
+                <tr key={p.id}>
+                  <td>
+                    <Link to={`/admin/da/places/${p.id}`}>
+                      {p.nameEn || 'Untitled'}
+                    </Link>
+                  </td>
+                  <td>{p.ownerLabel}</td>
+                  <td>
+                    <StatusChip status={p.status} />
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        )}
       </div>
     </div>
   )

@@ -64,28 +64,36 @@ export function SafetyAllPlaces() {
         </div>
       </div>
       <div className="admin-panel">
-        <table className="admin-table">
-          <thead>
-            <tr>
-              <th>Name</th>
-              <th>Owner</th>
-              <th>Status</th>
-            </tr>
-          </thead>
-          <tbody>
-            {store.places.map((p) => (
-              <tr key={p.id}>
-                <td>
-                  <Link to={`/admin/safety/places/${p.id}`}>{p.nameEn}</Link>
-                </td>
-                <td>{p.ownerLabel}</td>
-                <td>
-                  <StatusChip status={p.status} />
-                </td>
+        {store.places.length === 0 ? (
+          <div className="admin-empty">
+            No places yet — nothing to review until analysts add a draft.
+          </div>
+        ) : (
+          <table className="admin-table">
+            <thead>
+              <tr>
+                <th>Name</th>
+                <th>Owner</th>
+                <th>Status</th>
               </tr>
-            ))}
-          </tbody>
-        </table>
+            </thead>
+            <tbody>
+              {store.places.map((p) => (
+                <tr key={p.id}>
+                  <td>
+                    <Link to={`/admin/safety/places/${p.id}`}>
+                      {p.nameEn || 'Untitled'}
+                    </Link>
+                  </td>
+                  <td>{p.ownerLabel}</td>
+                  <td>
+                    <StatusChip status={p.status} />
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        )}
       </div>
     </div>
   )
