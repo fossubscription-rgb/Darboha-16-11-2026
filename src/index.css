@@ -9,6 +9,10 @@
   --stone: #6a7a8c;
   --ink: var(--navy);
   --sand: var(--glacier-light);
+  --sand-soft: #b7dce6;
+  --foam: #e8f4f7;
+  --teal: var(--glacier);
+  --teal-bright: #a8d7e4;
   --text: #f4f8fb;
   --text-muted: rgba(244, 248, 251, 0.78);
   --shadow-deep: rgba(5, 14, 28, 0.55);
