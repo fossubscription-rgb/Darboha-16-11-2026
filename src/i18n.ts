@@ -48,8 +48,8 @@ type Copy = {
     filterDifficulty: string
     filterSeason: string
     filterAll: string
+    empty: string
     emptyFiltered: string
-    items: Trail[]
   }
   safety: {
     eyebrow: string
@@ -85,156 +85,6 @@ type Copy = {
   }
 }
 
-const trailEn: Trail[] = [
-  {
-    id: 'balcony',
-    image: '/images/trail.jpg',
-    name: 'Jebel Shams — W6 Balcony Walk',
-    region: 'Al Dakhiliyah',
-    blurb: 'Iconic canyon rim path with big views and honest exposure notes.',
-    distance: '~8 km RT',
-    difficulty: 'Easy–moderate',
-    difficultyKey: 'moderate',
-    season: 'Oct–Apr',
-    seasonMonths: [10, 11, 12, 1, 2, 3, 4],
-  },
-  {
-    id: 'shab',
-    image: '/images/wadi.jpg',
-    name: 'Wadi Shab',
-    region: 'Ash Sharqiyah',
-    blurb: 'Boat crossing, pools, and a cave swim — footwear and swim skill matter.',
-    distance: 'Day hike',
-    difficulty: 'Moderate',
-    difficultyKey: 'moderate',
-    season: 'Sep–May',
-    seasonMonths: [9, 10, 11, 12, 1, 2, 3, 4, 5],
-  },
-  {
-    id: 'bani-khalid',
-    image: '/images/hero.jpg',
-    name: 'Wadi Bani Khalid',
-    region: 'Ash Sharqiyah',
-    blurb: 'Oasis pools and stone walls — classic, crowded in peak season.',
-    distance: 'Short walks',
-    difficulty: 'Easy',
-    difficultyKey: 'easy',
-    season: 'Feb–Apr best',
-    seasonMonths: [2, 3, 4],
-  },
-  {
-    id: 'akhdar',
-    image: '/images/coast.jpg',
-    name: 'Jebel Akhdar terraces',
-    region: 'Al Dakhiliyah',
-    blurb: 'Green mountain villages and short terrace walks — cooler air, checkpoint culture.',
-    distance: 'Village loops',
-    difficulty: 'Easy–moderate',
-    difficultyKey: 'easy',
-    season: 'Cooler months',
-    seasonMonths: [10, 11, 12, 1, 2, 3],
-  },
-  {
-    id: 'tiwi',
-    image: '/images/wadi.jpg',
-    name: 'Wadi Tiwi / Mibam',
-    region: 'Ash Sharqiyah',
-    blurb: 'Adventure wadi alternative — hiking and swimming with local path sense.',
-    distance: 'Half–full day',
-    difficulty: 'Moderate',
-    difficultyKey: 'moderate',
-    season: 'Sep–May',
-    seasonMonths: [9, 10, 11, 12, 1, 2, 3, 4, 5],
-  },
-  {
-    id: 'wahiba',
-    image: '/images/hero.jpg',
-    name: 'Wahiba Sands',
-    region: 'Ash Sharqiyah',
-    blurb: 'Desert travel context, not a hiking trail — dunes, night sky, and heat honesty.',
-    distance: 'Day / overnight',
-    difficulty: 'Varies',
-    difficultyKey: 'varies',
-    season: 'Oct–Mar',
-    seasonMonths: [10, 11, 12, 1, 2, 3],
-  },
-]
-
-const trailAr: Trail[] = [
-  {
-    id: 'balcony',
-    image: '/images/trail.jpg',
-    name: 'جبل شمس — ممشى الشرفة W6',
-    region: 'الداخلية',
-    blurb: 'درب شهير على حافة الوادي بإطلالات واسعة وملاحظات صريحة عن التعرض.',
-    distance: '~٨ كم ذهاباً وإياباً',
-    difficulty: 'سهل–متوسط',
-    difficultyKey: 'moderate',
-    season: 'أكتوبر–أبريل',
-    seasonMonths: [10, 11, 12, 1, 2, 3, 4],
-  },
-  {
-    id: 'shab',
-    image: '/images/wadi.jpg',
-    name: 'وادي شاب',
-    region: 'الشرقية',
-    blurb: 'عبور بالقارب وبرك وسباحة في كهف — الحذاء ومهارة السباحة مهمان.',
-    distance: 'نزهة يوم',
-    difficulty: 'متوسط',
-    difficultyKey: 'moderate',
-    season: 'سبتمبر–مايو',
-    seasonMonths: [9, 10, 11, 12, 1, 2, 3, 4, 5],
-  },
-  {
-    id: 'bani-khalid',
-    image: '/images/hero.jpg',
-    name: 'وادي بني خالد',
-    region: 'الشرقية',
-    blurb: 'برك واحة وجدران صخرية — كلاسيكي ومزدحم في ذروة الموسم.',
-    distance: 'مشاوير قصيرة',
-    difficulty: 'سهل',
-    difficultyKey: 'easy',
-    season: 'فبراير–أبريل أفضل',
-    seasonMonths: [2, 3, 4],
-  },
-  {
-    id: 'akhdar',
-    image: '/images/coast.jpg',
-    name: 'مدرجات الجبل الأخضر',
-    region: 'الداخلية',
-    blurb: 'قرى جبلية خضراء ومشاوير مدرجات قصيرة — هواء أبرد وثقافة نقاط التفتيش.',
-    distance: 'حلقات قروية',
-    difficulty: 'سهل–متوسط',
-    difficultyKey: 'easy',
-    season: 'الأشهر الأبرد',
-    seasonMonths: [10, 11, 12, 1, 2, 3],
-  },
-  {
-    id: 'tiwi',
-    image: '/images/wadi.jpg',
-    name: 'وادي طوي / ميام',
-    region: 'الشرقية',
-    blurb: 'بديل مغامرات في الوادي — مشي وسباحة مع حسّ المسار المحلي.',
-    distance: 'نصف يوم–يوم',
-    difficulty: 'متوسط',
-    difficultyKey: 'moderate',
-    season: 'سبتمبر–مايو',
-    seasonMonths: [9, 10, 11, 12, 1, 2, 3, 4, 5],
-  },
-  {
-    id: 'wahiba',
-    image: '/images/hero.jpg',
-    name: 'رمال وهيبة',
-    region: 'الشرقية',
-    blurb: 'سياق سفر صحراوي لا درب مشي — كثبان وسماء ليلية وصدق مع الحرارة.',
-    distance: 'يوم / مبيت',
-    difficulty: 'متفاوت',
-    difficultyKey: 'varies',
-    season: 'أكتوبر–مارس',
-    seasonMonths: [10, 11, 12, 1, 2, 3],
-  },
-]
-
 export const copy: Record<Lang, Copy> = {
   en: {
     skip: 'Skip to content',
@@ -263,7 +113,7 @@ export const copy: Record<Lang, Copy> = {
     trails: {
       eyebrow: 'Curated, not endless',
       title: 'Featured trails',
-      lede: 'A small set of places we are documenting with care — difficulty, season, and what the day actually asks of you. Preview cards for now; live field notes replace them when published.',
+      lede: 'A small set of places documented with care — difficulty, season, and what the day asks of you. Trails appear here when they are published.',
       explore: 'Explore trails',
       metaDistance: 'Distance',
       metaDifficulty: 'Difficulty',
@@ -271,8 +121,9 @@ export const copy: Record<Lang, Copy> = {
       filterDifficulty: 'Difficulty',
       filterSeason: 'Season',
       filterAll: 'All',
+      empty:
+        'No published trails yet — our analysts are preparing the first locations.',
       emptyFiltered: 'No trails match these filters.',
-      items: trailEn,
     },
     safety: {
       eyebrow: 'Safety & the land',
@@ -325,7 +176,7 @@ export const copy: Record<Lang, Copy> = {
     waitlist: {
       eyebrow: 'Stay close',
       title: 'Join the waitlist for the trail companion.',
-      lede: 'Leave an email for prototype updates — or explore the featured trails while we build.',
+      lede: 'Leave an email for prototype updates — trails appear above as they are published.',
       placeholder: 'you@email.com',
       submit: 'Join waitlist',
       thanks: 'Thanks — you’re on the list. We’ll be in touch as Darboha grows.',
@@ -364,7 +215,7 @@ export const copy: Record<Lang, Copy> = {
     trails: {
       eyebrow: 'مختار لا موسوعة',
       title: 'مسارات مميزة',
-      lede: 'مجموعة صغيرة نوثّقها بعناية — الصعوبة، الموسم، وما يطلبه اليوم فعلاً. بطاقات معاينة الآن؛ الملاحظات الميدانية تحل محلها عند النشر.',
+      lede: 'مجموعة صغيرة نوثّقها بعناية — الصعوبة، الموسم، وما يطلبه اليوم. تظهر المسارات هنا عند نشرها.',
       explore: 'استكشف المسارات',
       metaDistance: 'المسافة',
       metaDifficulty: 'الصعوبة',
@@ -372,8 +223,8 @@ export const copy: Record<Lang, Copy> = {
       filterDifficulty: 'الصعوبة',
       filterSeason: 'الموسم',
       filterAll: 'الكل',
+      empty: 'لا مسارات منشورة بعد — يجهّز محللونا المواقع الأولى.',
       emptyFiltered: 'لا مسارات تطابق هذه المرشّحات.',
-      items: trailAr,
     },
     safety: {
       eyebrow: 'السلامة والأرض',
@@ -426,7 +277,7 @@ export const copy: Record<Lang, Copy> = {
     waitlist: {
       eyebrow: 'ابقَ قريباً',
       title: 'انضم لقائمة انتظار رفيق المسار.',
-      lede: 'اترك بريداً لتحديثات النموذج الأولي — أو استكشف المسارات المميزة بينما نبني.',
+      lede: 'اترك بريداً لتحديثات النموذج الأولي — وتظهر المسارات أعلاه عند نشرها.',
       placeholder: 'you@email.com',
       submit: 'انضم للقائمة',
       thanks: 'شكراً — أنت على القائمة. سنتواصل مع نمو دربها.',

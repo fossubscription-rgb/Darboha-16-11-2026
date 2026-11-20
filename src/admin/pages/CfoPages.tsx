@@ -358,7 +358,7 @@ export function CfoPublishedGlance() {
       <div className="admin-panel">
         {published.length === 0 ? (
           <div className="admin-empty">
-            Nothing published yet — marketing still shows curated preview trails until live places go live.
+            Nothing published yet — the public trails section stays empty until a place is published.
           </div>
         ) : (
           <table className="admin-table">
