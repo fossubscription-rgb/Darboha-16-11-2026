@@ -1,8 +1,9 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
 import type { FormEvent } from 'react'
-import { joinWaitlistApi } from './admin/api'
+import { fetchPublishedPlacesApi, joinWaitlistApi } from './admin/api'
+import { mapPublishedToTrail } from './lib/publishedTrails'
 import { isSupabaseConfigured } from './lib/supabase'
-import { copy, type Lang } from './i18n'
+import { copy, type Lang, type Trail } from './i18n'
 import './App.css'
 
 const LANG_KEY = 'darboha-lang'
@@ -61,6 +62,10 @@ function App() {
   const [difficultyFilter, setDifficultyFilter] =
     useState<DifficultyFilter>('all')
   const [seasonFilter, setSeasonFilter] = useState<SeasonFilter>('all')
+  const [publishedRows, setPublishedRows] = useState<
+    Awaited<ReturnType<typeof fetchPublishedPlacesApi>>
+  >([])
+  const [trailsLoading, setTrailsLoading] = useState(true)
 
   const promiseRef = useReveal<HTMLElement>()
   const trailsRef = useReveal<HTMLElement>()
@@ -72,14 +77,19 @@ function App() {
   const t = copy[lang]
   const nextLang: Lang = lang === 'en' ? 'ar' : 'en'
 
+  const trails: Trail[] = useMemo(
+    () => publishedRows.map((row) => mapPublishedToTrail(row, lang)),
+    [publishedRows, lang],
+  )
+
   const filteredTrails = useMemo(() => {
-    return t.trails.items.filter((trail) => {
+    return trails.filter((trail) => {
       const difficultyOk =
         difficultyFilter === 'all' || trail.difficultyKey === difficultyFilter
       const seasonOk = matchesSeason(trail.seasonMonths, seasonFilter)
       return difficultyOk && seasonOk
     })
-  }, [t.trails.items, difficultyFilter, seasonFilter])
+  }, [trails, difficultyFilter, seasonFilter])
 
   useEffect(() => {
     document.documentElement.lang = lang
@@ -94,6 +104,32 @@ function App() {
       /* ignore */
     }
   }, [lang])
+
+  useEffect(() => {
+    let cancelled = false
+    async function load() {
+      if (!isSupabaseConfigured()) {
+        if (!cancelled) {
+          setPublishedRows([])
+          setTrailsLoading(false)
+        }
+        return
+      }
+      setTrailsLoading(true)
+      try {
+        const rows = await fetchPublishedPlacesApi()
+        if (!cancelled) setPublishedRows(rows)
+      } catch {
+        if (!cancelled) setPublishedRows([])
+      } finally {
+        if (!cancelled) setTrailsLoading(false)
+      }
+    }
+    void load()
+    return () => {
+      cancelled = true
+    }
+  }, [])
 
   function toggleLang() {
     setLang(nextLang)
@@ -233,48 +269,58 @@ function App() {
             <p className="eyebrow">{t.trails.eyebrow}</p>
             <h2>{t.trails.title}</h2>
             <p className="section-lede">{t.trails.lede}</p>
-            <div className="trail-filters" role="group" aria-label="Trail filters">
-              <label>
-                <span>{t.trails.filterDifficulty}</span>
-                <select
-                  value={difficultyFilter}
-                  onChange={(e) =>
-                    setDifficultyFilter(e.target.value as DifficultyFilter)
-                  }
-                >
-                  <option value="all">{t.trails.filterAll}</option>
-                  <option value="easy">
-                    {lang === 'ar' ? 'سهل' : 'Easy'}
-                  </option>
-                  <option value="moderate">
-                    {lang === 'ar' ? 'متوسط' : 'Moderate'}
-                  </option>
-                  <option value="varies">
-                    {lang === 'ar' ? 'متفاوت' : 'Varies'}
-                  </option>
-                </select>
-              </label>
-              <label>
-                <span>{t.trails.filterSeason}</span>
-                <select
-                  value={seasonFilter}
-                  onChange={(e) =>
-                    setSeasonFilter(e.target.value as SeasonFilter)
-                  }
-                >
-                  <option value="all">{t.trails.filterAll}</option>
-                  <option value="cool">
-                    {lang === 'ar' ? 'أشهر باردة' : 'Cool months'}
-                  </option>
-                  <option value="shoulder">
-                    {lang === 'ar' ? 'موسم انتقالي' : 'Shoulder'}
-                  </option>
-                </select>
-              </label>
-            </div>
+            {trails.length > 0 && (
+              <div
+                className="trail-filters"
+                role="group"
+                aria-label="Trail filters"
+              >
+                <label>
+                  <span>{t.trails.filterDifficulty}</span>
+                  <select
+                    value={difficultyFilter}
+                    onChange={(e) =>
+                      setDifficultyFilter(e.target.value as DifficultyFilter)
+                    }
+                  >
+                    <option value="all">{t.trails.filterAll}</option>
+                    <option value="easy">
+                      {lang === 'ar' ? 'سهل' : 'Easy'}
+                    </option>
+                    <option value="moderate">
+                      {lang === 'ar' ? 'متوسط' : 'Moderate'}
+                    </option>
+                    <option value="varies">
+                      {lang === 'ar' ? 'متفاوت' : 'Varies'}
+                    </option>
+                  </select>
+                </label>
+                <label>
+                  <span>{t.trails.filterSeason}</span>
+                  <select
+                    value={seasonFilter}
+                    onChange={(e) =>
+                      setSeasonFilter(e.target.value as SeasonFilter)
+                    }
+                  >
+                    <option value="all">{t.trails.filterAll}</option>
+                    <option value="cool">
+                      {lang === 'ar' ? 'أشهر باردة' : 'Cool months'}
+                    </option>
+                    <option value="shoulder">
+                      {lang === 'ar' ? 'موسم انتقالي' : 'Shoulder'}
+                    </option>
+                  </select>
+                </label>
+              </div>
+            )}
           </div>
 
-          {filteredTrails.length === 0 ? (
+          {trailsLoading ? (
+            <p className="trail-empty">…</p>
+          ) : trails.length === 0 ? (
+            <p className="trail-empty">{t.trails.empty}</p>
+          ) : filteredTrails.length === 0 ? (
             <p className="trail-empty">{t.trails.emptyFiltered}</p>
           ) : (
             <ul className="trail-list">

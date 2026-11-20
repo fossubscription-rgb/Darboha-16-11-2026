@@ -506,3 +506,27 @@ export async function joinWaitlistApi(email: string) {
     throw new Error(result?.error ?? 'waitlist_failed')
   }
 }
+
+/** Public marketing rows — published places only. */
+export type PublishedPlaceRow = {
+  id: string
+  nameEn: string
+  nameAr: string
+  summaryEn: string
+  summaryAr: string
+  region: string
+  difficulty: string
+  seasonFrom: number | null
+  seasonTo: number | null
+  distanceKm: string
+  durationText: string
+  photos: PlacePhoto[] | null
+}
+
+export async function fetchPublishedPlacesApi(): Promise<PublishedPlaceRow[]> {
+  const client = requireClient()
+  const { data, error } = await client.rpc('list_published_places')
+  if (error) throw error
+  if (!Array.isArray(data)) return []
+  return data as PublishedPlaceRow[]
+}
