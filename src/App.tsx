@@ -94,10 +94,7 @@ function App() {
   useEffect(() => {
     document.documentElement.lang = lang
     document.documentElement.dir = lang === 'ar' ? 'rtl' : 'ltr'
-    document.title =
-      lang === 'ar'
-        ? 'دربها — اعرف الدرب. احترم الأرض.'
-        : 'Darboha — Know the trail. Respect the land.'
+    document.title = lang === 'ar' ? 'دربها' : 'Darboha'
     try {
       localStorage.setItem(LANG_KEY, lang)
     } catch {
@@ -235,7 +232,9 @@ function App() {
               {t.hero.brandAr}
             </p>
             <h1 className="hero-brand">{t.hero.brandEn}</h1>
-            <p className="hero-tagline">{t.hero.tagline}</p>
+            {t.hero.tagline ? (
+              <p className="hero-tagline">{t.hero.tagline}</p>
+            ) : null}
             <p className="hero-lede">{t.hero.lede}</p>
             <div className="hero-actions">
               <a className="btn btn-primary" href="#waitlist">
@@ -501,7 +500,7 @@ function App() {
           <div>
             <strong>Darboha</strong>
             <span lang="ar"> · دربها</span>
-            <p>{t.footer.tagline}</p>
+            {t.footer.tagline ? <p>{t.footer.tagline}</p> : null}
           </div>
           <div className="footer-links">
             <a href="#top">{t.footer.top}</a>
