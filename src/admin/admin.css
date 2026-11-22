@@ -1,19 +1,21 @@
 .admin-root {
-  --admin-bg: #f3f6f4;
+  --admin-bg: #ffffff;
   --admin-panel: #ffffff;
-  --admin-line: #d5e0d9;
-  --admin-ink: #0c1f1a;
-  --admin-muted: #6e7a72;
-  --admin-teal: #1f8a7a;
-  --admin-teal-soft: #e4f4f0;
-  --admin-sand: #e6c989;
-  --admin-sand-soft: #f8f1de;
+  --admin-line: #d5e4e4;
+  --admin-ink: #264653;
+  --admin-muted: #6a7a8c;
+  --admin-teal: #2a9d8f;
+  --admin-teal-soft: #e4f5f3;
+  --admin-sand: #e9c46a;
+  --admin-sand-soft: #f8efd2;
+  --admin-sky: #a8dadc;
+  --admin-grey: #f5f5f5;
   --admin-danger: #9b3b2e;
   --admin-ready: #1f7a4d;
   min-height: 100vh;
   background:
-    radial-gradient(1200px 500px at 10% -10%, #e7f0ea 0%, transparent 55%),
-    radial-gradient(900px 400px at 100% 0%, #f8f1de 0%, transparent 45%),
+    radial-gradient(1200px 500px at 10% -10%, rgba(168, 218, 220, 0.45) 0%, transparent 55%),
+    radial-gradient(900px 400px at 100% 0%, rgba(233, 196, 106, 0.22) 0%, transparent 45%),
     var(--admin-bg);
   color: var(--admin-ink);
   font-family: Figtree, Cairo, sans-serif;
@@ -36,7 +38,7 @@
   border: 1px solid var(--admin-line);
   border-radius: 16px;
   padding: 2rem 1.75rem 1.5rem;
-  box-shadow: 0 18px 40px rgba(12, 31, 26, 0.06);
+  box-shadow: 0 18px 40px rgba(38, 70, 83, 0.06);
 }
 
 .admin-gate-card .wordmark {
@@ -66,7 +68,7 @@
   border: 1px solid var(--admin-line);
   border-radius: 10px;
   padding: 0.75rem 0.9rem;
-  background: #fafcfb;
+  background: var(--admin-grey);
   margin-bottom: 0.85rem;
 }
 
@@ -387,7 +389,7 @@
   border-radius: 9px;
   padding: 0.6rem 0.75rem;
   font: inherit;
-  background: #fafcfb;
+  background: var(--admin-grey);
 }
 
 .admin-field textarea {

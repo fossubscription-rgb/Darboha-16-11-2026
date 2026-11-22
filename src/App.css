@@ -7,8 +7,8 @@
   inset-inline-start: 1rem;
   top: -3rem;
   z-index: 40;
-  background: var(--sand);
-  color: var(--ink);
+  background: var(--turquoise);
+  color: var(--white);
   padding: 0.6rem 0.9rem;
   border-radius: 0.4rem;
 }
@@ -82,17 +82,17 @@
 }
 
 .nav-cta {
-  border: 1px solid rgba(126, 184, 201, 0.55);
+  border: 1px solid rgba(168, 218, 220, 0.65);
   padding: 0.45rem 0.85rem;
   border-radius: 0.45rem;
-  color: var(--sand-soft);
+  color: var(--sky);
 }
 
 .lang-toggle {
   appearance: none;
-  border: 1px solid rgba(244, 248, 251, 0.35);
-  background: rgba(10, 30, 61, 0.45);
-  color: var(--mist);
+  border: 1px solid rgba(255, 255, 255, 0.35);
+  background: rgba(38, 70, 83, 0.45);
+  color: var(--white);
   border-radius: 0.45rem;
   min-height: 2.35rem;
   padding: 0.35rem 0.75rem;
@@ -106,8 +106,8 @@
 
 .lang-toggle:hover,
 .lang-toggle:focus-visible {
-  border-color: rgba(230, 201, 137, 0.7);
-  background: rgba(8, 22, 18, 0.55);
+  border-color: rgba(233, 196, 106, 0.75);
+  background: rgba(38, 70, 83, 0.62);
 }
 
 @media (max-width: 860px) {
@@ -148,16 +148,16 @@
   background:
     linear-gradient(
       180deg,
-      rgba(8, 22, 18, 0.38) 0%,
-      rgba(8, 22, 18, 0.2) 36%,
-      rgba(8, 22, 18, 0.74) 72%,
-      rgba(8, 22, 18, 0.94) 100%
+      rgba(38, 70, 83, 0.38) 0%,
+      rgba(38, 70, 83, 0.2) 36%,
+      rgba(38, 70, 83, 0.74) 72%,
+      rgba(38, 70, 83, 0.94) 100%
     ),
     linear-gradient(
       90deg,
-      rgba(8, 22, 18, 0.58) 0%,
-      rgba(8, 22, 18, 0.16) 55%,
-      rgba(8, 22, 18, 0.38) 100%
+      rgba(38, 70, 83, 0.58) 0%,
+      rgba(38, 70, 83, 0.16) 55%,
+      rgba(38, 70, 83, 0.38) 100%
     );
 }
 
@@ -165,16 +165,16 @@
   background:
     linear-gradient(
       180deg,
-      rgba(8, 22, 18, 0.38) 0%,
-      rgba(8, 22, 18, 0.2) 36%,
-      rgba(8, 22, 18, 0.74) 72%,
-      rgba(8, 22, 18, 0.94) 100%
+      rgba(38, 70, 83, 0.38) 0%,
+      rgba(38, 70, 83, 0.2) 36%,
+      rgba(38, 70, 83, 0.74) 72%,
+      rgba(38, 70, 83, 0.94) 100%
     ),
     linear-gradient(
       270deg,
-      rgba(8, 22, 18, 0.58) 0%,
-      rgba(8, 22, 18, 0.16) 55%,
-      rgba(8, 22, 18, 0.38) 100%
+      rgba(38, 70, 83, 0.58) 0%,
+      rgba(38, 70, 83, 0.16) 55%,
+      rgba(38, 70, 83, 0.38) 100%
     );
 }
 
@@ -186,7 +186,7 @@
   height: min(60vw, 34rem);
   background: radial-gradient(
     circle,
-    rgba(31, 138, 122, 0.35),
+    rgba(42, 157, 143, 0.38),
     transparent 68%
   );
   filter: blur(12px);
@@ -258,24 +258,24 @@
 }
 
 .btn-primary {
-  background: var(--sand);
-  color: var(--ink);
+  background: var(--turquoise);
+  color: var(--white);
 }
 
 .btn-primary:hover,
 .btn-primary:focus-visible {
-  background: var(--sand-soft);
+  background: var(--teal-bright);
 }
 
 .btn-ghost {
   background: transparent;
   color: var(--text);
-  border-color: rgba(244, 248, 251, 0.35);
+  border-color: rgba(255, 255, 255, 0.35);
 }
 
 .btn-ghost:hover,
 .btn-ghost:focus-visible {
-  border-color: rgba(231, 240, 234, 0.7);
+  border-color: rgba(168, 218, 220, 0.75);
 }
 
 .section {
@@ -292,7 +292,7 @@
   font-weight: 700;
   letter-spacing: 0.14em;
   text-transform: uppercase;
-  color: var(--teal);
+  color: var(--turquoise);
   margin-bottom: 0.9rem;
 }
 
@@ -323,12 +323,12 @@
 
 .promise {
   background:
-    radial-gradient(circle at 90% 10%, rgba(31, 138, 122, 0.12), transparent 40%),
-    linear-gradient(180deg, #f3f8f5, #e9f1ec);
+    radial-gradient(circle at 90% 10%, rgba(42, 157, 143, 0.14), transparent 40%),
+    linear-gradient(180deg, #ffffff, color-mix(in srgb, var(--sky) 55%, white));
 }
 
 .trails {
-  background: var(--foam);
+  background: color-mix(in srgb, var(--sky) 72%, white);
   padding-bottom: clamp(3rem, 6vw, 4.5rem);
 }
 
@@ -407,7 +407,7 @@
   font-weight: 700;
   letter-spacing: 0.12em;
   text-transform: uppercase;
-  color: var(--teal);
+  color: var(--turquoise);
   margin-bottom: 0.55rem;
 }
 
@@ -465,7 +465,7 @@
 }
 
 .safety h2 {
-  color: var(--mist);
+  color: var(--white);
 }
 
 .safety .section-lede {
@@ -483,7 +483,7 @@
 
 .safety-list h3 {
   font-size: clamp(1.15rem, 2vw, 1.4rem);
-  color: var(--sand-soft);
+  color: var(--sand);
   margin-bottom: 0.45rem;
 }
 
@@ -505,12 +505,12 @@
 
 .how {
   background:
-    linear-gradient(180deg, #122a4d 0%, #0a1e3d 42%, #16365a 100%);
+    linear-gradient(180deg, #2f5563 0%, #264653 42%, #1d3843 100%);
   color: var(--text);
 }
 
 .how h2 {
-  color: var(--mist);
+  color: var(--white);
 }
 
 .how .section-lede {
@@ -536,7 +536,7 @@
 
 .how-steps h3 {
   font-size: 1.15rem;
-  color: var(--sand-soft);
+  color: var(--sand);
   margin-bottom: 0.3rem;
 }
 
@@ -570,8 +570,8 @@
   position: absolute;
   inset: auto 8% 10% 8%;
   padding: 0.85rem 1rem;
-  background: rgba(8, 22, 18, 0.72);
-  border: 1px solid rgba(231, 240, 234, 0.18);
+  background: rgba(38, 70, 83, 0.78);
+  border: 1px solid rgba(168, 218, 220, 0.28);
   backdrop-filter: blur(6px);
   color: var(--sand);
 }
@@ -593,8 +593,8 @@
 
 .team {
   background:
-    radial-gradient(circle at 0% 100%, rgba(230, 201, 137, 0.18), transparent 35%),
-    var(--foam);
+    radial-gradient(circle at 0% 100%, rgba(233, 196, 106, 0.2), transparent 35%),
+    color-mix(in srgb, var(--sky) 45%, white);
 }
 
 .role-row {
@@ -609,18 +609,18 @@
 .role-row li {
   font-weight: 600;
   color: var(--ink-soft);
-  border-bottom: 2px solid color-mix(in srgb, var(--teal) 55%, transparent);
+  border-bottom: 2px solid color-mix(in srgb, var(--turquoise) 55%, transparent);
   padding: 0.35rem 0.15rem;
 }
 
 .waitlist {
-  background: #081612;
+  background: #1d3843;
   color: var(--text);
   padding-top: 2rem;
 }
 
 .waitlist h2 {
-  color: var(--mist);
+  color: var(--white);
   max-width: 16ch;
 }
 
@@ -634,9 +634,9 @@
   padding: clamp(2rem, 5vw, 3rem);
   border-radius: 1.1rem;
   background:
-    linear-gradient(135deg, rgba(31, 138, 122, 0.22), rgba(12, 31, 26, 0.4)),
+    linear-gradient(135deg, rgba(42, 157, 143, 0.28), rgba(38, 70, 83, 0.45)),
     url('/images/wadi.jpg') center/cover;
-  box-shadow: inset 0 0 0 1px rgba(231, 240, 234, 0.12);
+  box-shadow: inset 0 0 0 1px rgba(168, 218, 220, 0.16);
   position: relative;
   overflow: hidden;
 }
@@ -647,18 +647,18 @@
   inset: 0;
   background: linear-gradient(
     100deg,
-    rgba(8, 22, 18, 0.88) 0%,
-    rgba(8, 22, 18, 0.72) 48%,
-    rgba(8, 22, 18, 0.55) 100%
+    rgba(38, 70, 83, 0.88) 0%,
+    rgba(38, 70, 83, 0.72) 48%,
+    rgba(38, 70, 83, 0.55) 100%
   );
 }
 
 [dir='rtl'] .waitlist-panel::before {
   background: linear-gradient(
     260deg,
-    rgba(8, 22, 18, 0.88) 0%,
-    rgba(8, 22, 18, 0.72) 48%,
-    rgba(8, 22, 18, 0.55) 100%
+    rgba(38, 70, 83, 0.88) 0%,
+    rgba(38, 70, 83, 0.72) 48%,
+    rgba(38, 70, 83, 0.55) 100%
   );
 }
 
@@ -681,30 +681,30 @@
   width: 100%;
   min-height: 2.85rem;
   border-radius: 0.55rem;
-  border: 1px solid rgba(231, 240, 234, 0.28);
-  background: rgba(8, 22, 18, 0.55);
-  color: var(--text);
+  border: 1px solid color-mix(in srgb, var(--navy) 12%, transparent);
+  background: var(--grey);
+  color: var(--navy);
   padding: 0.7rem 0.9rem;
 }
 
 .waitlist-form input::placeholder {
-  color: rgba(238, 246, 241, 0.55);
+  color: color-mix(in srgb, var(--navy) 45%, white);
 }
 
 .waitlist-form input:focus-visible {
-  outline: 2px solid var(--teal-bright);
+  outline: 2px solid var(--turquoise);
   outline-offset: 2px;
 }
 
 .thanks {
   font-size: 1.05rem;
-  color: var(--sand-soft) !important;
+  color: var(--sand) !important;
   font-weight: 600;
 }
 
 .footer {
-  background: #06140f;
-  color: rgba(238, 246, 241, 0.78);
+  background: #1d3843;
+  color: rgba(255, 255, 255, 0.78);
   padding: 2.5rem 0 2rem;
   font-size: 0.92rem;
 }
@@ -729,11 +729,11 @@
 
 .footer-links a:hover,
 .footer-links a:focus-visible {
-  color: var(--sand-soft);
+  color: var(--sand);
 }
 
 .footer-note {
-  color: rgba(238, 246, 241, 0.5);
+  color: rgba(255, 255, 255, 0.5);
   max-width: 46rem;
   line-height: 1.45;
 }
@@ -814,10 +814,10 @@
 
 .trail-filters select {
   min-height: 2.5rem;
-  border: 1px solid color-mix(in srgb, var(--navy) 18%, transparent);
+  border: 1px solid color-mix(in srgb, var(--navy) 14%, transparent);
   border-radius: 0.55rem;
   padding: 0.4rem 0.75rem;
-  background: var(--white);
+  background: var(--grey);
   color: var(--navy);
 }
 
