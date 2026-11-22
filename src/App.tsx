@@ -85,9 +85,7 @@ function App() {
     document.documentElement.lang = lang
     document.documentElement.dir = lang === 'ar' ? 'rtl' : 'ltr'
     document.title =
-      lang === 'ar'
-        ? 'دربها — اعرف الدرب. احترم الأرض.'
-        : 'Darboha — Know the trail. Respect the land.'
+      lang === 'ar' ? 'دربها — لِكُل دربٍ رواية' : 'Darboha'
     try {
       localStorage.setItem(LANG_KEY, lang)
     } catch {
