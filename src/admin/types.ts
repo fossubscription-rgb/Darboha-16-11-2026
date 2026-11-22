@@ -53,7 +53,10 @@ export type PlaceAmenity = {
 export type Place = {
   id: string
   createdBy: string
+  /** Display name of the creator (whose work this is). */
   ownerLabel: string
+  /** Role key of the creator (da1/da2/ceo/…). */
+  ownerRoleKey?: RoleKey | 'social' | string
   status: PlaceStatus
   nameEn: string
   nameAr: string

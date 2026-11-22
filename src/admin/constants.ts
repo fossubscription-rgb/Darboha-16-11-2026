@@ -103,3 +103,36 @@ export function sessionOwnsModule(
   if (module === 'cfo') return roleKey === 'cfo'
   return false
 }
+
+/** Short role label for ownership chips (name · role). */
+export function roleLabelForKey(roleKey: string | undefined | null): string {
+  switch (roleKey) {
+    case 'ceo':
+      return 'CEO'
+    case 'da1':
+    case 'da2':
+      return 'Data Analyst'
+    case 'safety':
+      return 'Health & Safety'
+    case 'cfo':
+      return 'CFO / VP'
+    case 'social':
+      return 'Social'
+    default:
+      return 'Teammate'
+  }
+}
+
+/** "Analyst 1 · Data Analyst" style ownership string. */
+export function formatPlaceOwner(
+  displayName: string | undefined | null,
+  roleKey?: string | null,
+): string {
+  const name = (displayName ?? '').trim() || 'Teammate'
+  const role = roleLabelForKey(roleKey)
+  return `${name} · ${role}`
+}
+
+export function isDataAnalystRole(roleKey: string | undefined | null): boolean {
+  return roleKey === 'da1' || roleKey === 'da2'
+}

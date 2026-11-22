@@ -337,6 +337,22 @@
   color: #0f4f45;
 }
 
+.admin-owner-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  max-width: 100%;
+  padding: 0.15rem 0.55rem;
+  border-radius: 999px;
+  background: var(--admin-grey);
+  border: 1px solid var(--admin-line);
+  color: var(--admin-ink);
+  font-size: 0.78rem;
+  font-weight: 650;
+  line-height: 1.35;
+  white-space: nowrap;
+}
+
 .admin-tabs {
   display: flex;
   gap: 0.35rem;
