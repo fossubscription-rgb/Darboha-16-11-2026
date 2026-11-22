@@ -138,7 +138,7 @@ export function CeoPlaces() {
             <thead>
               <tr>
                 <th>Name</th>
-                <th>Owner</th>
+                <th>Whose work</th>
                 <th>Status</th>
                 <th>Updated</th>
               </tr>
@@ -151,7 +151,9 @@ export function CeoPlaces() {
                       {p.nameEn || 'Untitled'}
                     </Link>
                   </td>
-                  <td>{p.ownerLabel}</td>
+                  <td>
+                    <span className="admin-owner-pill">{p.ownerLabel}</span>
+                  </td>
                   <td>
                     <StatusChip status={p.status} />
                   </td>

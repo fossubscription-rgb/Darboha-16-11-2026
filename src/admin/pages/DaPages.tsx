@@ -1,5 +1,6 @@
 import { Link, useNavigate } from 'react-router-dom'
 import { useAdmin } from '../AdminContext'
+import { formatPlaceOwner } from '../constants'
 import { StatusChip } from '../components/StatusChip'
 import { PlaceEditor } from '../components/PlaceEditor'
 import { blankPlace } from '../mockData'
@@ -13,7 +14,11 @@ export function DaMyPlaces() {
 
   async function create() {
     if (!session) return
-    const place = blankPlace(session.memberId, session.displayName)
+    const place = blankPlace(
+      session.memberId,
+      formatPlaceOwner(session.displayName, session.roleKey),
+    )
+    place.ownerRoleKey = session.roleKey
     try {
       await savePlace(place, {
         activity: {
@@ -34,8 +39,9 @@ export function DaMyPlaces() {
         <div>
           <h1>My places</h1>
           <p>
-            Create and edit your own places. Tabs: Basics (incl. hike length,
-            time, start/end) · Access (amenities) · Photos.
+            Create and edit your places. You can also edit teammates’ places from
+            Team places — ownership always stays with the creator. Tabs: Basics ·
+            Access · Photos.
           </p>
         </div>
         <button type="button" className="admin-btn" onClick={() => void create()}>
@@ -50,6 +56,7 @@ export function DaMyPlaces() {
             <thead>
               <tr>
                 <th>Name</th>
+                <th>Whose work</th>
                 <th>Region</th>
                 <th>Status</th>
                 <th>Updated</th>
@@ -62,6 +69,9 @@ export function DaMyPlaces() {
                     <Link to={`/admin/da/places/${p.id}`}>
                       {p.nameEn || 'Untitled'}
                     </Link>
+                  </td>
+                  <td>
+                    <span className="admin-owner-pill">{p.ownerLabel}</span>
                   </td>
                   <td>{p.region || '—'}</td>
                   <td>
@@ -89,7 +99,10 @@ export function DaTeamPlaces() {
       <div className="admin-page-head">
         <div>
           <h1>Team places</h1>
-          <p>Teammates’ places — view only.</p>
+          <p>
+            Edit coworkers’ places when needed. Each row shows whose work it is —
+            ownership does not change when you save.
+          </p>
         </div>
       </div>
       <div className="admin-panel">
@@ -102,8 +115,9 @@ export function DaTeamPlaces() {
             <thead>
               <tr>
                 <th>Name</th>
-                <th>Owner</th>
+                <th>Whose work</th>
                 <th>Status</th>
+                <th></th>
               </tr>
             </thead>
             <tbody>
@@ -114,9 +128,24 @@ export function DaTeamPlaces() {
                       {p.nameEn || 'Untitled'}
                     </Link>
                   </td>
-                  <td>{p.ownerLabel}</td>
+                  <td>
+                    <span className="admin-owner-pill">{p.ownerLabel}</span>
+                  </td>
                   <td>
                     <StatusChip status={p.status} />
+                  </td>
+                  <td>
+                    <Link
+                      className="admin-btn secondary"
+                      to={`/admin/da/places/${p.id}`}
+                      style={{
+                        display: 'inline-block',
+                        padding: '0.35rem 0.7rem',
+                        fontSize: '0.82rem',
+                      }}
+                    >
+                      Edit
+                    </Link>
                   </td>
                 </tr>
               ))}

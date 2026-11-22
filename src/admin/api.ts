@@ -1,4 +1,5 @@
 import { getAdminToken, setAdminToken, supabase } from '../lib/supabase'
+import { formatPlaceOwner } from './constants'
 import { sortPhotosCoverFirst } from './store'
 import type {
   ActivityItem,
@@ -58,8 +59,8 @@ type PlaceRow = {
   photos: PlacePhoto[] | null
   updated_at: string
   team_roles?:
-    | { display_name: string }
-    | { display_name: string }[]
+    | { display_name: string; role_key?: string }
+    | { display_name: string; role_key?: string }[]
     | null
   place_safety?:
     | {
@@ -149,7 +150,8 @@ function mapPlace(row: PlaceRow): Place {
   return {
     id: row.id,
     createdBy: row.created_by,
-    ownerLabel: owner?.display_name ?? 'Teammate',
+    ownerLabel: formatPlaceOwner(owner?.display_name, owner?.role_key),
+    ownerRoleKey: owner?.role_key,
     status: row.status,
     nameEn: row.name_en,
     nameAr: row.name_ar,
@@ -361,7 +363,7 @@ export async function fetchAdminBundle(
        nearby_amenities, amenities_notes_en, amenities_notes_ar,
        fragile, vehicle_access,
        access_notes_en, access_notes_ar, trailhead_notes_en, trailhead_notes_ar, photos, updated_at,
-       team_roles!places_created_by_fkey(display_name),
+       team_roles!places_created_by_fkey(display_name, role_key),
        place_safety(*)`,
     )
     .order('updated_at', { ascending: false })

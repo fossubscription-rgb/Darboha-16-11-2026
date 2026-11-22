@@ -26,7 +26,7 @@ export function SafetyQueue() {
             <thead>
               <tr>
                 <th>Name</th>
-                <th>Owner</th>
+                <th>Whose work</th>
                 <th>Status</th>
                 <th>Updated</th>
               </tr>
@@ -37,7 +37,9 @@ export function SafetyQueue() {
                   <td>
                     <Link to={`/admin/safety/places/${p.id}`}>{p.nameEn}</Link>
                   </td>
-                  <td>{p.ownerLabel}</td>
+                  <td>
+                    <span className="admin-owner-pill">{p.ownerLabel}</span>
+                  </td>
                   <td>
                     <StatusChip status={p.status} />
                   </td>
@@ -73,7 +75,7 @@ export function SafetyAllPlaces() {
             <thead>
               <tr>
                 <th>Name</th>
-                <th>Owner</th>
+                <th>Whose work</th>
                 <th>Status</th>
               </tr>
             </thead>
@@ -85,7 +87,9 @@ export function SafetyAllPlaces() {
                       {p.nameEn || 'Untitled'}
                     </Link>
                   </td>
-                  <td>{p.ownerLabel}</td>
+                  <td>
+                    <span className="admin-owner-pill">{p.ownerLabel}</span>
+                  </td>
                   <td>
                     <StatusChip status={p.status} />
                   </td>

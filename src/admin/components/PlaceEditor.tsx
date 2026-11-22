@@ -7,7 +7,12 @@ import {
   safetyComplete,
   sortPhotosCoverFirst,
 } from '../store'
-import { DIFFICULTY_OPTIONS, MONTHS, SAFETY_DROPDOWNS } from '../constants'
+import {
+  DIFFICULTY_OPTIONS,
+  isDataAnalystRole,
+  MONTHS,
+  SAFETY_DROPDOWNS,
+} from '../constants'
 import type {
   Place,
   PlaceAmenity,
@@ -37,13 +42,12 @@ const AMENITY_KINDS: { value: PlaceAmenity['kind']; label: string }[] = [
   { value: 'other', label: 'Other' },
 ]
 
-function modeFor(role: RoleKey, place: Place, memberId: string): Mode {
+function modeFor(role: RoleKey, _place: Place, _memberId: string): Mode {
   if (role === 'safety') return 'safety'
   if (role === 'ceo') return 'ceo'
   if (role === 'cfo') return 'readonly'
-  if (role === 'da1' || role === 'da2') {
-    return place.createdBy === memberId ? 'da' : 'readonly'
-  }
+  // DAs may edit coworkers' places; ownership stays on created_by.
+  if (isDataAnalystRole(role)) return 'da'
   return 'readonly'
 }
 
@@ -129,9 +133,17 @@ export function PlaceEditor({
   const daEditable = mode === 'da' || mode === 'ceo'
   const safetyEditable = mode === 'safety' || mode === 'ceo'
   const showSafetyTab = mode !== 'da'
+  const isOwnPlace = place.createdBy === session.memberId
+  const editingCoworkerPlace =
+    mode === 'da' && isDataAnalystRole(session.roleKey) && !isOwnPlace
+  const canDeletePlace =
+    mode === 'ceo' || (mode === 'da' && isOwnPlace)
 
   function patch(partial: Partial<Place>) {
-    setPlace((p) => (p ? { ...p, ...partial } : p))
+    // Never reassign ownership via local edits — created_by / owner stay put.
+    const { createdBy: _cb, ownerLabel: _ol, ownerRoleKey: _ork, ...safe } =
+      partial
+    setPlace((p) => (p ? { ...p, ...safe } : p))
   }
 
   function patchSafety(partial: Partial<Place['safety']>) {
@@ -152,6 +164,10 @@ export function PlaceEditor({
       let next: Place = {
         ...place,
         ...extra,
+        // Preserve original ownership even if extra tried to change it.
+        createdBy: place.createdBy,
+        ownerLabel: place.ownerLabel,
+        ownerRoleKey: place.ownerRoleKey,
         photos: sortPhotosCoverFirst((extra?.photos ?? place.photos)),
         updatedAt: new Date().toISOString(),
       }
@@ -342,10 +358,7 @@ export function PlaceEditor({
   async function onDelete() {
     if (!place || !session) return
     if (!confirm('Delete this place?')) return
-    const can =
-      mode === 'ceo' ||
-      (mode === 'da' && place.createdBy === session.memberId)
-    if (!can) return
+    if (!canDeletePlace) return
     setBusy(true)
     try {
       await removePlace(place.id, {
@@ -384,7 +397,10 @@ export function PlaceEditor({
         <div>
           <h1>{place.nameEn || 'Untitled place'}</h1>
           <p>
-            <StatusChip status={place.status} /> · Owned by {place.ownerLabel}
+            <StatusChip status={place.status} />{' '}
+            <span className="admin-owner-pill" title="Whose work this place is">
+              Whose work: {place.ownerLabel}
+            </span>
             {autosaveLabel ? ` · ${autosaveLabel}` : ''}
           </p>
         </div>
@@ -463,7 +479,7 @@ export function PlaceEditor({
               Publish
             </button>
           )}
-          {(mode === 'ceo' || mode === 'da') && (
+          {canDeletePlace && (
             <button
               type="button"
               className="admin-btn danger"
@@ -475,6 +491,14 @@ export function PlaceEditor({
           )}
         </div>
       </div>
+
+      {editingCoworkerPlace && (
+        <div className="admin-banner info">
+          Editing a coworker’s place — this is{' '}
+          <strong>{place.ownerLabel}</strong>’s work. Your saves keep that
+          ownership; you cannot reassign or delete it.
+        </div>
+      )}
 
       {mode === 'da' && progress && (
         <div className="admin-panel" style={{ marginBottom: '0.85rem' }}>
