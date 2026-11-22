@@ -2,16 +2,18 @@
 
 Bilingual marketing site for **Darboha** (دربها) — self-guided adventure guidance for travelers and hikers exploring Oman — plus `/admin` wired to Supabase (password-only role gates).
 
-> Know the trail. Respect the land. · اعرف الدرب. احترم الأرض.
+> لِكُل دربٍ رواية
 
-## Brand (v1)
+## Brand (2026-11-22)
 
 | | |
 |---|---|
 | Name | Darboha / دربها |
-| Tagline | Know the trail. Respect the land. |
-| Colors | Navy `#0A1E3D`, Glacier `#7EB8C9`, Glacier light `#9FCFDD`, mist `#F4F8FB` |
+| Motto (AR) | لِكُل دربٍ رواية |
+| Colors | White `#FFFFFF`, Dark navy `#264653`, Turquoise `#2A9D8F`, Sky blue `#A8DADC`, Light grey `#F5F5F5`, Sand gold `#E9C46A` |
+| Balance | ~70% white · ~20% teal/blue · ~10% gold |
 | Fonts | Syne (EN display) · Figtree (EN body) · Cairo (Arabic) |
+| Brand board | `/branding` |
 
 ## Run locally
 
