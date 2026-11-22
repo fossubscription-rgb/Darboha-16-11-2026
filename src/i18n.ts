@@ -105,7 +105,7 @@ export const copy: Record<Lang, Copy> = {
     hero: {
       brandAr: 'دربها',
       brandEn: 'Darboha',
-      tagline: 'Know the trail. Respect the land.',
+      tagline: '',
       lede: 'Self-guided travel for Oman’s wild places — follow curated trails on an in-app map, without a tour guide. Clearer routes, safer habits, gentler footprints.',
       ctaPrimary: 'Join the waitlist',
       ctaSecondary: 'Explore trails',
@@ -188,7 +188,7 @@ export const copy: Record<Lang, Copy> = {
       emailLabel: 'Email',
     },
     footer: {
-      tagline: 'Know the trail. Respect the land.',
+      tagline: '',
       note: 'Photos: Wikimedia Commons (Oman landscapes). Marketing site — product app coming later.',
       top: 'Top',
     },
@@ -207,7 +207,7 @@ export const copy: Record<Lang, Copy> = {
     hero: {
       brandAr: 'دربها',
       brandEn: 'Darboha',
-      tagline: 'اعرف الدرب. احترم الأرض.',
+      tagline: 'لِكُل دربٍ رواية',
       lede: 'سفر موجّه ذاتياً في أماكن عُمان البرية — اتبع مسارات مختارة عبر خريطة داخل التطبيق، دون مرشد سياحي. مسارات أوضح، عادات أأمن، وبصمة ألطف.',
       ctaPrimary: 'انضم لقائمة الانتظار',
       ctaSecondary: 'استكشف المسارات',
@@ -290,7 +290,7 @@ export const copy: Record<Lang, Copy> = {
       emailLabel: 'البريد الإلكتروني',
     },
     footer: {
-      tagline: 'اعرف الدرب. احترم الأرض.',
+      tagline: 'لِكُل دربٍ رواية',
       note: 'الصور: ويكيميديا كومنز (مناظر عُمان). موقع تسويقي — تطبيق المنتج لاحقاً.',
       top: 'الأعلى',
     },
