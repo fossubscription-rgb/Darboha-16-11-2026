@@ -229,48 +229,52 @@ function App() {
             <p className="eyebrow">{t.trails.eyebrow}</p>
             <h2>{t.trails.title}</h2>
             <p className="section-lede">{t.trails.lede}</p>
-            <div className="trail-filters" role="group" aria-label="Trail filters">
-              <label>
-                <span>{t.trails.filterDifficulty}</span>
-                <select
-                  value={difficultyFilter}
-                  onChange={(e) =>
-                    setDifficultyFilter(e.target.value as DifficultyFilter)
-                  }
-                >
-                  <option value="all">{t.trails.filterAll}</option>
-                  <option value="easy">
-                    {lang === 'ar' ? 'سهل' : 'Easy'}
-                  </option>
-                  <option value="moderate">
-                    {lang === 'ar' ? 'متوسط' : 'Moderate'}
-                  </option>
-                  <option value="varies">
-                    {lang === 'ar' ? 'متفاوت' : 'Varies'}
-                  </option>
-                </select>
-              </label>
-              <label>
-                <span>{t.trails.filterSeason}</span>
-                <select
-                  value={seasonFilter}
-                  onChange={(e) =>
-                    setSeasonFilter(e.target.value as SeasonFilter)
-                  }
-                >
-                  <option value="all">{t.trails.filterAll}</option>
-                  <option value="cool">
-                    {lang === 'ar' ? 'أشهر باردة' : 'Cool months'}
-                  </option>
-                  <option value="shoulder">
-                    {lang === 'ar' ? 'موسم انتقالي' : 'Shoulder'}
-                  </option>
-                </select>
-              </label>
-            </div>
+            {t.trails.items.length > 0 ? (
+              <div className="trail-filters" role="group" aria-label="Trail filters">
+                <label>
+                  <span>{t.trails.filterDifficulty}</span>
+                  <select
+                    value={difficultyFilter}
+                    onChange={(e) =>
+                      setDifficultyFilter(e.target.value as DifficultyFilter)
+                    }
+                  >
+                    <option value="all">{t.trails.filterAll}</option>
+                    <option value="easy">
+                      {lang === 'ar' ? 'سهل' : 'Easy'}
+                    </option>
+                    <option value="moderate">
+                      {lang === 'ar' ? 'متوسط' : 'Moderate'}
+                    </option>
+                    <option value="varies">
+                      {lang === 'ar' ? 'متفاوت' : 'Varies'}
+                    </option>
+                  </select>
+                </label>
+                <label>
+                  <span>{t.trails.filterSeason}</span>
+                  <select
+                    value={seasonFilter}
+                    onChange={(e) =>
+                      setSeasonFilter(e.target.value as SeasonFilter)
+                    }
+                  >
+                    <option value="all">{t.trails.filterAll}</option>
+                    <option value="cool">
+                      {lang === 'ar' ? 'أشهر باردة' : 'Cool months'}
+                    </option>
+                    <option value="shoulder">
+                      {lang === 'ar' ? 'موسم انتقالي' : 'Shoulder'}
+                    </option>
+                  </select>
+                </label>
+              </div>
+            ) : null}
           </div>
 
-          {filteredTrails.length === 0 ? (
+          {t.trails.items.length === 0 ? (
+            <p className="trail-empty">{t.trails.emptyCatalog}</p>
+          ) : filteredTrails.length === 0 ? (
             <p className="trail-empty">{t.trails.emptyFiltered}</p>
           ) : (
             <ul className="trail-list">
