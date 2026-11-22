@@ -333,7 +333,7 @@ export const copy: Record<Lang, Copy> = {
     },
     footer: {
       tagline: 'Know the trail. Respect the land.',
-      note: 'Photos: Wikimedia Commons (Oman landscapes). Marketing site — product app and logo mark coming later.',
+      note: 'Photos: Wikimedia Commons (Oman landscapes). Marketing site — product app coming later.',
       top: 'Top',
     },
   },
@@ -434,7 +434,7 @@ export const copy: Record<Lang, Copy> = {
     },
     footer: {
       tagline: 'اعرف الدرب. احترم الأرض.',
-      note: 'الصور: ويكيميديا كومنز (مناظر عُمان). موقع تسويقي — تطبيق المنتج وشعار العلامة لاحقاً.',
+      note: 'الصور: ويكيميديا كومنز (مناظر عُمان). موقع تسويقي — تطبيق المنتج لاحقاً.',
       top: 'الأعلى',
     },
   },

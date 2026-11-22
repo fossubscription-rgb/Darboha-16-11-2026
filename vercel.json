@@ -3,7 +3,7 @@
   "framework": "vite",
   "rewrites": [
     {
-      "source": "/((?!assets/|images/|favicon\\.svg).*)",
+      "source": "/((?!assets/|images/|branding/|favicon\\.svg).*)",
       "destination": "/index.html"
     }
   ]

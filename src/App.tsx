@@ -140,24 +140,14 @@ function App() {
 
       <header className="topbar">
         <a className="brand-mark" href="#top" aria-label="Darboha / دربها">
-          <svg viewBox="0 0 48 48" aria-hidden="true">
-            <path
-              className="path-stroke"
-              d="M8 34c7-15 12-22 19-26 2 9 5 15 13 22"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="2.5"
-              strokeLinecap="round"
-            />
-            <circle cx="27" cy="8" r="2.4" fill="currentColor" />
-          </svg>
-          <span className="brand-en">Darboha</span>
-          <span className="brand-sep" aria-hidden="true">
-            /
-          </span>
-          <span className="brand-ar" lang="ar">
-            دربها
-          </span>
+          <img
+            className="brand-logo brand-logo--nav"
+            src="/branding/darboha-logo-dark.png"
+            alt=""
+            width={180}
+            height={212}
+            decoding="async"
+          />
         </a>
 
         <nav className="topnav" aria-label="Primary">
@@ -195,10 +185,16 @@ function App() {
           </div>
 
           <div className="hero-content">
-            <p className="hero-brand-ar" lang="ar">
-              {t.hero.brandAr}
-            </p>
-            <h1 className="hero-brand">{t.hero.brandEn}</h1>
+            <h1 className="hero-brand">
+              <img
+                className="brand-logo brand-logo--hero"
+                src="/branding/darboha-logo-dark.png"
+                alt="Darboha / دربها"
+                width={420}
+                height={494}
+                decoding="async"
+              />
+            </h1>
             <p className="hero-tagline">{t.hero.tagline}</p>
             <p className="hero-lede">{t.hero.lede}</p>
             <div className="hero-actions">
@@ -452,9 +448,15 @@ function App() {
 
       <footer className="footer">
         <div className="footer-inner">
-          <div>
-            <strong>Darboha</strong>
-            <span lang="ar"> · دربها</span>
+          <div className="footer-brand">
+            <img
+              className="brand-logo brand-logo--footer"
+              src="/branding/darboha-logo-dark.png"
+              alt="Darboha / دربها"
+              width={140}
+              height={165}
+              decoding="async"
+            />
             <p>{t.footer.tagline}</p>
           </div>
           <div className="footer-links">
