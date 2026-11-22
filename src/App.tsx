@@ -195,7 +195,11 @@ function App() {
                 decoding="async"
               />
             </h1>
-            <p className="hero-tagline">{t.hero.tagline}</p>
+            {t.hero.tagline ? (
+              <p className="hero-tagline" lang="ar">
+                {t.hero.tagline}
+              </p>
+            ) : null}
             <p className="hero-lede">{t.hero.lede}</p>
             <div className="hero-actions">
               <a className="btn btn-primary" href="#waitlist">
@@ -461,7 +465,9 @@ function App() {
               height={165}
               decoding="async"
             />
-            <p>{t.footer.tagline}</p>
+            {t.footer.tagline ? (
+              <p lang="ar">{t.footer.tagline}</p>
+            ) : null}
           </div>
           <div className="footer-links">
             <a href="#top">{t.footer.top}</a>
