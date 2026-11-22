@@ -32,35 +32,35 @@
 .brand-mark {
   display: inline-flex;
   align-items: center;
-  gap: 0.45rem;
-  font-family: Syne, 'Cairo', sans-serif;
-  font-weight: 700;
-  letter-spacing: -0.03em;
-  font-size: 1.02rem;
-  flex-wrap: wrap;
+  line-height: 0;
 }
 
-.brand-sep {
-  opacity: 0.45;
-  font-weight: 500;
+.brand-logo {
+  display: block;
+  height: auto;
+  width: auto;
+  max-width: 100%;
+  object-fit: contain;
 }
 
-.brand-ar {
-  font-family: Cairo, Figtree, sans-serif;
-  font-weight: 700;
-  letter-spacing: 0;
+.brand-logo--nav {
+  height: clamp(2.6rem, 5vw, 3.35rem);
+  width: auto;
+  filter: drop-shadow(0 6px 18px rgba(5, 14, 28, 0.35));
 }
 
-.brand-mark svg {
-  width: 1.7rem;
-  height: 1.7rem;
-  color: var(--sand);
+.brand-logo--hero {
+  height: clamp(10rem, 34vw, 18rem);
+  width: auto;
+  margin-inline: 0;
+  filter: drop-shadow(0 18px 50px var(--shadow-deep));
+  animation: rise-in 1s ease both 0.08s;
 }
 
-.path-stroke {
-  stroke-dasharray: 140;
-  animation: path-draw 1.6s ease forwards 0.2s;
-  stroke-dashoffset: 140;
+.brand-logo--footer {
+  height: 4.5rem;
+  width: auto;
+  margin-bottom: 0.55rem;
 }
 
 .topnav {
@@ -202,28 +202,9 @@
   gap: 0.85rem;
 }
 
-.hero-brand-ar {
-  font-family: Cairo, Figtree, sans-serif;
-  font-size: clamp(1.15rem, 2.4vw, 1.55rem);
-  font-weight: 700;
-  color: var(--sand-soft);
-  letter-spacing: 0.02em;
-  animation: rise-in 0.9s ease both;
-}
-
 .hero-brand {
-  font-size: clamp(4rem, 13vw, 8.2rem);
-  font-weight: 800;
-  letter-spacing: -0.055em;
-  line-height: 0.88;
-  text-wrap: balance;
-  animation: rise-in 1s ease both 0.08s;
-  text-shadow: 0 18px 50px var(--shadow-deep);
-}
-
-[dir='rtl'] .hero-brand {
-  font-family: Cairo, Syne, sans-serif;
-  letter-spacing: -0.02em;
+  margin: 0;
+  line-height: 0;
 }
 
 .hero-tagline {
@@ -735,10 +716,9 @@
   gap: 1.25rem;
 }
 
-.footer strong {
-  font-family: Syne, Cairo, sans-serif;
-  color: var(--mist);
-  font-size: 1.1rem;
+.footer-brand p {
+  margin: 0;
+  max-width: 28rem;
 }
 
 .footer-links {
@@ -794,9 +774,7 @@
 
   .hero-photo,
   .hero-glow,
-  .path-stroke,
-  .hero-brand-ar,
-  .hero-brand,
+  .brand-logo--hero,
   .hero-tagline,
   .hero-lede,
   .hero-actions,
@@ -852,4 +830,27 @@
   margin-top: 0.75rem;
   color: #b42318;
   font-size: 0.92rem;
+}
+
+@keyframes rise-in {
+  from {
+    opacity: 0;
+    transform: translateY(18px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes drift-glow {
+  0%,
+  100% {
+    opacity: 0.55;
+    transform: translate3d(0, 0, 0) scale(1);
+  }
+  50% {
+    opacity: 0.85;
+    transform: translate3d(2%, -1.5%, 0) scale(1.04);
+  }
 }
