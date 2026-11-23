@@ -23,6 +23,7 @@ import type {
 import { StatusChip } from './StatusChip'
 import { ClinicMapPicker } from './ClinicMapPicker'
 import { AmenityMapPicker } from './AmenityMapPicker'
+import { TrailEndpointMapPicker } from './TrailEndpointMapPicker'
 
 type Mode = 'da' | 'safety' | 'ceo' | 'readonly'
 
@@ -671,31 +672,51 @@ export function PlaceEditor({
               disabled={!daEditable}
               onChange={(v) => patch({ durationText: v })}
             />
-            <Field
-              label="Start place (EN)"
-              value={place.startPlaceEn}
+            <TrailEndpointMapPicker
+              labelEn="Start place"
+              labelAr="نقطة البداية"
               disabled={!daEditable}
-              onChange={(v) => patch({ startPlaceEn: v })}
+              value={{
+                nameEn: place.startPlaceEn,
+                nameAr: place.startPlaceAr,
+                placeId: place.startPlacePlaceId,
+                lat: place.startPlaceLat,
+                lng: place.startPlaceLng,
+                mapsUrl: place.startPlaceMapsUrl,
+              }}
+              onChange={(next) =>
+                patch({
+                  startPlaceEn: next.nameEn,
+                  startPlaceAr: next.nameAr,
+                  startPlacePlaceId: next.placeId,
+                  startPlaceLat: next.lat,
+                  startPlaceLng: next.lng,
+                  startPlaceMapsUrl: next.mapsUrl,
+                })
+              }
             />
-            <Field
-              label="نقطة البداية (AR)"
-              value={place.startPlaceAr}
+            <TrailEndpointMapPicker
+              labelEn="End place"
+              labelAr="نقطة النهاية"
               disabled={!daEditable}
-              dir="rtl"
-              onChange={(v) => patch({ startPlaceAr: v })}
-            />
-            <Field
-              label="End place (EN)"
-              value={place.endPlaceEn}
-              disabled={!daEditable}
-              onChange={(v) => patch({ endPlaceEn: v })}
-            />
-            <Field
-              label="نقطة النهاية (AR)"
-              value={place.endPlaceAr}
-              disabled={!daEditable}
-              dir="rtl"
-              onChange={(v) => patch({ endPlaceAr: v })}
+              value={{
+                nameEn: place.endPlaceEn,
+                nameAr: place.endPlaceAr,
+                placeId: place.endPlacePlaceId,
+                lat: place.endPlaceLat,
+                lng: place.endPlaceLng,
+                mapsUrl: place.endPlaceMapsUrl,
+              }}
+              onChange={(next) =>
+                patch({
+                  endPlaceEn: next.nameEn,
+                  endPlaceAr: next.nameAr,
+                  endPlacePlaceId: next.placeId,
+                  endPlaceLat: next.lat,
+                  endPlaceLng: next.lng,
+                  endPlaceMapsUrl: next.mapsUrl,
+                })
+              }
             />
             <div className="admin-field full">
               <label>

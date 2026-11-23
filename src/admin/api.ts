@@ -45,8 +45,16 @@ type PlaceRow = {
   duration_text: string
   start_place_en: string
   start_place_ar: string
+  start_place_place_id: string
+  start_place_lat: number | null
+  start_place_lng: number | null
+  start_place_maps_url: string
   end_place_en: string
   end_place_ar: string
+  end_place_place_id: string
+  end_place_lat: number | null
+  end_place_lng: number | null
+  end_place_maps_url: string
   nearby_amenities: PlaceAmenity[] | null
   amenities_notes_en: string
   amenities_notes_ar: string
@@ -165,8 +173,20 @@ function mapPlace(row: PlaceRow): Place {
     durationText: row.duration_text,
     startPlaceEn: row.start_place_en ?? '',
     startPlaceAr: row.start_place_ar ?? '',
+    startPlacePlaceId: row.start_place_place_id ?? '',
+    startPlaceLat:
+      typeof row.start_place_lat === 'number' ? row.start_place_lat : null,
+    startPlaceLng:
+      typeof row.start_place_lng === 'number' ? row.start_place_lng : null,
+    startPlaceMapsUrl: row.start_place_maps_url ?? '',
     endPlaceEn: row.end_place_en ?? '',
     endPlaceAr: row.end_place_ar ?? '',
+    endPlacePlaceId: row.end_place_place_id ?? '',
+    endPlaceLat:
+      typeof row.end_place_lat === 'number' ? row.end_place_lat : null,
+    endPlaceLng:
+      typeof row.end_place_lng === 'number' ? row.end_place_lng : null,
+    endPlaceMapsUrl: row.end_place_maps_url ?? '',
     nearbyAmenities: Array.isArray(row.nearby_amenities)
       ? row.nearby_amenities.map((a) => ({
           id: a.id || crypto.randomUUID(),
@@ -238,8 +258,16 @@ function placeToRow(place: Place) {
     duration_text: place.durationText,
     start_place_en: place.startPlaceEn,
     start_place_ar: place.startPlaceAr,
+    start_place_place_id: place.startPlacePlaceId,
+    start_place_lat: place.startPlaceLat,
+    start_place_lng: place.startPlaceLng,
+    start_place_maps_url: place.startPlaceMapsUrl,
     end_place_en: place.endPlaceEn,
     end_place_ar: place.endPlaceAr,
+    end_place_place_id: place.endPlacePlaceId,
+    end_place_lat: place.endPlaceLat,
+    end_place_lng: place.endPlaceLng,
+    end_place_maps_url: place.endPlaceMapsUrl,
     nearby_amenities: place.nearbyAmenities,
     amenities_notes_en: place.amenitiesNotesEn,
     amenities_notes_ar: place.amenitiesNotesAr,
@@ -359,7 +387,8 @@ export async function fetchAdminBundle(
     .select(
       `id, created_by, status, name_en, name_ar, summary_en, summary_ar, region, difficulty,
        season_from, season_to, distance_km, duration_text,
-       start_place_en, start_place_ar, end_place_en, end_place_ar,
+       start_place_en, start_place_ar, start_place_place_id, start_place_lat, start_place_lng, start_place_maps_url,
+       end_place_en, end_place_ar, end_place_place_id, end_place_lat, end_place_lng, end_place_maps_url,
        nearby_amenities, amenities_notes_en, amenities_notes_ar,
        fragile, vehicle_access,
        access_notes_en, access_notes_ar, trailhead_notes_en, trailhead_notes_ar, photos, updated_at,
