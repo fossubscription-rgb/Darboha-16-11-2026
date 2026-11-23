@@ -1,20 +1,11 @@
 import type { FinanceStatus, PlaceStatus } from '../types'
-
-const LABELS: Record<PlaceStatus | FinanceStatus, string> = {
-  draft: 'Draft',
-  awaiting_safety: 'Awaiting safety',
-  ready: 'Ready',
-  published: 'Published',
-  rejected: 'Rejected',
-  needs_changes: 'Needs changes',
-  pending_approval: 'Pending approval',
-  approved: 'Approved',
-}
+import { useAdminLocale } from '../AdminLocale'
 
 export function StatusChip({
   status,
 }: {
   status: PlaceStatus | FinanceStatus
 }) {
-  return <span className={`admin-chip ${status}`}>{LABELS[status]}</span>
+  const { t } = useAdminLocale()
+  return <span className={`admin-chip ${status}`}>{t.status[status]}</span>
 }

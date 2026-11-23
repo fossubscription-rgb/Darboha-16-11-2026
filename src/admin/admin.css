@@ -41,12 +41,61 @@
   box-shadow: 0 18px 40px rgba(38, 70, 83, 0.06);
 }
 
+.admin-gate-top {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 0.75rem;
+  margin-bottom: 0.35rem;
+}
+
 .admin-gate-card .wordmark {
   font-family: Syne, Cairo, sans-serif;
   font-weight: 750;
   font-size: 1.45rem;
   letter-spacing: -0.03em;
-  margin: 0 0 0.35rem;
+  margin: 0;
+}
+
+.admin-lang-toggle {
+  flex-shrink: 0;
+  appearance: none;
+  border: 1px solid var(--admin-line);
+  background: var(--admin-grey);
+  color: var(--admin-ink);
+  border-radius: 999px;
+  padding: 0.35rem 0.75rem;
+  font-size: 0.82rem;
+  font-weight: 650;
+  cursor: pointer;
+  font-family: Cairo, Figtree, sans-serif;
+}
+
+.admin-lang-toggle:hover {
+  border-color: var(--admin-teal);
+  background: var(--admin-teal-soft);
+}
+
+.admin-sidebar .admin-lang-toggle.ghost {
+  border-color: rgba(238, 246, 241, 0.28);
+  color: #eef6f1;
+  background: transparent;
+}
+
+.admin-sidebar .admin-lang-toggle.ghost:hover {
+  background: rgba(31, 138, 122, 0.28);
+  border-color: transparent;
+}
+
+.admin-root[dir='rtl'] {
+  font-family: Cairo, Figtree, sans-serif;
+}
+
+.admin-root[dir='rtl'] .admin-page-head h1,
+.admin-root[dir='rtl'] .admin-gate-card .wordmark,
+.admin-root[dir='rtl'] .admin-sidebar .wordmark {
+  font-family: Cairo, Syne, sans-serif;
+  letter-spacing: 0;
 }
 
 .admin-gate-card .sub {
@@ -254,7 +303,7 @@
 
 .admin-table th,
 .admin-table td {
-  text-align: left;
+  text-align: start;
   padding: 0.7rem 0.55rem;
   border-bottom: 1px solid var(--admin-line);
   vertical-align: middle;

@@ -1,3 +1,4 @@
+import { useAdminLocale } from '../AdminLocale'
 import { OsmPlacePicker } from './OsmPlacePicker'
 
 export type TrailEndpointSelection = {
@@ -29,6 +30,7 @@ export function TrailEndpointMapPicker({
   disabled,
   onChange,
 }: Props) {
+  const { t, format } = useAdminLocale()
   return (
     <div
       className="admin-field full"
@@ -39,9 +41,11 @@ export function TrailEndpointMapPicker({
       }}
     >
       <OsmPlacePicker
-        label={`${labelEn} · ${labelAr} (OpenStreetMap)`}
-        hint="Search or click the map. Stores name, place id, lat/lng, and maps URL — same pattern as clinic / nearby cafes."
-        searchPlaceholder={`Search ${labelEn.toLowerCase()} in Oman…`}
+        label={format(t.map.endpointOsm, { en: labelEn, ar: labelAr })}
+        hint={t.map.endpointHint}
+        searchPlaceholder={format(t.map.endpointSearch, {
+          label: labelEn.toLowerCase(),
+        })}
         disabled={disabled}
         mapHeight={220}
         value={{
@@ -65,7 +69,9 @@ export function TrailEndpointMapPicker({
 
       <div className="admin-form-grid" style={{ marginTop: '0.35rem' }}>
         <div className="admin-field">
-          <label>{labelEn} (EN)</label>
+          <label>
+            {labelEn} {t.map.labelEnSuffix}
+          </label>
           <input
             value={value.nameEn}
             disabled={disabled}
@@ -73,7 +79,9 @@ export function TrailEndpointMapPicker({
           />
         </div>
         <div className="admin-field">
-          <label>{labelAr} (AR)</label>
+          <label>
+            {labelAr} {t.map.labelArSuffix}
+          </label>
           <input
             dir="rtl"
             value={value.nameAr}

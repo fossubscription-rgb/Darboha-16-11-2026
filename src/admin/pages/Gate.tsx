@@ -4,10 +4,12 @@ import { Navigate, useNavigate } from 'react-router-dom'
 import { loginWithPasswordApi } from '../api'
 import { roleHome } from '../auth'
 import { useAdmin } from '../AdminContext'
+import { LangToggleButton, useAdminLocale } from '../AdminLocale'
 import { isSupabaseConfigured } from '../../lib/supabase'
 
 export function Gate() {
   const { session, setSession } = useAdmin()
+  const { t } = useAdminLocale()
   const navigate = useNavigate()
   const [password, setPassword] = useState('')
   const [error, setError] = useState<string | null>(null)
@@ -20,7 +22,7 @@ export function Gate() {
   async function onSubmit(e: FormEvent) {
     e.preventDefault()
     if (!isSupabaseConfigured()) {
-      setError('Missing VITE_SUPABASE_URL / VITE_SUPABASE_ANON_KEY')
+      setError(t.gate.missingEnv)
       return
     }
     setBusy(true)
@@ -28,13 +30,13 @@ export function Gate() {
     try {
       const next = await loginWithPasswordApi(password)
       if (!next) {
-        setError('Incorrect password')
+        setError(t.gate.incorrect)
         return
       }
       setSession(next)
       navigate(roleHome(next.roleKey))
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Login failed')
+      setError(err instanceof Error ? err.message : t.common.loginFailed)
     } finally {
       setBusy(false)
     }
@@ -43,12 +45,12 @@ export function Gate() {
   return (
     <div className="admin-gate">
       <form className="admin-gate-card" onSubmit={onSubmit}>
-        <h1 className="wordmark">Darboha Admin</h1>
-        <p className="sub">
-          Password-only gate. Enter your role password — no username. Session is
-          bound to that role (URL swap cannot skip auth).
-        </p>
-        <label htmlFor="admin-password">Password</label>
+        <div className="admin-gate-top">
+          <h1 className="wordmark">{t.brand}</h1>
+          <LangToggleButton />
+        </div>
+        <p className="sub">{t.gate.sub}</p>
+        <label htmlFor="admin-password">{t.gate.password}</label>
         <input
           id="admin-password"
           type="password"
@@ -68,11 +70,9 @@ export function Gate() {
           style={{ width: '100%' }}
           disabled={busy}
         >
-          {busy ? 'Checking…' : 'Enter'}
+          {busy ? t.gate.checking : t.gate.enter}
         </button>
-        <p className="admin-hint">
-          Ask the CEO for your role password. Passwords are not shown here.
-        </p>
+        <p className="admin-hint">{t.gate.hint}</p>
       </form>
     </div>
   )

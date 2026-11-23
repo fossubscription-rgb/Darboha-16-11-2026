@@ -7,6 +7,7 @@ import {
   searchOsmPlaces,
   type OsmPlace,
 } from '../../lib/osmPlaces'
+import { useAdminLocale } from '../AdminLocale'
 
 // Fix default marker icons under Vite bundling
 import markerIcon2x from 'leaflet/dist/images/marker-icon-2x.png'
@@ -63,11 +64,17 @@ export function OsmPlacePicker({
   onChange,
   onClear,
 }: Props) {
+  const { t } = useAdminLocale()
+  const tRef = useRef(t)
+  tRef.current = t
+
   const mapEl = useRef<HTMLDivElement | null>(null)
   const mapRef = useRef<L.Map | null>(null)
   const markerRef = useRef<L.Marker | null>(null)
   const onChangeRef = useRef(onChange)
   onChangeRef.current = onChange
+  const disabledRef = useRef(disabled)
+  disabledRef.current = disabled
 
   const [query, setQuery] = useState(value.name || '')
   const [results, setResults] = useState<OsmPlace[]>([])
@@ -93,14 +100,14 @@ export function OsmPlacePicker({
     }).addTo(map)
 
     map.on('click', (e: L.LeafletMouseEvent) => {
-      if (disabled) return
+      if (disabledRef.current) return
       const { lat, lng } = e.latlng
       setBusy(true)
       setError(null)
       void reverseOsmPlace(lat, lng)
         .then((place) => {
           if (!place) {
-            setError('No place found at that point — try search.')
+            setError(tRef.current.map.noPlaceFound)
             return
           }
           const next = toSelection(place)
@@ -109,7 +116,9 @@ export function OsmPlacePicker({
           onChangeRef.current(next)
         })
         .catch((err) =>
-          setError(err instanceof Error ? err.message : 'Reverse geocode failed'),
+          setError(
+            err instanceof Error ? err.message : tRef.current.map.reverseFailed,
+          ),
         )
         .finally(() => setBusy(false))
     })
@@ -141,9 +150,9 @@ export function OsmPlacePicker({
     } else {
       markerRef.current.setLatLng(latlng)
     }
-    markerRef.current.bindPopup(value.name || 'Selected place')
+    markerRef.current.bindPopup(value.name || value.placeId)
     map.setView(latlng, Math.max(map.getZoom(), 14))
-  }, [value.lat, value.lng, value.name])
+  }, [value.lat, value.lng, value.name, value.placeId])
 
   // Debounced Nominatim search
   useEffect(() => {
@@ -158,17 +167,19 @@ export function OsmPlacePicker({
       setResults([])
       return
     }
-    const t = window.setTimeout(() => {
+    const timer = window.setTimeout(() => {
       setBusy(true)
       setError(null)
       void searchOsmPlaces(q)
         .then(setResults)
         .catch((err) =>
-          setError(err instanceof Error ? err.message : 'Search failed'),
+          setError(
+            err instanceof Error ? err.message : tRef.current.map.searchFailed,
+          ),
         )
         .finally(() => setBusy(false))
     }, 450)
-    return () => window.clearTimeout(t)
+    return () => window.clearTimeout(timer)
   }, [query, disabled, value.placeId, value.name])
 
   function pick(place: OsmPlace) {
@@ -218,7 +229,7 @@ export function OsmPlacePicker({
 
       {busy && (
         <p className="admin-muted" style={{ margin: '0 0 0.45rem' }}>
-          Searching OpenStreetMap…
+          {t.map.searching}
         </p>
       )}
       {error && <p className="admin-error">{error}</p>}
@@ -244,7 +255,7 @@ export function OsmPlacePicker({
                 onClick={() => pick(r)}
                 style={{
                   width: '100%',
-                  textAlign: 'left',
+                  textAlign: 'start',
                   border: 0,
                   borderBottom: '1px solid #eef3f0',
                   background: 'transparent',
@@ -276,15 +287,14 @@ export function OsmPlacePicker({
         }}
       />
       <p className="admin-muted" style={{ margin: '0 0 0.55rem', fontSize: '0.78rem' }}>
-        Search Nominatim results, or click the map to reverse-geocode a point
-        (Oman-biased). Free OSM tiles — no API key.
+        {t.map.mapHelp}
       </p>
 
       {value.placeId ? (
         <div className="admin-banner info" style={{ marginBottom: '0.55rem' }}>
           <strong>{value.name}</strong>
           <div className="admin-muted" style={{ marginTop: 4 }}>
-            Place ID: <code>{value.placeId}</code>
+            {t.map.placeId} <code>{value.placeId}</code>
             {value.lat != null && value.lng != null
               ? ` · ${value.lat.toFixed(5)}, ${value.lng.toFixed(5)}`
               : ''}
@@ -296,13 +306,13 @@ export function OsmPlacePicker({
               rel="noreferrer"
               style={{ fontSize: '0.85rem' }}
             >
-              Open in OpenStreetMap
+              {t.map.openOsm}
             </a>
           ) : null}
         </div>
       ) : (
         <p className="admin-muted" style={{ margin: '0 0 0.55rem' }}>
-          No place selected yet.
+          {t.map.noneSelected}
         </p>
       )}
 
@@ -313,7 +323,7 @@ export function OsmPlacePicker({
           onClick={clear}
           style={{ padding: '0.35rem 0.6rem', fontSize: '0.8rem' }}
         >
-          Clear place
+          {t.map.clearPlace}
         </button>
       ) : null}
     </div>

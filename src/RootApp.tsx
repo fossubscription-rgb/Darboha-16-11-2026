@@ -2,11 +2,24 @@ import { lazy, Suspense, useEffect, useState } from 'react'
 import { BrowserRouter, Link, Route, Routes } from 'react-router-dom'
 import MarketingApp from './App'
 import BrandingPage from './BrandingPage'
+import { ADMIN_LANG_KEY, adminCopy, type AdminLang } from './admin/i18n'
 import { type Lang } from './i18n'
 
 const AdminApp = lazy(() => import('./admin/AdminApp'))
 
 const LANG_KEY = 'darboha-lang'
+
+function adminLoadingLabel(): string {
+  try {
+    const saved = localStorage.getItem(ADMIN_LANG_KEY)
+    if (saved === 'ar' || saved === 'en') {
+      return adminCopy[saved as AdminLang].loadingAdmin
+    }
+  } catch {
+    /* ignore */
+  }
+  return adminCopy.en.loadingAdmin
+}
 
 function readInitialLang(): Lang {
   try {
@@ -59,7 +72,7 @@ export default function RootApp() {
                     color: '#264653',
                   }}
                 >
-                  Loading admin…
+                  {adminLoadingLabel()}
                 </div>
               }
             >
