@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { useAdmin } from '../AdminContext'
+import { useAdminLocale } from '../AdminLocale'
 import {
   daCanSubmit,
   daRequiredProgress,
@@ -13,6 +14,7 @@ import {
   MONTHS,
   SAFETY_DROPDOWNS,
 } from '../constants'
+import type { AdminCopy } from '../i18n'
 import type {
   Place,
   PlaceAmenity,
@@ -27,21 +29,44 @@ import { TrailEndpointMapPicker } from './TrailEndpointMapPicker'
 
 type Mode = 'da' | 'safety' | 'ceo' | 'readonly'
 
-const VEHICLE_OPTIONS: { value: VehicleAccess; label: string }[] = [
-  { value: 'two_wd', label: '2WD OK' },
-  { value: 'four_wd', label: '4WD recommended' },
-  { value: 'four_x4_recommended', label: '4x4 recommended' },
-  { value: 'other', label: 'Other / walk-in' },
-]
+function reqLabel(t: AdminCopy, key: string) {
+  return (t.req as Record<string, string>)[key] ?? key
+}
 
-const AMENITY_KINDS: { value: PlaceAmenity['kind']; label: string }[] = [
-  { value: 'cafe', label: 'Cafe / coffee' },
-  { value: 'shop', label: 'Shop / services' },
-  { value: 'restroom', label: 'Restroom' },
-  { value: 'water', label: 'Water point' },
-  { value: 'parking', label: 'Parking' },
-  { value: 'other', label: 'Other' },
-]
+function safetyFieldLabel(t: AdminCopy, field: string) {
+  const map: Record<string, string> = {
+    hazards: t.editor.hazards,
+    heat: t.editor.heat,
+    flood: t.editor.flood,
+    water: t.editor.water,
+    signal: t.editor.signal,
+    whenNotToGo: t.editor.whenNotToGo,
+    kit: t.editor.kit,
+  }
+  return map[field] ?? field
+}
+
+const WHEN_OPT_KEYS: Record<string, string> = {
+  rain_flood: 'when_rain_flood',
+  midday_heat: 'when_midday_heat',
+  night: 'when_night',
+  crowds: 'when_crowds',
+  high_wind: 'when_high_wind',
+  other: 'when_other',
+}
+
+function safetyOptLabel(
+  t: AdminCopy,
+  dropdown: keyof typeof SAFETY_DROPDOWNS,
+  value: string,
+  fallback: string,
+) {
+  const key =
+    dropdown === 'whenNotToGo'
+      ? (WHEN_OPT_KEYS[value] ?? `when_${value}`)
+      : `${dropdown}_${value}`
+  return (t.safetyOpts as Record<string, string>)[key] ?? fallback
+}
 
 function modeFor(role: RoleKey, _place: Place, _memberId: string): Mode {
   if (role === 'safety') return 'safety'
@@ -60,6 +85,7 @@ export function PlaceEditor({
   backTo: string
 }) {
   const { session, store, savePlace, removePlace } = useAdmin()
+  const { t, format } = useAdminLocale()
   const navigate = useNavigate()
   const original = store.places.find((p) => p.id === placeId)
   const [place, setPlace] = useState<Place | null>(() =>
@@ -76,6 +102,22 @@ export function PlaceEditor({
   const skipAutosave = useRef(true)
   const placeRef = useRef(place)
   placeRef.current = place
+
+  const vehicleOptions: { value: VehicleAccess; label: string }[] = [
+    { value: 'two_wd', label: t.vehicle.two_wd },
+    { value: 'four_wd', label: t.vehicle.four_wd },
+    { value: 'four_x4_recommended', label: t.vehicle.four_x4_recommended },
+    { value: 'other', label: t.vehicle.other },
+  ]
+
+  const amenityKinds: { value: PlaceAmenity['kind']; label: string }[] = [
+    { value: 'cafe', label: t.amenityKind.cafe },
+    { value: 'shop', label: t.amenityKind.shop },
+    { value: 'restroom', label: t.amenityKind.restroom },
+    { value: 'water', label: t.amenityKind.water },
+    { value: 'parking', label: t.amenityKind.parking },
+    { value: 'other', label: t.amenityKind.other },
+  ]
 
   useEffect(() => {
     const next = store.places.find((p) => p.id === placeId)
@@ -125,8 +167,8 @@ export function PlaceEditor({
   if (!session || !place) {
     return (
       <div className="admin-panel">
-        <p>Place not found.</p>
-        <Link to={backTo}>Back</Link>
+        <p>{t.editor.placeNotFound}</p>
+        <Link to={backTo}>{t.common.back}</Link>
       </div>
     )
   }
@@ -151,6 +193,18 @@ export function PlaceEditor({
     setPlace((p) =>
       p ? { ...p, safety: { ...p.safety, ...partial } } : p,
     )
+  }
+
+  function blockerMessage(
+    blocker: NonNullable<ReturnType<typeof safetyComplete>>,
+  ) {
+    if (blocker.code === 'choose') {
+      return format(t.editor.safetyChoose, {
+        field: safetyFieldLabel(t, blocker.field),
+      })
+    }
+    if (blocker.code === 'emergency') return t.editor.safetyEmergency
+    return t.editor.safetyClinic
   }
 
   async function save(
@@ -179,7 +233,7 @@ export function PlaceEditor({
         !extra?.status
       ) {
         next = { ...next, status: 'awaiting_safety' }
-        setMsg('Published place edited — returned to Awaiting safety.')
+        setMsg(t.editor.publishedEdited)
       }
 
       await savePlace(next, {
@@ -190,10 +244,10 @@ export function PlaceEditor({
       })
       skipAutosave.current = true
       setPlace(next)
-      if (!msg) setMsg('Saved to Supabase.')
+      if (!msg) setMsg(t.common.savedSupabase)
       setAutosaveState('saved')
     } catch (err) {
-      setMsg(err instanceof Error ? err.message : 'Save failed')
+      setMsg(err instanceof Error ? err.message : t.common.saveFailed)
     } finally {
       setBusy(false)
     }
@@ -201,9 +255,17 @@ export function PlaceEditor({
 
   async function submitSafety() {
     if (!place) return
-    const err = daCanSubmit(place)
-    if (err) {
-      setMsg(err)
+    const keys = daCanSubmit(place)
+    if (keys) {
+      setMsg(
+        format(t.editor.stillNeededList, {
+          list:
+            keys
+              .slice(0, 4)
+              .map((k) => reqLabel(t, k))
+              .join(', ') + (keys.length > 4 ? '…' : ''),
+        }),
+      )
       return
     }
     setBusy(true)
@@ -223,9 +285,9 @@ export function PlaceEditor({
       })
       skipAutosave.current = true
       setPlace(next)
-      setMsg('Submitted → Awaiting safety.')
+      setMsg(t.editor.submittedAwaiting)
     } catch (e) {
-      setMsg(e instanceof Error ? e.message : 'Submit failed')
+      setMsg(e instanceof Error ? e.message : t.common.submitFailed)
     } finally {
       setBusy(false)
     }
@@ -233,9 +295,9 @@ export function PlaceEditor({
 
   async function markReady() {
     if (!place || !session) return
-    const err = safetyComplete(place)
-    if (err) {
-      setMsg(err)
+    const blocker = safetyComplete(place)
+    if (blocker) {
+      setMsg(blockerMessage(blocker))
       setTab('safety')
       return
     }
@@ -256,9 +318,9 @@ export function PlaceEditor({
       })
       skipAutosave.current = true
       setPlace(next)
-      setMsg('Marked Ready.')
+      setMsg(t.editor.markedReady)
     } catch (e) {
-      setMsg(e instanceof Error ? e.message : 'Failed')
+      setMsg(e instanceof Error ? e.message : t.editor.failed)
     } finally {
       setBusy(false)
     }
@@ -267,12 +329,12 @@ export function PlaceEditor({
   async function publish() {
     if (!place) return
     if (place.status !== 'ready') {
-      setMsg('Only Ready places can be published.')
+      setMsg(t.editor.onlyReadyPublish)
       return
     }
-    const err = safetyComplete(place)
-    if (err) {
-      setMsg(err)
+    const blocker = safetyComplete(place)
+    if (blocker) {
+      setMsg(blockerMessage(blocker))
       setTab('safety')
       return
     }
@@ -292,9 +354,9 @@ export function PlaceEditor({
       })
       skipAutosave.current = true
       setPlace(next)
-      setMsg('Published.')
+      setMsg(t.editor.published)
     } catch (e) {
-      setMsg(e instanceof Error ? e.message : 'Publish failed')
+      setMsg(e instanceof Error ? e.message : t.common.publishFailed)
     } finally {
       setBusy(false)
     }
@@ -313,7 +375,7 @@ export function PlaceEditor({
     if (!place || !files?.length || !daEditable) return
     const remaining = 10 - place.photos.length
     if (remaining <= 0) {
-      setMsg('Maximum 10 photos.')
+      setMsg(t.editor.maxPhotos)
       return
     }
     const existing = place.photos
@@ -358,7 +420,7 @@ export function PlaceEditor({
 
   async function onDelete() {
     if (!place || !session) return
-    if (!confirm('Delete this place?')) return
+    if (!confirm(t.editor.confirmDelete)) return
     if (!canDeletePlace) return
     setBusy(true)
     try {
@@ -368,39 +430,53 @@ export function PlaceEditor({
       })
       navigate(backTo)
     } catch (e) {
-      setMsg(e instanceof Error ? e.message : 'Delete failed')
+      setMsg(e instanceof Error ? e.message : t.common.deleteFailed)
       setBusy(false)
     }
   }
 
   const tabs: { id: typeof tab; label: string }[] = [
-    { id: 'basics', label: 'Basics' },
-    { id: 'access', label: 'Access' },
-    { id: 'photos', label: 'Photos' },
+    { id: 'basics', label: t.editor.tabBasics },
+    { id: 'access', label: t.editor.tabAccess },
+    { id: 'photos', label: t.editor.tabPhotos },
   ]
-  if (showSafetyTab) tabs.push({ id: 'safety', label: 'Safety' })
+  if (showSafetyTab) tabs.push({ id: 'safety', label: t.editor.tabSafety })
 
   const autosaveLabel =
     autosaveState === 'pending'
-      ? 'Autosaving…'
+      ? t.editor.autosaving
       : autosaveState === 'saved'
-        ? 'Draft autosaved'
+        ? t.editor.autosaved
         : autosaveState === 'error'
-          ? 'Autosave failed'
+          ? t.editor.autosaveFailed
           : null
+
+  const safetyFields = [
+    ['hazards', t.editor.hazards],
+    ['heat', t.editor.heat],
+    ['flood', t.editor.flood],
+    ['water', t.editor.water],
+    ['signal', t.editor.signal],
+    ['whenNotToGo', t.editor.whenNotToGo],
+    ['kit', t.editor.kit],
+  ] as const
 
   return (
     <div>
       <div className="admin-crumb">
-        <Link to={backTo}>Places</Link> / {place.nameEn || 'Untitled'}
+        <Link to={backTo}>{t.common.places}</Link> /{' '}
+        {place.nameEn || t.common.untitled}
       </div>
       <div className="admin-page-head">
         <div>
-          <h1>{place.nameEn || 'Untitled place'}</h1>
+          <h1>{place.nameEn || t.common.untitledPlace}</h1>
           <p>
             <StatusChip status={place.status} />{' '}
-            <span className="admin-owner-pill" title="Whose work this place is">
-              Whose work: {place.ownerLabel}
+            <span
+              className="admin-owner-pill"
+              title={t.editor.whoseWorkTitle}
+            >
+              {t.editor.whoseWork} {place.ownerLabel}
             </span>
             {autosaveLabel ? ` · ${autosaveLabel}` : ''}
           </p>
@@ -415,7 +491,7 @@ export function PlaceEditor({
                 void save(undefined, `Saved ${place.nameEn || 'place'}`)
               }
             >
-              Save
+              {t.common.save}
             </button>
           )}
           {mode === 'safety' && (
@@ -427,7 +503,7 @@ export function PlaceEditor({
                 void save(undefined, `Updated safety for ${place.nameEn}`, true)
               }
             >
-              Save safety
+              {t.editor.saveSafety}
             </button>
           )}
           {mode === 'da' && place.status === 'draft' && (
@@ -437,7 +513,7 @@ export function PlaceEditor({
               disabled={busy}
               onClick={() => void submitSafety()}
             >
-              Submit for safety
+              {t.editor.submitSafety}
             </button>
           )}
           {(mode === 'safety' || mode === 'ceo') &&
@@ -450,7 +526,7 @@ export function PlaceEditor({
                   disabled={busy}
                   onClick={() => void markReady()}
                 >
-                  Mark Ready
+                  {t.editor.markReady}
                 </button>
                 <button
                   type="button"
@@ -458,7 +534,7 @@ export function PlaceEditor({
                   disabled={busy}
                   onClick={() => void sendBack('needs_changes')}
                 >
-                  Needs changes
+                  {t.editor.needsChanges}
                 </button>
                 <button
                   type="button"
@@ -466,7 +542,7 @@ export function PlaceEditor({
                   disabled={busy}
                   onClick={() => void sendBack('rejected')}
                 >
-                  Reject
+                  {t.editor.reject}
                 </button>
               </>
             )}
@@ -477,7 +553,7 @@ export function PlaceEditor({
               disabled={busy}
               onClick={() => void publish()}
             >
-              Publish
+              {t.editor.publish}
             </button>
           )}
           {canDeletePlace && (
@@ -487,7 +563,7 @@ export function PlaceEditor({
               disabled={busy}
               onClick={() => void onDelete()}
             >
-              Delete
+              {t.common.delete}
             </button>
           )}
         </div>
@@ -495,9 +571,7 @@ export function PlaceEditor({
 
       {editingCoworkerPlace && (
         <div className="admin-banner info">
-          Editing a coworker’s place — this is{' '}
-          <strong>{place.ownerLabel}</strong>’s work. Your saves keep that
-          ownership; you cannot reassign or delete it.
+          {format(t.editor.coworkerBanner, { owner: place.ownerLabel })}
         </div>
       )}
 
@@ -512,7 +586,10 @@ export function PlaceEditor({
             }}
           >
             <strong style={{ fontSize: '0.92rem' }}>
-              Required fields · {progress.done}/{progress.total}
+              {format(t.editor.requiredFields, {
+                done: progress.done,
+                total: progress.total,
+              })}
             </strong>
             <span className="admin-muted">{progress.percent}%</span>
           </div>
@@ -534,7 +611,9 @@ export function PlaceEditor({
           </div>
           {progress.missing.length > 0 && (
             <p className="admin-muted" style={{ margin: '0.55rem 0 0' }}>
-              Still needed: {progress.missing.join(' · ')}
+              {format(t.editor.stillNeededList, {
+                list: progress.missing.map((k) => reqLabel(t, k)).join(' · '),
+              })}
             </p>
           )}
         </div>
@@ -542,28 +621,24 @@ export function PlaceEditor({
 
       {mode === 'readonly' && (
         <div className="admin-banner">
-          View only — owned by {place.ownerLabel}. Fields are read-only (no
-          edits).
+          {format(t.editor.readonlyBanner, { owner: place.ownerLabel })}
         </div>
       )}
       {mode === 'safety' && (
-        <div className="admin-banner info">
-          DA fields are read-only. Complete Safety dropdowns + emergency
-          contacts, then pick nearest clinic on the OSM map before Mark Ready.
-        </div>
+        <div className="admin-banner info">{t.editor.safetyBanner}</div>
       )}
       {msg && <div className="admin-banner info">{msg}</div>}
 
       <div className="admin-panel">
         <div className="admin-tabs" role="tablist">
-          {tabs.map((t) => (
+          {tabs.map((tabItem) => (
             <button
-              key={t.id}
+              key={tabItem.id}
               type="button"
-              className={tab === t.id ? 'active' : undefined}
-              onClick={() => setTab(t.id)}
+              className={tab === tabItem.id ? 'active' : undefined}
+              onClick={() => setTab(tabItem.id)}
             >
-              {t.label}
+              {tabItem.label}
             </button>
           ))}
         </div>
@@ -571,20 +646,20 @@ export function PlaceEditor({
         {tab === 'basics' && (
           <div className="admin-form-grid">
             <Field
-              label="Name (EN)"
+              label={t.editor.nameEn}
               value={place.nameEn}
               disabled={!daEditable}
               onChange={(v) => patch({ nameEn: v })}
             />
             <Field
-              label="الاسم (AR)"
+              label={t.editor.nameAr}
               value={place.nameAr}
               disabled={!daEditable}
               dir="rtl"
               onChange={(v) => patch({ nameAr: v })}
             />
             <Field
-              label="Summary (EN)"
+              label={t.editor.summaryEn}
               value={place.summaryEn}
               disabled={!daEditable}
               textarea
@@ -592,7 +667,7 @@ export function PlaceEditor({
               onChange={(v) => patch({ summaryEn: v })}
             />
             <Field
-              label="الملخص (AR)"
+              label={t.editor.summaryAr}
               value={place.summaryAr}
               disabled={!daEditable}
               textarea
@@ -601,13 +676,13 @@ export function PlaceEditor({
               onChange={(v) => patch({ summaryAr: v })}
             />
             <Field
-              label="Region"
+              label={t.editor.region}
               value={place.region}
               disabled={!daEditable}
               onChange={(v) => patch({ region: v })}
             />
             <div className="admin-field">
-              <label>Difficulty</label>
+              <label>{t.editor.difficulty}</label>
               <select
                 value={place.difficulty}
                 disabled={!daEditable}
@@ -621,7 +696,7 @@ export function PlaceEditor({
               </select>
             </div>
             <div className="admin-field">
-              <label>Season from</label>
+              <label>{t.editor.seasonFrom}</label>
               <select
                 value={place.seasonFrom ?? ''}
                 disabled={!daEditable}
@@ -633,7 +708,7 @@ export function PlaceEditor({
                   })
                 }
               >
-                <option value="">Select month</option>
+                <option value="">{t.common.selectMonth}</option>
                 {MONTHS.map((m) => (
                   <option key={m.value} value={m.value}>
                     {m.en} · {m.ar}
@@ -642,7 +717,7 @@ export function PlaceEditor({
               </select>
             </div>
             <div className="admin-field">
-              <label>Season to</label>
+              <label>{t.editor.seasonTo}</label>
               <select
                 value={place.seasonTo ?? ''}
                 disabled={!daEditable}
@@ -652,7 +727,7 @@ export function PlaceEditor({
                   })
                 }
               >
-                <option value="">Select month</option>
+                <option value="">{t.common.selectMonth}</option>
                 {MONTHS.map((m) => (
                   <option key={m.value} value={m.value}>
                     {m.en} · {m.ar}
@@ -661,20 +736,20 @@ export function PlaceEditor({
               </select>
             </div>
             <Field
-              label="Hike length (km)"
+              label={t.editor.hikeLength}
               value={place.distanceKm}
               disabled={!daEditable}
               onChange={(v) => patch({ distanceKm: v })}
             />
             <Field
-              label="Estimated time"
+              label={t.editor.estimatedTime}
               value={place.durationText}
               disabled={!daEditable}
               onChange={(v) => patch({ durationText: v })}
             />
             <TrailEndpointMapPicker
-              labelEn="Start place"
-              labelAr="نقطة البداية"
+              labelEn={t.editor.startPlace}
+              labelAr={t.editor.startPlaceAr}
               disabled={!daEditable}
               value={{
                 nameEn: place.startPlaceEn,
@@ -696,8 +771,8 @@ export function PlaceEditor({
               }
             />
             <TrailEndpointMapPicker
-              labelEn="End place"
-              labelAr="نقطة النهاية"
+              labelEn={t.editor.endPlace}
+              labelAr={t.editor.endPlaceAr}
               disabled={!daEditable}
               value={{
                 nameEn: place.endPlaceEn,
@@ -726,7 +801,7 @@ export function PlaceEditor({
                   disabled={!daEditable}
                   onChange={(e) => patch({ fragile: e.target.checked })}
                 />{' '}
-                Fragile place?
+                {t.editor.fragile}
               </label>
             </div>
           </div>
@@ -735,7 +810,7 @@ export function PlaceEditor({
         {tab === 'access' && (
           <div className="admin-form-grid">
             <div className="admin-field">
-              <label>Vehicle access</label>
+              <label>{t.editor.vehicleAccess}</label>
               <select
                 value={place.vehicleAccess}
                 disabled={!daEditable}
@@ -743,7 +818,7 @@ export function PlaceEditor({
                   patch({ vehicleAccess: e.target.value as VehicleAccess })
                 }
               >
-                {VEHICLE_OPTIONS.map((o) => (
+                {vehicleOptions.map((o) => (
                   <option key={o.value} value={o.value}>
                     {o.label}
                   </option>
@@ -752,7 +827,7 @@ export function PlaceEditor({
             </div>
             <div />
             <Field
-              label="Access notes (EN)"
+              label={t.editor.accessNotesEn}
               value={place.accessNotesEn}
               disabled={!daEditable}
               textarea
@@ -760,7 +835,7 @@ export function PlaceEditor({
               onChange={(v) => patch({ accessNotesEn: v })}
             />
             <Field
-              label="ملاحظات الوصول (AR)"
+              label={t.editor.accessNotesAr}
               value={place.accessNotesAr}
               disabled={!daEditable}
               textarea
@@ -769,7 +844,7 @@ export function PlaceEditor({
               onChange={(v) => patch({ accessNotesAr: v })}
             />
             <Field
-              label="Trailhead / parking (EN)"
+              label={t.editor.trailheadEn}
               value={place.trailheadNotesEn}
               disabled={!daEditable}
               textarea
@@ -777,7 +852,7 @@ export function PlaceEditor({
               onChange={(v) => patch({ trailheadNotesEn: v })}
             />
             <Field
-              label="نقطة البداية / الموقف (AR)"
+              label={t.editor.trailheadAr}
               value={place.trailheadNotesAr}
               disabled={!daEditable}
               textarea
@@ -786,19 +861,16 @@ export function PlaceEditor({
               onChange={(v) => patch({ trailheadNotesAr: v })}
             />
             <div className="admin-field full">
-              <label>Nearby amenities (OpenStreetMap)</label>
+              <label>{t.editor.amenitiesTitle}</label>
               <p className="admin-muted" style={{ margin: '0 0 0.65rem' }}>
-                Search and pick coffee shops / services on the free OSM map
-                (same pattern as Safety clinic). Each item stores name, place
-                id, lat/lng, and maps URL. Bilingual notes below are optional
-                extras.
+                {t.editor.amenitiesHint}
               </p>
               {place.nearbyAmenities.map((am, idx) => (
                 <AmenityMapPicker
                   key={am.id}
                   value={am}
                   disabled={!daEditable}
-                  kindOptions={AMENITY_KINDS}
+                  kindOptions={amenityKinds}
                   onChange={(next) => {
                     const list = [...place.nearbyAmenities]
                     list[idx] = next
@@ -839,12 +911,12 @@ export function PlaceEditor({
                     })
                   }
                 >
-                  Add amenity
+                  {t.editor.addAmenity}
                 </button>
               )}
             </div>
             <Field
-              label="Amenities notes (EN)"
+              label={t.editor.amenitiesNotesEn}
               value={place.amenitiesNotesEn}
               disabled={!daEditable}
               textarea
@@ -852,7 +924,7 @@ export function PlaceEditor({
               onChange={(v) => patch({ amenitiesNotesEn: v })}
             />
             <Field
-              label="ملاحظات الخدمات القريبة (AR)"
+              label={t.editor.amenitiesNotesAr}
               value={place.amenitiesNotesAr}
               disabled={!daEditable}
               textarea
@@ -866,13 +938,12 @@ export function PlaceEditor({
         {tab === 'photos' && (
           <div>
             <p className="admin-muted" style={{ marginBottom: '0.75rem' }}>
-              2–10 photos, one cover (shown first). Each photo needs EN + AR
-              captions. Storage upload later — metadata saved on the place.
+              {t.editor.photosHint}
             </p>
             {daEditable && (
               <div className="admin-actions" style={{ marginTop: 0 }}>
                 <label className="admin-btn secondary" style={{ cursor: 'pointer' }}>
-                  Add photos
+                  {t.editor.addPhotos}
                   <input
                     type="file"
                     accept="image/*"
@@ -889,10 +960,13 @@ export function PlaceEditor({
             <div className="admin-photo-grid" style={{ marginTop: '0.85rem' }}>
               {sortPhotosCoverFirst(place.photos).map((ph) => (
                 <div key={ph.id} className="admin-photo">
-                  <img src={ph.url} alt={ph.captionEn || 'Place photo'} />
+                  <img
+                    src={ph.url}
+                    alt={ph.captionEn || t.editor.placePhotoAlt}
+                  />
                   <div className="meta">
                     {ph.isCover ? (
-                      <strong>Cover (first)</strong>
+                      <strong>{t.editor.coverFirst}</strong>
                     ) : daEditable ? (
                       <button
                         type="button"
@@ -900,10 +974,10 @@ export function PlaceEditor({
                         style={{ padding: '0.25rem 0.45rem', fontSize: '0.72rem' }}
                         onClick={() => setCover(ph.id)}
                       >
-                        Set cover
+                        {t.editor.setCover}
                       </button>
                     ) : (
-                      <span>Photo</span>
+                      <span>{t.editor.photo}</span>
                     )}
                     {daEditable && (
                       <button
@@ -912,13 +986,13 @@ export function PlaceEditor({
                         style={{ padding: '0.25rem 0.45rem', fontSize: '0.72rem' }}
                         onClick={() => removePhoto(ph.id)}
                       >
-                        Remove
+                        {t.common.remove}
                       </button>
                     )}
                   </div>
                   <div style={{ padding: '0.45rem 0.5rem 0.6rem' }}>
                     <input
-                      placeholder="Caption EN"
+                      placeholder={t.editor.captionEn}
                       value={ph.captionEn ?? ''}
                       disabled={!daEditable}
                       onChange={(e) =>
@@ -934,7 +1008,7 @@ export function PlaceEditor({
                       }}
                     />
                     <input
-                      placeholder="التعليق AR"
+                      placeholder={t.editor.captionAr}
                       dir="rtl"
                       value={ph.captionAr ?? ''}
                       disabled={!daEditable}
@@ -958,17 +1032,7 @@ export function PlaceEditor({
 
         {tab === 'safety' && (
           <div className="admin-form-grid">
-            {(
-              [
-                ['hazards', 'Hazards'],
-                ['heat', 'Heat'],
-                ['flood', 'Flood'],
-                ['water', 'Water'],
-                ['signal', 'Signal'],
-                ['whenNotToGo', 'When not to go'],
-                ['kit', 'Kit'],
-              ] as const
-            ).map(([key, label]) => (
+            {safetyFields.map(([key, label]) => (
               <div className="admin-field" key={key}>
                 <label>{label}</label>
                 <select
@@ -976,17 +1040,17 @@ export function PlaceEditor({
                   disabled={!safetyEditable}
                   onChange={(e) => patchSafety({ [key]: e.target.value })}
                 >
-                  <option value="">Select…</option>
+                  <option value="">{t.common.selectEllipsis}</option>
                   {SAFETY_DROPDOWNS[key].map((opt) => (
                     <option key={opt.value} value={opt.value}>
-                      {opt.label}
+                      {safetyOptLabel(t, key, opt.value, opt.label)}
                     </option>
                   ))}
                 </select>
               </div>
             ))}
             <Field
-              label="Emergency contacts (required)"
+              label={t.editor.emergencyContacts}
               value={place.safety.emergencyContacts}
               disabled={!safetyEditable}
               textarea
@@ -1005,7 +1069,7 @@ export function PlaceEditor({
               onChange={(clinic) => patchSafety(clinic)}
             />
             <Field
-              label="Extra notes (EN)"
+              label={t.editor.safetyNotesEn}
               value={place.safety.notesEn}
               disabled={!safetyEditable}
               textarea
@@ -1013,7 +1077,7 @@ export function PlaceEditor({
               onChange={(v) => patchSafety({ notesEn: v })}
             />
             <Field
-              label="ملاحظات إضافية (AR)"
+              label={t.editor.safetyNotesAr}
               value={place.safety.notesAr}
               disabled={!safetyEditable}
               textarea

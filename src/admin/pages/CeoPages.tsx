@@ -1,12 +1,14 @@
 import { useState } from 'react'
 import { Link } from 'react-router-dom'
 import { useAdmin } from '../AdminContext'
+import { useAdminLocale } from '../AdminLocale'
 import { StatusChip } from '../components/StatusChip'
 import { PlaceEditor } from '../components/PlaceEditor'
 import type { Member } from '../types'
 
 export function CeoOverview() {
   const { store } = useAdmin()
+  const { t } = useAdminLocale()
   const counts = {
     draft: store.places.filter((p) => p.status === 'draft').length,
     awaiting: store.places.filter((p) => p.status === 'awaiting_safety').length,
@@ -21,44 +23,44 @@ export function CeoOverview() {
 
   return (
     <div>
-      <div className="admin-crumb">CEO / Overview</div>
+      <div className="admin-crumb">{t.ceo.crumbOverview}</div>
       <div className="admin-page-head">
         <div>
-          <h1>Overview</h1>
-          <p>Live counts and activity from Supabase.</p>
+          <h1>{t.ceo.titleOverview}</h1>
+          <p>{t.ceo.ledeOverview}</p>
         </div>
       </div>
       <div className="admin-stats">
         <div className="admin-stat">
           <div className="n">{counts.draft}</div>
-          <div className="l">Draft</div>
+          <div className="l">{t.ceo.draft}</div>
         </div>
         <div className="admin-stat">
           <div className="n">{counts.awaiting}</div>
-          <div className="l">Awaiting safety</div>
+          <div className="l">{t.ceo.awaitingSafety}</div>
         </div>
         <div className="admin-stat">
           <div className="n">{counts.ready}</div>
-          <div className="l">Ready</div>
+          <div className="l">{t.ceo.ready}</div>
         </div>
         <div className="admin-stat">
           <div className="n">{counts.published}</div>
-          <div className="l">Published</div>
+          <div className="l">{t.ceo.published}</div>
         </div>
         <div className="admin-stat">
           <div className="n">{pendingFinance}</div>
-          <div className="l">Finance approvals</div>
+          <div className="l">{t.ceo.financeApprovals}</div>
         </div>
       </div>
       <div className="admin-split">
         <div className="admin-panel">
           <h3 style={{ margin: '0 0 0.75rem', fontSize: '1rem' }}>
-            Who worked this week
+            {t.ceo.whoWorked}
           </h3>
           {worked.length === 0 ? (
-            <div className="admin-empty">No admin logins this week yet.</div>
+            <div className="admin-empty">{t.ceo.noLogins}</div>
           ) : (
-            <ul style={{ margin: 0, paddingLeft: '1.1rem' }}>
+            <ul style={{ margin: 0, paddingInlineStart: '1.1rem' }}>
               {worked.map((m) => (
                 <li key={m.id}>
                   {m.displayName} — {m.jobTitle}
@@ -69,12 +71,12 @@ export function CeoOverview() {
         </div>
         <div className="admin-panel">
           <h3 style={{ margin: '0 0 0.75rem', fontSize: '1rem' }}>
-            Who didn’t
+            {t.ceo.whoDidnt}
           </h3>
           {idle.length === 0 ? (
-            <div className="admin-empty">Everyone with admin access logged in.</div>
+            <div className="admin-empty">{t.ceo.everyoneLogged}</div>
           ) : (
-            <ul style={{ margin: 0, paddingLeft: '1.1rem' }}>
+            <ul style={{ margin: 0, paddingInlineStart: '1.1rem' }}>
               {idle.map((m) => (
                 <li key={m.id}>
                   {m.displayName} — {m.jobTitle}
@@ -86,19 +88,17 @@ export function CeoOverview() {
       </div>
       <div className="admin-panel" style={{ marginTop: '1rem' }}>
         <h3 style={{ margin: '0 0 0.75rem', fontSize: '1rem' }}>
-          Recent activity
+          {t.ceo.recentActivity}
         </h3>
         {store.activity.length === 0 ? (
-          <div className="admin-empty">
-            No activity yet — it appears when the team creates places or finance drafts.
-          </div>
+          <div className="admin-empty">{t.ceo.emptyActivity}</div>
         ) : (
           <table className="admin-table">
             <thead>
               <tr>
-                <th>When</th>
-                <th>Who</th>
-                <th>Summary</th>
+                <th>{t.common.when}</th>
+                <th>{t.common.who}</th>
+                <th>{t.common.summary}</th>
               </tr>
             </thead>
             <tbody>
@@ -119,28 +119,27 @@ export function CeoOverview() {
 
 export function CeoPlaces() {
   const { store } = useAdmin()
+  const { t } = useAdminLocale()
   return (
     <div>
-      <div className="admin-crumb">CEO / Places</div>
+      <div className="admin-crumb">{t.ceo.crumbPlaces}</div>
       <div className="admin-page-head">
         <div>
-          <h1>All places</h1>
-          <p>Open any · delete any · Ready / Publish from the editor.</p>
+          <h1>{t.ceo.titlePlaces}</h1>
+          <p>{t.ceo.ledePlaces}</p>
         </div>
       </div>
       <div className="admin-panel">
         {store.places.length === 0 ? (
-          <div className="admin-empty">
-            No places yet — the map is empty until analysts add the first draft.
-          </div>
+          <div className="admin-empty">{t.ceo.emptyPlaces}</div>
         ) : (
           <table className="admin-table">
             <thead>
               <tr>
-                <th>Name</th>
-                <th>Whose work</th>
-                <th>Status</th>
-                <th>Updated</th>
+                <th>{t.common.name}</th>
+                <th>{t.common.whoseWork}</th>
+                <th>{t.common.status}</th>
+                <th>{t.common.updated}</th>
               </tr>
             </thead>
             <tbody>
@@ -148,7 +147,7 @@ export function CeoPlaces() {
                 <tr key={p.id}>
                   <td>
                     <Link to={`/admin/ceo/places/${p.id}`}>
-                      {p.nameEn || 'Untitled'}
+                      {p.nameEn || t.common.untitled}
                     </Link>
                   </td>
                   <td>
@@ -174,6 +173,7 @@ export function CeoPlaceDetail({ id }: { id: string }) {
 
 export function CeoFinance() {
   const { session, store, setFinanceStatusRemote } = useAdmin()
+  const { t } = useAdminLocale()
   if (!session) return null
 
   const pending = store.finance.filter((f) => f.status === 'pending_approval')
@@ -182,31 +182,29 @@ export function CeoFinance() {
   async function decide(id: string, status: 'approved' | 'rejected') {
     if (!session) return
     const draft = store.finance.find((f) => f.id === id)
+    const verb = status === 'approved' ? t.ceo.approved : t.ceo.rejected
     try {
       await setFinanceStatusRemote(id, status, {
         action: `finance.${status}`,
-        summary: `${status === 'approved' ? 'Approved' : 'Rejected'} ${draft?.category || id} (${draft?.amountOmr || '?'} OMR)`,
+        summary: `${verb} ${draft?.category || id} (${draft?.amountOmr || '?'} OMR)`,
       })
     } catch (e) {
-      alert(e instanceof Error ? e.message : 'Update failed')
+      alert(e instanceof Error ? e.message : t.common.updateFailed)
     }
   }
 
   return (
     <div>
-      <div className="admin-crumb">CEO / Finance</div>
+      <div className="admin-crumb">{t.ceo.crumbFinance}</div>
       <div className="admin-page-head">
         <div>
-          <h1>CFO approvals</h1>
-          <p>
-            Review category, who-for, description, and <strong>pricing (OMR)</strong>{' '}
-            before approving.
-          </p>
+          <h1>{t.ceo.titleFinance}</h1>
+          <p>{t.ceo.ledeFinance}</p>
         </div>
       </div>
 
       {pending.length === 0 ? (
-        <div className="admin-panel admin-empty">No drafts waiting for approval.</div>
+        <div className="admin-panel admin-empty">{t.ceo.noPending}</div>
       ) : (
         pending.map((f) => (
           <div key={f.id} className="admin-panel" style={{ marginBottom: '0.85rem' }}>
@@ -214,12 +212,13 @@ export function CeoFinance() {
               <div>
                 <h2 style={{ fontSize: '1.15rem', margin: 0 }}>{f.category}</h2>
                 <p>
-                  <StatusChip status={f.status} /> · Who for: {f.whoFor}
+                  <StatusChip status={f.status} /> · {t.ceo.whoForPrefix}{' '}
+                  {f.whoFor}
                 </p>
               </div>
               <div className="admin-stat" style={{ minWidth: '140px' }}>
-                <div className="n">{f.amountOmr || '—'} </div>
-                <div className="l">Pricing (OMR)</div>
+                <div className="n">{f.amountOmr || t.common.emDash} </div>
+                <div className="l">{t.ceo.pricingOmr}</div>
               </div>
             </div>
             <p style={{ margin: '0 0 0.85rem', lineHeight: 1.45 }}>{f.description}</p>
@@ -229,14 +228,15 @@ export function CeoFinance() {
                 className="admin-btn"
                 onClick={() => void decide(f.id, 'approved')}
               >
-                Approve {f.amountOmr ? `(${f.amountOmr} OMR)` : ''}
+                {t.ceo.approve}
+                {f.amountOmr ? ` (${f.amountOmr} OMR)` : ''}
               </button>
               <button
                 type="button"
                 className="admin-btn danger"
                 onClick={() => void decide(f.id, 'rejected')}
               >
-                Reject
+                {t.ceo.reject}
               </button>
             </div>
           </div>
@@ -245,14 +245,16 @@ export function CeoFinance() {
 
       {others.length > 0 && (
         <div className="admin-panel" style={{ marginTop: '1rem' }}>
-          <h3 style={{ margin: '0 0 0.75rem', fontSize: '1rem' }}>Other drafts</h3>
+          <h3 style={{ margin: '0 0 0.75rem', fontSize: '1rem' }}>
+            {t.ceo.otherDrafts}
+          </h3>
           <table className="admin-table">
             <thead>
               <tr>
-                <th>Category</th>
-                <th>Who for</th>
-                <th>Pricing (OMR)</th>
-                <th>Status</th>
+                <th>{t.common.category}</th>
+                <th>{t.common.whoFor}</th>
+                <th>{t.ceo.pricingOmr}</th>
+                <th>{t.common.status}</th>
               </tr>
             </thead>
             <tbody>
@@ -261,7 +263,7 @@ export function CeoFinance() {
                   <td>{f.category}</td>
                   <td>{f.whoFor}</td>
                   <td>
-                    <strong>{f.amountOmr || '—'}</strong>
+                    <strong>{f.amountOmr || t.common.emDash}</strong>
                   </td>
                   <td>
                     <StatusChip status={f.status} />
@@ -278,6 +280,7 @@ export function CeoFinance() {
 
 export function CeoTeam() {
   const { session, store, saveMemberMeta, saveMemberPassword } = useAdmin()
+  const { t } = useAdminLocale()
   const [jobDrafts, setJobDrafts] = useState<Record<string, string>>({})
   const [draftPasswords, setDraftPasswords] = useState<Record<string, string>>(
     {},
@@ -292,7 +295,7 @@ export function CeoTeam() {
   async function saveJob(id: string) {
     const jobTitle = (jobDrafts[id] ?? '').trim()
     if (!jobTitle) {
-      setMsg('Job title cannot be empty.')
+      setMsg(t.ceo.jobEmpty)
       return
     }
     try {
@@ -302,37 +305,34 @@ export function CeoTeam() {
         delete next[id]
         return next
       })
-      setMsg('Job title saved.')
+      setMsg(t.ceo.jobSaved)
     } catch (e) {
-      setMsg(e instanceof Error ? e.message : 'Save failed')
+      setMsg(e instanceof Error ? e.message : t.common.saveFailed)
     }
   }
 
   async function savePassword(id: string) {
     const password = (draftPasswords[id] || '').trim()
     if (password.length < 6) {
-      setMsg('New password must be at least 6 characters.')
+      setMsg(t.ceo.passwordShort)
       return
     }
     try {
       await saveMemberPassword(id, password)
       setDraftPasswords((prev) => ({ ...prev, [id]: '' }))
-      setMsg('Password updated (hash stored in Supabase).')
+      setMsg(t.ceo.passwordUpdated)
     } catch (e) {
-      setMsg(e instanceof Error ? e.message : 'Password update failed')
+      setMsg(e instanceof Error ? e.message : t.ceo.passwordUpdateFailed)
     }
   }
 
   return (
     <div>
-      <div className="admin-crumb">CEO / Team & access</div>
+      <div className="admin-crumb">{t.ceo.crumbTeam}</div>
       <div className="admin-page-head">
         <div>
-          <h1>Team & access</h1>
-          <p>
-            Edit jobs and set new passwords. Hashes live in Supabase — plaintext
-            is never loaded. Social media teammates have no admin module.
-          </p>
+          <h1>{t.ceo.titleTeam}</h1>
+          <p>{t.ceo.ledeTeam}</p>
         </div>
       </div>
       {msg && <div className="admin-banner info">{msg}</div>}
@@ -340,11 +340,11 @@ export function CeoTeam() {
         <table className="admin-table">
           <thead>
             <tr>
-              <th>Name</th>
-              <th>Job / role</th>
-              <th>New password</th>
-              <th>Admin?</th>
-              <th>Active</th>
+              <th>{t.ceo.colName}</th>
+              <th>{t.ceo.colJob}</th>
+              <th>{t.ceo.colPassword}</th>
+              <th>{t.ceo.colAdmin}</th>
+              <th>{t.ceo.colActive}</th>
             </tr>
           </thead>
           <tbody>
@@ -375,7 +375,7 @@ export function CeoTeam() {
                         style={{ padding: '0.35rem 0.55rem', fontSize: '0.75rem' }}
                         onClick={() => void saveJob(m.id)}
                       >
-                        Save
+                        {t.common.save}
                       </button>
                     </div>
                   ) : (
@@ -388,7 +388,7 @@ export function CeoTeam() {
                       <input
                         type="password"
                         value={draftPasswords[m.id] ?? ''}
-                        placeholder="Set new…"
+                        placeholder={t.ceo.setNewPassword}
                         onChange={(e) =>
                           setDraftPasswords((prev) => ({
                             ...prev,
@@ -410,14 +410,14 @@ export function CeoTeam() {
                         style={{ padding: '0.35rem 0.55rem', fontSize: '0.75rem' }}
                         onClick={() => void savePassword(m.id)}
                       >
-                        Set
+                        {t.common.set}
                       </button>
                     </div>
                   ) : (
-                    <span className="admin-muted">External / no dashboard</span>
+                    <span className="admin-muted">{t.ceo.externalNoDash}</span>
                   )}
                 </td>
-                <td>{m.hasAdmin ? 'Yes' : 'No'}</td>
+                <td>{m.hasAdmin ? t.common.yes : t.common.no}</td>
                 <td>
                   <input
                     type="checkbox"
@@ -425,10 +425,10 @@ export function CeoTeam() {
                     disabled={!m.hasAdmin}
                     onChange={(e) =>
                       void saveMemberMeta(m.id, { isActive: e.target.checked })
-                        .then(() => setMsg('Active flag saved.'))
+                        .then(() => setMsg(t.ceo.activeSaved))
                         .catch((err) =>
                           setMsg(
-                            err instanceof Error ? err.message : 'Save failed',
+                            err instanceof Error ? err.message : t.common.saveFailed,
                           ),
                         )
                     }
@@ -443,8 +443,8 @@ export function CeoTeam() {
   )
 }
 
-function formatDuration(ms: number | null): string {
-  if (ms == null || Number.isNaN(ms) || ms < 0) return '—'
+function formatDuration(ms: number | null, emDash: string): string {
+  if (ms == null || Number.isNaN(ms) || ms < 0) return emDash
   const hours = Math.round(ms / (1000 * 60 * 60))
   if (hours < 48) return `${hours}h`
   return `${Math.round(hours / 24)}d`
@@ -515,46 +515,44 @@ function publishPipeline(activity: { actor: string; action: string; summary: str
 
 export function CeoActivity() {
   const { store } = useAdmin()
+  const { t } = useAdminLocale()
   const pipeline = publishPipeline(store.activity)
 
   return (
     <div>
-      <div className="admin-crumb">CEO / Activity</div>
+      <div className="admin-crumb">{t.ceo.crumbActivity}</div>
       <div className="admin-page-head">
         <div>
-          <h1>Activity feed</h1>
-          <p>
-            Who drafted, who cleared safety, time-to-publish — from
-            activity_log (not PostHog).
-          </p>
+          <h1>{t.ceo.titleActivity}</h1>
+          <p>{t.ceo.ledeActivity}</p>
         </div>
       </div>
 
       <div className="admin-panel" style={{ marginBottom: '1rem' }}>
         <h3 style={{ margin: '0 0 0.75rem', fontSize: '1rem' }}>
-          Publish pipeline
+          {t.ceo.publishPipeline}
         </h3>
         {pipeline.length === 0 ? (
-          <div className="admin-empty">No draft → publish trails yet.</div>
+          <div className="admin-empty">{t.ceo.emptyPipeline}</div>
         ) : (
           <table className="admin-table">
             <thead>
               <tr>
-                <th>Place</th>
-                <th>Drafted by</th>
-                <th>Safety cleared by</th>
-                <th>Published by</th>
-                <th>Time to publish</th>
+                <th>{t.ceo.colPlace}</th>
+                <th>{t.ceo.draftedBy}</th>
+                <th>{t.ceo.safetyClearedBy}</th>
+                <th>{t.ceo.publishedBy}</th>
+                <th>{t.ceo.timeToPublish}</th>
               </tr>
             </thead>
             <tbody>
               {pipeline.map((row) => (
                 <tr key={row.place}>
                   <td>{row.place}</td>
-                  <td>{row.draftedBy || '—'}</td>
-                  <td>{row.safetyBy || '—'}</td>
-                  <td>{row.publishedBy || '—'}</td>
-                  <td>{formatDuration(row.timeToPublishMs)}</td>
+                  <td>{row.draftedBy || t.common.emDash}</td>
+                  <td>{row.safetyBy || t.common.emDash}</td>
+                  <td>{row.publishedBy || t.common.emDash}</td>
+                  <td>{formatDuration(row.timeToPublishMs, t.common.emDash)}</td>
                 </tr>
               ))}
             </tbody>
@@ -564,15 +562,15 @@ export function CeoActivity() {
 
       <div className="admin-panel">
         {store.activity.length === 0 ? (
-          <div className="admin-empty">Activity feed is empty.</div>
+          <div className="admin-empty">{t.ceo.emptyFeed}</div>
         ) : (
           <table className="admin-table">
             <thead>
               <tr>
-                <th>When</th>
-                <th>Who</th>
-                <th>Action</th>
-                <th>Summary</th>
+                <th>{t.common.when}</th>
+                <th>{t.common.who}</th>
+                <th>{t.common.action}</th>
+                <th>{t.common.summary}</th>
               </tr>
             </thead>
             <tbody>
@@ -596,25 +594,24 @@ export function CeoActivity() {
 
 export function CeoAnalytics() {
   const { waitlist } = useAdmin()
+  const { t } = useAdminLocale()
   return (
     <div>
-      <div className="admin-crumb">CEO / Analytics</div>
+      <div className="admin-crumb">{t.ceo.crumbAnalytics}</div>
       <div className="admin-page-head">
         <div>
-          <h1>Site analytics</h1>
-          <p>Live waitlist count now. Traffic charts when Vercel Analytics is wired.</p>
+          <h1>{t.ceo.titleAnalytics}</h1>
+          <p>{t.ceo.ledeAnalytics}</p>
         </div>
       </div>
       <div className="admin-stats">
         <div className="admin-stat">
           <div className="n">{waitlist.length}</div>
-          <div className="l">Waitlist signups</div>
+          <div className="l">{t.ceo.waitlistSignups}</div>
         </div>
       </div>
       <div className="admin-panel admin-coming">
-        <p className="admin-muted">
-          No traffic charts yet — this screen stays empty until analytics are connected.
-        </p>
+        <p className="admin-muted">{t.ceo.noCharts}</p>
       </div>
     </div>
   )
@@ -622,24 +619,25 @@ export function CeoAnalytics() {
 
 export function CeoWaitlist() {
   const { waitlist } = useAdmin()
+  const { t } = useAdminLocale()
   return (
     <div>
-      <div className="admin-crumb">CEO / Waitlist</div>
+      <div className="admin-crumb">{t.ceo.crumbWaitlist}</div>
       <div className="admin-page-head">
         <div>
-          <h1>Waitlist</h1>
-          <p>Emails from the marketing site (Supabase waitlist table).</p>
+          <h1>{t.ceo.titleWaitlist}</h1>
+          <p>{t.ceo.ledeWaitlist}</p>
         </div>
       </div>
       <div className="admin-panel">
         {waitlist.length === 0 ? (
-          <div className="admin-empty">No waitlist emails yet.</div>
+          <div className="admin-empty">{t.ceo.emptyWaitlist}</div>
         ) : (
           <table className="admin-table">
             <thead>
               <tr>
-                <th>Email</th>
-                <th>Joined</th>
+                <th>{t.common.email}</th>
+                <th>{t.common.joined}</th>
               </tr>
             </thead>
             <tbody>

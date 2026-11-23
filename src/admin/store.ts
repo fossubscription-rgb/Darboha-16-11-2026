@@ -10,25 +10,26 @@ export type AdminStore = {
 export type RequiredProgress = {
   done: number
   total: number
+  /** Stable keys under adminCopy.*.req */
   missing: string[]
   percent: number
 }
 
 /** Required DA fields before submit-for-safety. */
 export function daRequiredProgress(place: Place): RequiredProgress {
-  const checks: { label: string; ok: boolean }[] = [
-    { label: 'Name EN', ok: !!place.nameEn.trim() },
-    { label: 'Name AR', ok: !!place.nameAr.trim() },
-    { label: 'Summary EN', ok: !!place.summaryEn.trim() },
-    { label: 'Summary AR', ok: !!place.summaryAr.trim() },
-    { label: 'Region', ok: !!place.region.trim() },
-    { label: 'Difficulty', ok: !!place.difficulty },
-    { label: 'Season from', ok: !!place.seasonFrom },
-    { label: 'Season to', ok: !!place.seasonTo },
-    { label: 'Hike length (km)', ok: !!place.distanceKm.trim() },
-    { label: 'Estimated time', ok: !!place.durationText.trim() },
+  const checks: { key: string; ok: boolean }[] = [
+    { key: 'nameEn', ok: !!place.nameEn.trim() },
+    { key: 'nameAr', ok: !!place.nameAr.trim() },
+    { key: 'summaryEn', ok: !!place.summaryEn.trim() },
+    { key: 'summaryAr', ok: !!place.summaryAr.trim() },
+    { key: 'region', ok: !!place.region.trim() },
+    { key: 'difficulty', ok: !!place.difficulty },
+    { key: 'seasonFrom', ok: !!place.seasonFrom },
+    { key: 'seasonTo', ok: !!place.seasonTo },
+    { key: 'hikeLength', ok: !!place.distanceKm.trim() },
+    { key: 'estimatedTime', ok: !!place.durationText.trim() },
     {
-      label: 'Start place (Maps)',
+      key: 'startPlaceMap',
       ok:
         !!place.startPlacePlaceId.trim() &&
         place.startPlaceLat != null &&
@@ -38,7 +39,7 @@ export function daRequiredProgress(place: Place): RequiredProgress {
         !!place.startPlaceAr.trim(),
     },
     {
-      label: 'End place (Maps)',
+      key: 'endPlaceMap',
       ok:
         !!place.endPlacePlaceId.trim() &&
         place.endPlaceLat != null &&
@@ -47,11 +48,11 @@ export function daRequiredProgress(place: Place): RequiredProgress {
         !!place.endPlaceEn.trim() &&
         !!place.endPlaceAr.trim(),
     },
-    { label: 'Vehicle access', ok: !!place.vehicleAccess },
-    { label: 'Access notes EN', ok: !!place.accessNotesEn.trim() },
-    { label: 'Access notes AR', ok: !!place.accessNotesAr.trim() },
+    { key: 'vehicleAccess', ok: !!place.vehicleAccess },
+    { key: 'accessNotesEn', ok: !!place.accessNotesEn.trim() },
+    { key: 'accessNotesAr', ok: !!place.accessNotesAr.trim() },
     {
-      label: 'Nearby amenities (Maps)',
+      key: 'nearbyAmenities',
       ok:
         place.nearbyAmenities.some(
           (a) =>
@@ -64,16 +65,21 @@ export function daRequiredProgress(place: Place): RequiredProgress {
         !!place.amenitiesNotesEn.trim() ||
         !!place.amenitiesNotesAr.trim(),
     },
-    { label: 'Photos (2–10)', ok: place.photos.length >= 2 && place.photos.length <= 10 },
-    { label: 'Cover photo', ok: place.photos.some((p) => p.isCover) },
     {
-      label: 'Photo captions EN+AR',
+      key: 'photos',
+      ok: place.photos.length >= 2 && place.photos.length <= 10,
+    },
+    { key: 'cover', ok: place.photos.some((p) => p.isCover) },
+    {
+      key: 'captions',
       ok:
         place.photos.length >= 2 &&
-        place.photos.every((p) => !!p.captionEn?.trim() && !!p.captionAr?.trim()),
+        place.photos.every(
+          (p) => !!p.captionEn?.trim() && !!p.captionAr?.trim(),
+        ),
     },
   ]
-  const missing = checks.filter((c) => !c.ok).map((c) => c.label)
+  const missing = checks.filter((c) => !c.ok).map((c) => c.key)
   const done = checks.length - missing.length
   return {
     done,
@@ -83,15 +89,19 @@ export function daRequiredProgress(place: Place): RequiredProgress {
   }
 }
 
-export function daCanSubmit(place: Place): string | null {
+/** Returns missing requirement keys, or null if ready. */
+export function daCanSubmit(place: Place): string[] | null {
   const progress = daRequiredProgress(place)
   if (progress.missing.length === 0) return null
-  return `Still needed: ${progress.missing.slice(0, 4).join(', ')}${
-    progress.missing.length > 4 ? '…' : ''
-  }`
+  return progress.missing
 }
 
-export function safetyComplete(place: Place): string | null {
+export type SafetyBlocker =
+  | { code: 'choose'; field: string }
+  | { code: 'emergency' }
+  | { code: 'clinic' }
+
+export function safetyComplete(place: Place): SafetyBlocker | null {
   const s = place.safety
   const dropdownKeys: (keyof typeof s)[] = [
     'hazards',
@@ -104,11 +114,11 @@ export function safetyComplete(place: Place): string | null {
   ]
   for (const key of dropdownKeys) {
     if (typeof s[key] === 'string' && !String(s[key]).trim()) {
-      return `Safety: choose “${key}” before Ready.`
+      return { code: 'choose', field: String(key) }
     }
   }
   if (!s.emergencyContacts.trim()) {
-    return 'Safety: emergency contacts are required before Ready.'
+    return { code: 'emergency' }
   }
   if (
     !s.nearestClinic.trim() ||
@@ -117,7 +127,7 @@ export function safetyComplete(place: Place): string | null {
     s.nearestClinicLng == null ||
     !s.nearestClinicMapsUrl.trim()
   ) {
-    return 'Safety: pick nearest clinic on the map (OpenStreetMap) before Ready.'
+    return { code: 'clinic' }
   }
   return null
 }

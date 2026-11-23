@@ -1,5 +1,6 @@
-import { OsmPlacePicker } from './OsmPlacePicker'
+import { useAdminLocale } from '../AdminLocale'
 import type { PlaceAmenity } from '../types'
+import { OsmPlacePicker } from './OsmPlacePicker'
 
 type Props = {
   value: PlaceAmenity
@@ -16,6 +17,7 @@ export function AmenityMapPicker({
   onRemove,
   kindOptions,
 }: Props) {
+  const { t } = useAdminLocale()
   return (
     <div
       style={{
@@ -26,7 +28,7 @@ export function AmenityMapPicker({
     >
       <div className="admin-form-grid" style={{ marginBottom: '0.45rem' }}>
         <div className="admin-field">
-          <label>Kind</label>
+          <label>{t.map.kind}</label>
           <select
             value={value.kind}
             disabled={disabled}
@@ -53,16 +55,16 @@ export function AmenityMapPicker({
               style={{ padding: '0.35rem 0.55rem', fontSize: '0.75rem' }}
               onClick={onRemove}
             >
-              Remove
+              {t.common.remove}
             </button>
           ) : null}
         </div>
       </div>
 
       <OsmPlacePicker
-        label="Nearby place (OpenStreetMap)"
-        hint="Search cafes / shops / services, or click the map. Stores name, place id, lat/lng, maps URL."
-        searchPlaceholder="Search coffee shops / amenities in Oman…"
+        label={t.map.nearbyPlace}
+        hint={t.map.nearbyHint}
+        searchPlaceholder={t.map.nearbySearch}
         disabled={disabled}
         mapHeight={200}
         value={{
@@ -87,7 +89,7 @@ export function AmenityMapPicker({
 
       <div className="admin-form-grid" style={{ marginTop: '0.35rem' }}>
         <div className="admin-field">
-          <label>Name (EN)</label>
+          <label>{t.editor.nameEn}</label>
           <input
             value={value.nameEn}
             disabled={disabled}
@@ -95,7 +97,7 @@ export function AmenityMapPicker({
           />
         </div>
         <div className="admin-field">
-          <label>الاسم (AR)</label>
+          <label>{t.editor.nameAr}</label>
           <input
             dir="rtl"
             value={value.nameAr}

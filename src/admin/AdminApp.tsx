@@ -37,6 +37,7 @@ import {
   CeoWaitlist,
 } from './pages/CeoPages'
 import type { RoleKey } from './types'
+import { AdminLocaleProvider } from './AdminLocale'
 import './admin.css'
 
 /**
@@ -275,10 +276,10 @@ function AdminRoutes() {
 
 export default function AdminApp() {
   return (
-    <div className="admin-root">
+    <AdminLocaleProvider>
       <AdminProvider>
         <AdminRoutes />
       </AdminProvider>
-    </div>
+    </AdminLocaleProvider>
   )
 }

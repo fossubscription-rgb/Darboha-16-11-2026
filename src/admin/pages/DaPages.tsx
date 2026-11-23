@@ -1,5 +1,6 @@
 import { Link, useNavigate } from 'react-router-dom'
 import { useAdmin } from '../AdminContext'
+import { useAdminLocale } from '../AdminLocale'
 import { formatPlaceOwner } from '../constants'
 import { StatusChip } from '../components/StatusChip'
 import { PlaceEditor } from '../components/PlaceEditor'
@@ -7,6 +8,7 @@ import { blankPlace } from '../mockData'
 
 export function DaMyPlaces() {
   const { session, store, savePlace } = useAdmin()
+  const { t } = useAdminLocale()
   const navigate = useNavigate()
   if (!session) return null
 
@@ -23,43 +25,39 @@ export function DaMyPlaces() {
       await savePlace(place, {
         activity: {
           action: 'place.created',
-          summary: 'Created a new draft place',
+          summary: t.da.createdDraft,
         },
       })
       navigate(`/admin/da/places/${place.id}`)
     } catch (e) {
-      alert(e instanceof Error ? e.message : 'Create failed')
+      alert(e instanceof Error ? e.message : t.common.createFailed)
     }
   }
 
   return (
     <div>
-      <div className="admin-crumb">Data Analyst / My places</div>
+      <div className="admin-crumb">{t.da.crumbMine}</div>
       <div className="admin-page-head">
         <div>
-          <h1>My places</h1>
-          <p>
-            Create and edit your places. You can also edit teammates’ places from
-            Team places — ownership always stays with the creator. Tabs: Basics ·
-            Access · Photos.
-          </p>
+          <h1>{t.da.titleMine}</h1>
+          <p>{t.da.ledeMine}</p>
         </div>
         <button type="button" className="admin-btn" onClick={() => void create()}>
-          New place
+          {t.da.newPlace}
         </button>
       </div>
       <div className="admin-panel">
         {mine.length === 0 ? (
-          <div className="admin-empty">No places yet — create your first draft.</div>
+          <div className="admin-empty">{t.da.emptyMine}</div>
         ) : (
           <table className="admin-table">
             <thead>
               <tr>
-                <th>Name</th>
-                <th>Whose work</th>
-                <th>Region</th>
-                <th>Status</th>
-                <th>Updated</th>
+                <th>{t.common.name}</th>
+                <th>{t.common.whoseWork}</th>
+                <th>{t.common.region}</th>
+                <th>{t.common.status}</th>
+                <th>{t.common.updated}</th>
               </tr>
             </thead>
             <tbody>
@@ -67,13 +65,13 @@ export function DaMyPlaces() {
                 <tr key={p.id}>
                   <td>
                     <Link to={`/admin/da/places/${p.id}`}>
-                      {p.nameEn || 'Untitled'}
+                      {p.nameEn || t.common.untitled}
                     </Link>
                   </td>
                   <td>
                     <span className="admin-owner-pill">{p.ownerLabel}</span>
                   </td>
-                  <td>{p.region || '—'}</td>
+                  <td>{p.region || t.common.emDash}</td>
                   <td>
                     <StatusChip status={p.status} />
                   </td>
@@ -90,33 +88,29 @@ export function DaMyPlaces() {
 
 export function DaTeamPlaces() {
   const { session, store } = useAdmin()
+  const { t } = useAdminLocale()
   if (!session) return null
   const team = store.places.filter((p) => p.createdBy !== session.memberId)
 
   return (
     <div>
-      <div className="admin-crumb">Data Analyst / Team places</div>
+      <div className="admin-crumb">{t.da.crumbTeam}</div>
       <div className="admin-page-head">
         <div>
-          <h1>Team places</h1>
-          <p>
-            Edit coworkers’ places when needed. Each row shows whose work it is —
-            ownership does not change when you save.
-          </p>
+          <h1>{t.da.titleTeam}</h1>
+          <p>{t.da.ledeTeam}</p>
         </div>
       </div>
       <div className="admin-panel">
         {team.length === 0 ? (
-          <div className="admin-empty">
-            No teammate places yet — the catalogue is empty until someone drafts one.
-          </div>
+          <div className="admin-empty">{t.da.emptyTeam}</div>
         ) : (
           <table className="admin-table">
             <thead>
               <tr>
-                <th>Name</th>
-                <th>Whose work</th>
-                <th>Status</th>
+                <th>{t.common.name}</th>
+                <th>{t.common.whoseWork}</th>
+                <th>{t.common.status}</th>
                 <th></th>
               </tr>
             </thead>
@@ -125,7 +119,7 @@ export function DaTeamPlaces() {
                 <tr key={p.id}>
                   <td>
                     <Link to={`/admin/da/places/${p.id}`}>
-                      {p.nameEn || 'Untitled'}
+                      {p.nameEn || t.common.untitled}
                     </Link>
                   </td>
                   <td>
@@ -144,7 +138,7 @@ export function DaTeamPlaces() {
                         fontSize: '0.82rem',
                       }}
                     >
-                      Edit
+                      {t.common.edit}
                     </Link>
                   </td>
                 </tr>

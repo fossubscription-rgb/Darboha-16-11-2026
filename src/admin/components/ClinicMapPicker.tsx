@@ -1,3 +1,4 @@
+import { useAdminLocale } from '../AdminLocale'
 import { OsmPlacePicker } from './OsmPlacePicker'
 
 export type ClinicSelection = {
@@ -15,11 +16,12 @@ type Props = {
 }
 
 export function ClinicMapPicker({ value, disabled, onChange }: Props) {
+  const { t } = useAdminLocale()
   return (
     <OsmPlacePicker
-      label="Nearest clinic (OpenStreetMap — required)"
-      hint="Search and pick a hospital / clinic on the free OSM map (or click the map). Name, place id, coords, and maps URL are saved."
-      searchPlaceholder="Search clinics / hospitals in Oman…"
+      label={t.map.clinicLabel}
+      hint={t.map.clinicHint}
+      searchPlaceholder={t.map.clinicSearch}
       disabled={disabled}
       mapHeight={260}
       value={{

@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import type { FormEvent } from 'react'
 import { Link, useNavigate, useParams } from 'react-router-dom'
 import { useAdmin } from '../AdminContext'
+import { useAdminLocale } from '../AdminLocale'
 import { PlaceEditor } from '../components/PlaceEditor'
 import { StatusChip } from '../components/StatusChip'
 import { blankFinance } from '../mockData'
@@ -9,6 +10,7 @@ import type { FinanceDraft } from '../types'
 
 export function CfoDrafts() {
   const { session, store, saveFinance } = useAdmin()
+  const { t } = useAdminLocale()
   const navigate = useNavigate()
   if (!session) return null
 
@@ -19,35 +21,33 @@ export function CfoDrafts() {
       await saveFinance(draft)
       navigate(`/admin/cfo/drafts/${draft.id}`)
     } catch (e) {
-      alert(e instanceof Error ? e.message : 'Create failed')
+      alert(e instanceof Error ? e.message : t.common.createFailed)
     }
   }
 
   return (
     <div>
-      <div className="admin-crumb">CFO / Budget drafts</div>
+      <div className="admin-crumb">{t.cfo.crumbDrafts}</div>
       <div className="admin-page-head">
         <div>
-          <h1>Budget & pricing drafts</h1>
-          <p>Category · who-for · description. CEO approves.</p>
+          <h1>{t.cfo.titleDrafts}</h1>
+          <p>{t.cfo.ledeDrafts}</p>
         </div>
         <button type="button" className="admin-btn" onClick={() => void create()}>
-          New draft
+          {t.cfo.newDraft}
         </button>
       </div>
       <div className="admin-panel">
         {store.finance.length === 0 ? (
-          <div className="admin-empty">
-            No budget drafts yet — create the first line when you need CEO approval.
-          </div>
+          <div className="admin-empty">{t.cfo.emptyDrafts}</div>
         ) : (
           <table className="admin-table">
             <thead>
               <tr>
-                <th>Category</th>
-                <th>Who for</th>
-                <th>Amount (OMR)</th>
-                <th>Status</th>
+                <th>{t.common.category}</th>
+                <th>{t.common.whoFor}</th>
+                <th>{t.common.amountOmr}</th>
+                <th>{t.common.status}</th>
               </tr>
             </thead>
             <tbody>
@@ -55,12 +55,12 @@ export function CfoDrafts() {
                 <tr key={f.id}>
                   <td>
                     <Link to={`/admin/cfo/drafts/${f.id}`}>
-                      {f.category || 'Untitled'}
+                      {f.category || t.common.untitled}
                     </Link>
                   </td>
-                  <td>{f.whoFor || '—'}</td>
+                  <td>{f.whoFor || t.common.emDash}</td>
                   <td>
-                    <strong>{f.amountOmr || '—'}</strong>
+                    <strong>{f.amountOmr || t.common.emDash}</strong>
                   </td>
                   <td>
                     <StatusChip status={f.status} />
@@ -78,6 +78,7 @@ export function CfoDrafts() {
 export function CfoDraftEditor() {
   const { id } = useParams()
   const { session, store, saveFinance } = useAdmin()
+  const { t } = useAdminLocale()
   const existing = store.finance.find((f) => f.id === id)
   const [draft, setDraft] = useState<FinanceDraft | null>(() =>
     existing ? structuredClone(existing) : null,
@@ -92,8 +93,8 @@ export function CfoDraftEditor() {
   if (!session || !draft) {
     return (
       <div className="admin-panel">
-        <p>Draft not found.</p>
-        <Link to="/admin/cfo">Back</Link>
+        <p>{t.cfo.draftNotFound}</p>
+        <Link to="/admin/cfo">{t.common.back}</Link>
       </div>
     )
   }
@@ -108,20 +109,20 @@ export function CfoDraftEditor() {
     try {
       await saveFinance(next)
       setDraft(next)
-      setMsg('Saved to Supabase.')
+      setMsg(t.common.savedSupabase)
     } catch (err) {
-      setMsg(err instanceof Error ? err.message : 'Save failed')
+      setMsg(err instanceof Error ? err.message : t.common.saveFailed)
     }
   }
 
   async function submitApproval() {
     if (!draft || !session) return
     if (!draft.category.trim() || !draft.whoFor.trim() || !draft.description.trim()) {
-      setMsg('Category, who-for, and description are required.')
+      setMsg(t.cfo.requiredFields)
       return
     }
     if (!draft.amountOmr.trim()) {
-      setMsg('Pricing (OMR) is required before submitting for CEO approval.')
+      setMsg(t.cfo.pricingRequired)
       return
     }
     const next: FinanceDraft = {
@@ -135,20 +136,21 @@ export function CfoDraftEditor() {
         summary: `Submitted ${next.category} for approval`,
       })
       setDraft(next)
-      setMsg('Submitted for CEO approval.')
+      setMsg(t.cfo.submittedCeo)
     } catch (err) {
-      setMsg(err instanceof Error ? err.message : 'Submit failed')
+      setMsg(err instanceof Error ? err.message : t.common.submitFailed)
     }
   }
 
   return (
     <div>
       <div className="admin-crumb">
-        <Link to="/admin/cfo">Budget drafts</Link> / {draft.category || 'Untitled'}
+        <Link to="/admin/cfo">{t.nav.budgetDrafts}</Link> /{' '}
+        {draft.category || t.common.untitled}
       </div>
       <div className="admin-page-head">
         <div>
-          <h1>{draft.category || 'Untitled draft'}</h1>
+          <h1>{draft.category || t.common.untitledDraft}</h1>
           <p>
             <StatusChip status={draft.status} />
           </p>
@@ -158,21 +160,21 @@ export function CfoDraftEditor() {
       <form className="admin-panel" onSubmit={(e) => void onSave(e)}>
         <div className="admin-form-grid">
           <div className="admin-field">
-            <label>Category</label>
+            <label>{t.common.category}</label>
             <input
               value={draft.category}
               onChange={(e) => setDraft({ ...draft, category: e.target.value })}
             />
           </div>
           <div className="admin-field">
-            <label>Who for</label>
+            <label>{t.common.whoFor}</label>
             <input
               value={draft.whoFor}
               onChange={(e) => setDraft({ ...draft, whoFor: e.target.value })}
             />
           </div>
           <div className="admin-field full">
-            <label>Description</label>
+            <label>{t.common.description}</label>
             <textarea
               value={draft.description}
               onChange={(e) =>
@@ -181,17 +183,17 @@ export function CfoDraftEditor() {
             />
           </div>
           <div className="admin-field">
-            <label>Pricing (OMR) — required for approval</label>
+            <label>{t.cfo.pricingLabel}</label>
             <input
               value={draft.amountOmr}
               onChange={(e) => setDraft({ ...draft, amountOmr: e.target.value })}
-              placeholder="e.g. 45"
+              placeholder={t.cfo.pricingPlaceholder}
             />
           </div>
         </div>
         <div className="admin-actions">
           <button type="submit" className="admin-btn secondary">
-            Save
+            {t.common.save}
           </button>
           {draft.status === 'draft' && (
             <button
@@ -199,7 +201,7 @@ export function CfoDraftEditor() {
               className="admin-btn"
               onClick={() => void submitApproval()}
             >
-              Submit for approval
+              {t.cfo.submitApproval}
             </button>
           )}
         </div>
@@ -210,31 +212,27 @@ export function CfoDraftEditor() {
 
 export function CfoPlaces() {
   const { store } = useAdmin()
+  const { t } = useAdminLocale()
   return (
     <div>
-      <div className="admin-crumb">CFO / VP · Places</div>
+      <div className="admin-crumb">{t.cfo.crumbPlaces}</div>
       <div className="admin-page-head">
         <div>
-          <h1>Places (read-only)</h1>
-          <p>
-            VP glance — open any place to view Basics / Access / Photos / Safety.
-            No edits.
-          </p>
+          <h1>{t.cfo.titlePlaces}</h1>
+          <p>{t.cfo.ledePlaces}</p>
         </div>
       </div>
       <div className="admin-panel">
         {store.places.length === 0 ? (
-          <div className="admin-empty">
-            No places yet — empty until analysts add the first draft.
-          </div>
+          <div className="admin-empty">{t.cfo.emptyPlaces}</div>
         ) : (
           <table className="admin-table">
             <thead>
               <tr>
-                <th>Name</th>
-                <th>Whose work</th>
-                <th>Region</th>
-                <th>Status</th>
+                <th>{t.common.name}</th>
+                <th>{t.common.whoseWork}</th>
+                <th>{t.common.region}</th>
+                <th>{t.common.status}</th>
               </tr>
             </thead>
             <tbody>
@@ -242,13 +240,13 @@ export function CfoPlaces() {
                 <tr key={p.id}>
                   <td>
                     <Link to={`/admin/cfo/places/${p.id}`}>
-                      {p.nameEn || 'Untitled'}
+                      {p.nameEn || t.common.untitled}
                     </Link>
                   </td>
                   <td>
                     <span className="admin-owner-pill">{p.ownerLabel}</span>
                   </td>
-                  <td>{p.region || '—'}</td>
+                  <td>{p.region || t.common.emDash}</td>
                   <td>
                     <StatusChip status={p.status} />
                   </td>
@@ -268,27 +266,28 @@ export function CfoPlaceDetail({ id }: { id: string }) {
 
 export function CfoActivity() {
   const { store } = useAdmin()
+  const { t } = useAdminLocale()
   const worked = store.members.filter((m) => m.hasAdmin && m.workedThisWeek)
   const idle = store.members.filter((m) => m.hasAdmin && !m.workedThisWeek)
 
   return (
     <div>
-      <div className="admin-crumb">CFO / VP · Activity</div>
+      <div className="admin-crumb">{t.cfo.crumbActivity}</div>
       <div className="admin-page-head">
         <div>
-          <h1>Team activity</h1>
-          <p>Who’s been working — read-only VP view from activity_log.</p>
+          <h1>{t.cfo.titleActivity}</h1>
+          <p>{t.cfo.ledeActivity}</p>
         </div>
       </div>
       <div className="admin-split">
         <div className="admin-panel">
           <h3 style={{ margin: '0 0 0.75rem', fontSize: '1rem' }}>
-            Who worked this week
+            {t.cfo.whoWorked}
           </h3>
           {worked.length === 0 ? (
-            <div className="admin-empty">No admin logins this week yet.</div>
+            <div className="admin-empty">{t.cfo.noLogins}</div>
           ) : (
-            <ul style={{ margin: 0, paddingLeft: '1.1rem' }}>
+            <ul style={{ margin: 0, paddingInlineStart: '1.1rem' }}>
               {worked.map((m) => (
                 <li key={m.id}>
                   {m.displayName} — {m.jobTitle}
@@ -299,12 +298,12 @@ export function CfoActivity() {
         </div>
         <div className="admin-panel">
           <h3 style={{ margin: '0 0 0.75rem', fontSize: '1rem' }}>
-            Who didn’t
+            {t.cfo.whoDidnt}
           </h3>
           {idle.length === 0 ? (
-            <div className="admin-empty">Everyone with admin access logged in.</div>
+            <div className="admin-empty">{t.cfo.everyoneLogged}</div>
           ) : (
-            <ul style={{ margin: 0, paddingLeft: '1.1rem' }}>
+            <ul style={{ margin: 0, paddingInlineStart: '1.1rem' }}>
               {idle.map((m) => (
                 <li key={m.id}>
                   {m.displayName} — {m.jobTitle}
@@ -316,17 +315,17 @@ export function CfoActivity() {
       </div>
       <div className="admin-panel" style={{ marginTop: '1rem' }}>
         <h3 style={{ margin: '0 0 0.75rem', fontSize: '1rem' }}>
-          Recent activity
+          {t.cfo.recentActivity}
         </h3>
         {store.activity.length === 0 ? (
-          <div className="admin-empty">Activity feed is empty.</div>
+          <div className="admin-empty">{t.cfo.emptyActivity}</div>
         ) : (
           <table className="admin-table">
             <thead>
               <tr>
-                <th>When</th>
-                <th>Who</th>
-                <th>Summary</th>
+                <th>{t.common.when}</th>
+                <th>{t.common.who}</th>
+                <th>{t.common.summary}</th>
               </tr>
             </thead>
             <tbody>
@@ -347,28 +346,27 @@ export function CfoActivity() {
 
 export function CfoPublishedGlance() {
   const { store } = useAdmin()
+  const { t } = useAdminLocale()
   const published = store.places.filter((p) => p.status === 'published')
   return (
     <div>
-      <div className="admin-crumb">CFO / Published</div>
+      <div className="admin-crumb">{t.cfo.crumbPublished}</div>
       <div className="admin-page-head">
         <div>
-          <h1>Published glance</h1>
-          <p>Read-only — what’s live on the marketing story.</p>
+          <h1>{t.cfo.titlePublished}</h1>
+          <p>{t.cfo.ledePublished}</p>
         </div>
       </div>
       <div className="admin-panel">
         {published.length === 0 ? (
-          <div className="admin-empty">
-            Nothing published yet — marketing still shows curated preview trails until live places go live.
-          </div>
+          <div className="admin-empty">{t.cfo.emptyPublished}</div>
         ) : (
           <table className="admin-table">
             <thead>
               <tr>
-                <th>Name</th>
-                <th>Region</th>
-                <th>Status</th>
+                <th>{t.common.name}</th>
+                <th>{t.common.region}</th>
+                <th>{t.common.status}</th>
               </tr>
             </thead>
             <tbody>
@@ -376,10 +374,10 @@ export function CfoPublishedGlance() {
                 <tr key={p.id}>
                   <td>
                     <Link to={`/admin/cfo/places/${p.id}`}>
-                      {p.nameEn || 'Untitled'}
+                      {p.nameEn || t.common.untitled}
                     </Link>
                   </td>
-                  <td>{p.region || '—'}</td>
+                  <td>{p.region || t.common.emDash}</td>
                   <td>
                     <StatusChip status={p.status} />
                   </td>
@@ -394,12 +392,13 @@ export function CfoPublishedGlance() {
 }
 
 export function CfoSponsors() {
+  const { t } = useAdminLocale()
   return (
     <div>
-      <div className="admin-crumb">CFO / Sponsors</div>
+      <div className="admin-crumb">{t.cfo.crumbSponsors}</div>
       <div className="admin-panel admin-coming">
-        <h2>Sponsors</h2>
-        <p>Coming later إن شاء الله</p>
+        <h2>{t.cfo.sponsorsTitle}</h2>
+        <p>{t.cfo.sponsorsComing}</p>
       </div>
     </div>
   )
