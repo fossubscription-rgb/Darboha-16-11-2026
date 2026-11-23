@@ -27,10 +27,26 @@ export function daRequiredProgress(place: Place): RequiredProgress {
     { label: 'Season to', ok: !!place.seasonTo },
     { label: 'Hike length (km)', ok: !!place.distanceKm.trim() },
     { label: 'Estimated time', ok: !!place.durationText.trim() },
-    { label: 'Start place EN', ok: !!place.startPlaceEn.trim() },
-    { label: 'Start place AR', ok: !!place.startPlaceAr.trim() },
-    { label: 'End place EN', ok: !!place.endPlaceEn.trim() },
-    { label: 'End place AR', ok: !!place.endPlaceAr.trim() },
+    {
+      label: 'Start place (Maps)',
+      ok:
+        !!place.startPlacePlaceId.trim() &&
+        place.startPlaceLat != null &&
+        place.startPlaceLng != null &&
+        !!place.startPlaceMapsUrl.trim() &&
+        !!place.startPlaceEn.trim() &&
+        !!place.startPlaceAr.trim(),
+    },
+    {
+      label: 'End place (Maps)',
+      ok:
+        !!place.endPlacePlaceId.trim() &&
+        place.endPlaceLat != null &&
+        place.endPlaceLng != null &&
+        !!place.endPlaceMapsUrl.trim() &&
+        !!place.endPlaceEn.trim() &&
+        !!place.endPlaceAr.trim(),
+    },
     { label: 'Vehicle access', ok: !!place.vehicleAccess },
     { label: 'Access notes EN', ok: !!place.accessNotesEn.trim() },
     { label: 'Access notes AR', ok: !!place.accessNotesAr.trim() },

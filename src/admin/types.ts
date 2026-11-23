@@ -71,10 +71,19 @@ export type Place = {
   distanceKm: string
   /** Estimated hike time (free text, e.g. 3–5 hours). */
   durationText: string
+  /** Start/end from Leaflet+OSM picker (name + place id + coords + maps URL). */
   startPlaceEn: string
   startPlaceAr: string
+  startPlacePlaceId: string
+  startPlaceLat: number | null
+  startPlaceLng: number | null
+  startPlaceMapsUrl: string
   endPlaceEn: string
   endPlaceAr: string
+  endPlacePlaceId: string
+  endPlaceLat: number | null
+  endPlaceLng: number | null
+  endPlaceMapsUrl: string
   nearbyAmenities: PlaceAmenity[]
   amenitiesNotesEn: string
   amenitiesNotesAr: string
